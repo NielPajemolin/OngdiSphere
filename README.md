@@ -1,4 +1,4 @@
-# 📚 OngdiSphere
+<img width="283" height="584" alt="Screenshot 2025-12-07 at 4 43 24 PM" src="https://github.com/user-attachments/assets/0bfb3f1f-a9df-492d-a01f-6dc7319d3f50" /># 📚 OngdiSphere
 
 ## Project Description
 
@@ -14,8 +14,14 @@ The final application was built from scratch in native Flutter, mirroring the UI
 
 | FlutterFlow Prototype | Final Native Flutter Application |
 | :---: | :---: |
-| [Placeholder for Prototype Screenshot 1] | [Placeholder for Final App Screenshot 1] |
-| [Placeholder for Prototype Screenshot 2] | [Placeholder for Final App Screenshot 2] |
+| [<img width="286" height="587" alt="Screenshot 2025-12-07 at 4 38 32 PM" src="https://github.com/user-attachments/assets/04b57889-c8ae-425c-a225-765fdfa753f2" />
+] | [![photo_6174639323869809548_y](https://github.com/user-attachments/assets/39228156-fbc7-40db-82a1-083a9f62e4ce)
+] |
+| [<img width="283" height="584" alt="Screenshot 2025-12-07 at 4 43 24 PM" src="https://github.com/user-attachments/assets/4e4faed8-2b2d-4ffa-a75d-aad7f21e46e1" />
+] | [Placeholder for Final App Screenshot 2] |
+| [<img width="290" height="588" alt="Screenshot 2025-12-07 at 4 45 24 PM" src="https://github.com/user-attachments/assets/ac8cc1e6-c873-4a21-835f-ec1a8d382636" />
+] | [![photo_6174639323869809550_y](https://github.com/user-attachments/assets/eed04068-0545-405d-9636-a40f5b63399f)
+] |
 
 
 ---
@@ -63,14 +69,16 @@ You'll need a command-line interface (CLI) to download the code.
     cd [YOUR PROJECT DIRECTORY NAME]
     ```
 
-### Step 2: Install Dependencies
+### Step 2: Install Dependencies and Launch
 
-Run the following command inside the project directory to download all necessary packages:
+1.  **Install Dependencies:** Run the following command inside the project directory to download all necessary packages:
 
     ```bash
     flutter pub get
+    ```
 
- **Launch the App:**
+2.  **Launch the App:** Connect a physical device or start an emulator, then run the application:
+
     ```bash
     flutter run
     ```
