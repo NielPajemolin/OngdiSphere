@@ -2,7 +2,7 @@
 
 ## Project Description
 
-Ontrack Sphere is a dedicated mobile application designed to help students and users manage their academic and project workload efficiently. It uses a **Hybrid Storage Model** where user authentication is managed securely via **Firebase**, while core application data (subjects, tasks, and exams) is stored locally using **`shared_preferences`** for lightning-fast performance and full offline availability.
+OngdiSphere is a dedicated mobile application designed to help students and users manage their academic and project workload efficiently. It uses a **Hybrid Storage Model** where user authentication is managed securely via **Firebase**, while core application data (subjects, tasks, and exams) is stored locally using **`shared_preferences`** for lightning-fast performance and full offline availability.
 
 The app uses a strict **BLoC pattern** for state management, ensuring a clear separation of concerns, maintainability, and reliable state transitions across the application.
 
