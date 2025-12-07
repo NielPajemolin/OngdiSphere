@@ -55,7 +55,7 @@ You'll need a command-line interface (CLI) to download the code.
 3.  Execute the `git clone` command, replacing the placeholder with the **Repository URL**:
 
     ```bash
-    git clone [YOUR REPOSITORY URL HERE]
+    git clone [[YOUR REPOSITORY URL HERE]](https://github.com/NielPajemolin/OngdiSphere.git)
     ```
 
 4.  Change into the newly created project directory:
