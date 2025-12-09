@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ongdisphere/animation/app_routes.dart';
 import 'package:ongdisphere/components/loading.dart';
 import 'package:ongdisphere/features/auth/data/firebase_auth_repo.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.dart';
@@ -33,6 +34,25 @@ class MyApp extends StatelessWidget {
   //auth repo
   final firebaseAuthRepo = FirebaseAuthRepo();
 
+  // Helper function to map named routes to their Widgets
+  Widget? _getPage(String? routeName) {
+    switch (routeName) {
+      case '/home':
+        return const HomePage();
+      case '/subjects':
+        return const SubjectPage();
+      case '/tasks':
+        return const TaskPage();
+      case '/exams':
+        return const ExamPage();
+      case '/done':
+        return const DonePage();
+      case '/profile':
+        return ProfilePage();
+      default:
+        return null; // Route not found
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,15 +70,17 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
 
-
-        //routes
-        routes: {
-          '/home': (context) => const HomePage(),
-          '/subjects': (context) => const SubjectPage(),
-          '/tasks': (context) => const TaskPage(),
-          '/exams': (context) => const ExamPage(),
-          '/done': (context) => const DonePage(),
-          '/profile': (context) =>  ProfilePage()
+        // --- CUSTOM ROUTE IMPLEMENTATION ---
+        // This function handles navigation and applies the slide animation.
+        onGenerateRoute: (settings) {
+          final page = _getPage(settings.name);
+          
+          if (page != null) {
+            // Apply the custom transition for all named routes
+            return slideTransitionRoute(page); 
+          }
+          // Fallback route if the path is unrecognized
+          return MaterialPageRoute(builder: (_) => const AuthPage());
         },
 
         //Bloc Auth

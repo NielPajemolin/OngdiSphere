@@ -144,7 +144,8 @@ class _HomePageState extends State<HomePage> {
                           icon: Icons.list,
                           label: "Subjects",
                           onTap: () {
-                            Navigator.pushNamed(context, '/subjects').then((_) {
+                            Navigator.pushNamed(context, '/subjects')
+                            .then((_) {
                               if (mounted) loadData(); // Refresh dashboard after returning
                             });
                           },
