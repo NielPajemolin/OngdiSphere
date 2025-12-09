@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
         content: MyTextfield(
           controller: resetpwController, 
           hintText: "", 
-          labeltext: "ResetPassword", 
+          labeltext: "Enter email...", 
           obscureText: false,
           ),
           actions: [
@@ -66,9 +66,9 @@ class _LoginPageState extends State<LoginPage> {
               String message = 
                   await authCubit.forgotPassword(resetpwController.text);
 
-              if (message == "Password reset email sent! Check your email") {
+              if (message == "Password reset email sent! Check your email.") {
                 Navigator.pop(context);
-                emailController.clear();
+                resetpwController.clear();
               }
 
               ScaffoldMessenger.of(context)
