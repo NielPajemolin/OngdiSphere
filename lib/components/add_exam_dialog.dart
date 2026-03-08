@@ -5,12 +5,18 @@ import '../colorpalette/color_palette.dart';
 import '../storage/subject.dart';
 import '../storage/task.dart';
 
-/// A dialog widget that allows the user to add a new task.
+/// A dialog widget that allows the user to add or edit a task.
 /// Users can select a subject, enter a task title, and pick a deadline date & time.
 /// The dialog is responsive using MediaQuery for sizes.
 class AddTaskDialog extends StatefulWidget {
   final List<Subject> subjects; // List of subjects to choose from
-  const AddTaskDialog({super.key, required this.subjects});
+  final Task? task; // Existing task for editing, null for adding new
+  
+  const AddTaskDialog({
+    super.key,
+    required this.subjects,
+    this.task,
+  });
 
   @override
   State<AddTaskDialog> createState() => _AddTaskDialogState();
@@ -20,6 +26,26 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   final TextEditingController taskController = TextEditingController(); // Controller for task name input
   Subject? selectedSubject; // Currently selected subject from dropdown
   DateTime? selectedDate; // Selected deadline for the task
+
+  @override
+  void initState() {
+    super.initState();
+    // Pre-fill form if editing an existing task
+    if (widget.task != null) {
+      taskController.text = widget.task!.title;
+      selectedSubject = widget.subjects.firstWhere(
+        (s) => s.id == widget.task!.subjectId,
+        orElse: () => widget.subjects.first,
+      );
+      selectedDate = widget.task!.dateTime;
+    }
+  }
+
+  @override
+  void dispose() {
+    taskController.dispose();
+    super.dispose();
+  }
 
   /// Opens date picker followed by time picker to select a full DateTime.
   Future<void> pickDateTime() async {
@@ -43,8 +69,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     });
   }
 
-  /// Called when the "Add" button is pressed.
-  /// Validates inputs and returns the new Task object to the caller.
+  /// Called when the "Add" or "Update" button is pressed.
+  /// Validates inputs and returns the new or updated Task object to the caller.
   void submit() {
     if (taskController.text.isEmpty || selectedSubject == null || selectedDate == null) {
       Navigator.of(context).pop({'error': 'fields-missing'});
@@ -52,15 +78,15 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
     }
 
     final newTask = Task(
-      id: const Uuid().v4(), // Unique ID for the task
+      id: widget.task?.id ?? const Uuid().v4(), // Keep existing ID when editing, generate new when adding
       title: taskController.text,
       subjectId: selectedSubject!.id,
       subjectName: selectedSubject!.name,
       dateTime: selectedDate!,
-      done: false, // Newly created task is not done
+      done: widget.task?.done ?? false, // Keep done status when editing, default to false when adding
     );
 
-    // Pass back the new task and the associated subject
+    // Pass back the task and the associated subject
     Navigator.of(context).pop({'task': newTask, 'subject': selectedSubject});
   }
 
@@ -72,7 +98,10 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
 
     return AlertDialog(
       backgroundColor: colors.surface, // Dialog background color
-      title: Text("Add Task", style: TextStyle(fontSize: screenWidth * 0.05)),
+      title: Text(
+        widget.task == null ? "Add Task" : "Edit Task",
+        style: TextStyle(fontSize: screenWidth * 0.05),
+      ),
       content: SizedBox(
         width: screenWidth * 0.8,
         child: Column(
@@ -133,7 +162,10 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         ),
         TextButton(
           onPressed: submit, // Validate and return the task
-          child: Text("Add", style: TextStyle(fontSize: screenWidth * 0.045)),
+          child: Text(
+            widget.task == null ? "Add" : "Update",
+            style: TextStyle(fontSize: screenWidth * 0.045),
+          ),
         ),
       ],
     );

@@ -7,12 +7,14 @@ class TaskCard extends StatelessWidget {
   final Task task; // The Task object to display
   final ValueChanged<bool?>? onDoneChanged; // Callback for when the done checkbox changes
   final VoidCallback? onDelete; // Callback for when the delete button is pressed
+  final VoidCallback? onEdit; // Callback for when the edit button is pressed
 
   const TaskCard({
     super.key,
     required this.task,
     this.onDoneChanged,
     this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -71,7 +73,7 @@ class TaskCard extends StatelessWidget {
               ),
             ),
 
-            // Action buttons: Done checkbox and Delete button side by side
+            // Action buttons: Done checkbox, Edit, and Delete button
             Row(
               children: [
                 // Checkbox to mark task as done
@@ -80,6 +82,13 @@ class TaskCard extends StatelessWidget {
                   onChanged: onDoneChanged,
                   fillColor: MaterialStateProperty.all(colors.primary), // Checkbox color
                 ),
+                
+                // Edit button (only shown if onEdit is provided)
+                if (onEdit != null)
+                  IconButton(
+                    icon: Icon(Icons.edit, color: colors.primary, size: screenWidth * 0.06),
+                    onPressed: onEdit,
+                  ),
                 
                 // Delete button
                 IconButton(

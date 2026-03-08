@@ -16,6 +16,13 @@ import 'pages/subject_page.dart';
 import 'pages/task_page.dart';
 import 'pages/exam_page.dart';
 import 'pages/done_page.dart';
+import 'storage/isar_database_service.dart';
+import 'storage/repositories/subject_repository.dart';
+import 'storage/repositories/task_repository.dart';
+import 'storage/repositories/exam_repository.dart';
+import 'features/subject/presentation/bloc/subject_bloc.dart';
+import 'features/task/presentation/bloc/task_bloc.dart';
+import 'features/exam/presentation/bloc/exam_bloc.dart';
 
 
 void main() async { 
@@ -23,6 +30,9 @@ void main() async {
   await Firebase.initializeApp(
   options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize Isar database
+  await IsarDatabaseService.initialize();
 
   runApp(MyApp());
 }
@@ -33,6 +43,11 @@ class MyApp extends StatelessWidget {
 
   //auth repo
   final firebaseAuthRepo = FirebaseAuthRepo();
+  
+  // Repositories
+  final subjectRepository = SubjectRepository();
+  final taskRepository = TaskRepository();
+  final examRepository = ExamRepository();
 
   // Helper function to map named routes to their Widgets
   Widget? _getPage(String? routeName) {
@@ -63,6 +78,25 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthCubit>(
           create: (context) => AuthCubit(authRepo: firebaseAuthRepo)
           ..checkAuth(),
+        ),
+        // Subject BLoC
+        BlocProvider<SubjectBloc>(
+          create: (context) => SubjectBloc(
+            subjectRepository: subjectRepository,
+            examRepository: examRepository,
+          ),
+        ),
+        // Task BLoC
+        BlocProvider<TaskBloc>(
+          create: (context) => TaskBloc(
+            taskRepository: taskRepository,
+          ),
+        ),
+        // Exam BLoC
+        BlocProvider<ExamBloc>(
+          create: (context) => ExamBloc(
+            examRepository: examRepository,
+          ),
         ),
       ], 
       //app

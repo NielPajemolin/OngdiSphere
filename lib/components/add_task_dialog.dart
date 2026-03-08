@@ -5,16 +5,19 @@ import '../colorpalette/color_palette.dart';
 import '../storage/subject.dart';
 import '../storage/exam.dart';
 
-/// Shows a dialog for adding a new Exam to a selected Subject.
-/// Returns a Map containing the new exam and the selected subject,
+/// Shows a dialog for adding or editing an Exam.
+/// Returns a Map containing the exam and the selected subject,
 /// or an error message if validation fails.
 Future<Map<String, dynamic>?> showAddExamDialog({
   required BuildContext context,
   required List<Subject> subjects,
+  Exam? exam,
 }) async {
-  final TextEditingController examController = TextEditingController(); // Controller for the exam name input
-  Subject? selectedSubject; // The subject selected by the user
-  DateTime? selectedDateTime; // The date & time picked by the user
+  final TextEditingController examController = TextEditingController(text: exam?.title ?? ''); // Controller for the exam name input
+  Subject? selectedSubject = exam != null 
+      ? subjects.firstWhere((s) => s.id == exam.subjectId, orElse: () => subjects.first)
+      : null; // The subject selected by the user
+  DateTime? selectedDateTime = exam?.dateTime; // The date & time picked by the user
 
   /// Opens date and time pickers sequentially and returns the combined DateTime
   Future<DateTime?> pickDateTime(BuildContext dialogContext) async {
@@ -47,7 +50,10 @@ Future<Map<String, dynamic>?> showAddExamDialog({
 
           return AlertDialog(
             backgroundColor: colors.surface, // Dialog background color
-            title: Text("Add Exam", style: TextStyle(fontSize: screenWidth * 0.05)), // Dialog title
+            title: Text(
+              exam == null ? "Add Exam" : "Edit Exam",
+              style: TextStyle(fontSize: screenWidth * 0.05),
+            ), // Dialog title
 
             // Dialog content
             content: SizedBox(
@@ -116,7 +122,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                 child: Text("Cancel", style: TextStyle(fontSize: screenWidth * 0.045)),
               ),
 
-              // Add button
+              // Add/Update button
               TextButton(
                 onPressed: () {
                   // Validation: all fields must be filled
@@ -125,20 +131,23 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                     return;
                   }
 
-                  // Create new Exam object
+                  // Create new or update Exam object
                   final newExam = Exam(
-                    id: const Uuid().v4(),
+                    id: exam?.id ?? const Uuid().v4(), // Keep existing ID when editing, generate new when adding
                     title: examController.text,
                     subjectId: selectedSubject!.id,
                     subjectName: selectedSubject!.name,
                     dateTime: selectedDateTime!,
-                    done: false, // Newly added exams start as not done
+                    done: exam?.done ?? false, // Keep done status when editing, default to false when adding
                   );
 
-                  // Return the new exam and the selected subject
+                  // Return the exam and the selected subject
                   Navigator.of(dialogContext).pop({'exam': newExam, 'subject': selectedSubject});
                 },
-                child: Text("Add", style: TextStyle(fontSize: screenWidth * 0.045)),
+                child: Text(
+                  exam == null ? "Add" : "Update",
+                  style: TextStyle(fontSize: screenWidth * 0.045),
+                ),
               ),
             ],
           );

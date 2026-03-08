@@ -5,10 +5,15 @@ import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.da
 import '../colorpalette/color_palette.dart';
 import '../components/dashboard_card.dart';
 import '../components/menu_button.dart';
-import '../storage/storage_service.dart';
-import '../storage/subject.dart';
-import '../storage/exam.dart';
 import '../components/my_app_drawer.dart';
+import '../features/subject/presentation/bloc/subject_bloc.dart';
+import '../features/subject/presentation/bloc/subject_event.dart';
+import '../features/task/presentation/bloc/task_bloc.dart';
+import '../features/task/presentation/bloc/task_event.dart';
+import '../features/task/presentation/bloc/task_state.dart';
+import '../features/exam/presentation/bloc/exam_bloc.dart';
+import '../features/exam/presentation/bloc/exam_event.dart';
+import '../features/exam/presentation/bloc/exam_state.dart';
 
 /// The main home page of the app showing the dashboard and menu
 /// Displays the number of unfinished tasks and exams,
@@ -26,30 +31,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final StorageService storage = StorageService(); // Service for reading/writing data
-  List<Subject> subjects = []; // List of subjects
-  List<Exam> exams = []; // List of exams
-
   @override
   void initState() {
     super.initState();
-    loadData(); // Load subjects and exams from storage
+    // Load all data from BLoCs on init
+    context.read<SubjectBloc>().add(const LoadSubjectsEvent());
+    context.read<TaskBloc>().add(const LoadTasksEvent());
+    context.read<ExamBloc>().add(const LoadExamsEvent());
   }
-
-  /// Loads subjects and exams from storage and refreshes UI
-  void loadData() async {
-    subjects = await storage.readSubjects();
-    exams = await storage.readExams();
-    if (!mounted) return;
-    setState(() {});
-  }
-
-  /// Counts all unfinished tasks across all subjects
-  int get taskCount =>
-      subjects.fold(0, (sum, s) => sum + s.tasks.where((t) => !t.done).length);
-
-  /// Counts all unfinished exams
-  int get examCount => exams.where((e) => !e.done).length;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +48,6 @@ class _HomePageState extends State<HomePage> {
 
     final authCubit = context.read<AuthCubit>();
     final userName = authCubit.currenUser?.name ?? 'User';
-
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -100,20 +88,39 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Divider(thickness: 0.5, color: colors.primary),
                   SizedBox(height: screenHeight * 0.02),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      DashboardCard(
-                        title: "Task",
-                        count: taskCount, // Shows unfinished tasks
-                        icon: Icons.calendar_today,
-                      ),
-                      DashboardCard(
-                        title: "Exam",
-                        count: examCount, // Shows unfinished exams
-                        icon: Icons.description,
-                      ),
-                    ],
+                  BlocBuilder<TaskBloc, TaskState>(
+                    builder: (context, taskState) {
+                      return BlocBuilder<ExamBloc, ExamState>(
+                        builder: (context, examState) {
+                          int taskCount = 0;
+                          int examCount = 0;
+
+                          if (taskState is TaskLoaded) {
+                            taskCount = taskState.tasks.where((t) => !t.done).length;
+                          }
+
+                          if (examState is ExamLoaded) {
+                            examCount = examState.exams.where((e) => !e.done).length;
+                          }
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              DashboardCard(
+                                title: "Task",
+                                count: taskCount, // Shows unfinished tasks
+                                icon: Icons.calendar_today,
+                              ),
+                              DashboardCard(
+                                title: "Exam",
+                                count: examCount, // Shows unfinished exams
+                                icon: Icons.description,
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -144,10 +151,7 @@ class _HomePageState extends State<HomePage> {
                           icon: Icons.list,
                           label: "Subjects",
                           onTap: () {
-                            Navigator.pushNamed(context, '/subjects')
-                            .then((_) {
-                              if (mounted) loadData(); // Refresh dashboard after returning
-                            });
+                            Navigator.pushNamed(context, '/subjects');
                           },
                         ),
                         SizedBox(height: screenHeight * 0.02),
@@ -157,9 +161,7 @@ class _HomePageState extends State<HomePage> {
                           icon: Icons.checklist,
                           label: "Task",
                           onTap: () {
-                            Navigator.pushNamed(context, '/tasks').then((_) {
-                              if (mounted) loadData(); // Refresh dashboard after returning
-                            });
+                            Navigator.pushNamed(context, '/tasks');
                           },
                         ),
                         SizedBox(height: screenHeight * 0.02),
@@ -169,9 +171,7 @@ class _HomePageState extends State<HomePage> {
                           icon: Icons.folder,
                           label: "Exam",
                           onTap: () {
-                            Navigator.pushNamed(context, '/exams').then((_) {
-                              if (mounted) loadData(); // Refresh dashboard after returning
-                            });
+                            Navigator.pushNamed(context, '/exams');
                           },
                         ),
                       ],

@@ -10,12 +10,14 @@ class ExamCard extends StatelessWidget {
   final Exam exam; // The exam object to display
   final ValueChanged<bool?>? onDoneChanged; // Callback when the "done" checkbox changes
   final VoidCallback? onDelete; // Callback when the delete button is pressed
+  final VoidCallback? onEdit; // Callback when the edit button is pressed
 
   const ExamCard({
     super.key,
     required this.exam,
     this.onDoneChanged,
     this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -76,7 +78,7 @@ class ExamCard extends StatelessWidget {
               ),
             ),
 
-            // Checkbox for marking done and delete button, side by side
+            // Checkbox for marking done, edit button, and delete button
             Row(
               children: [
                 Checkbox(
@@ -84,6 +86,12 @@ class ExamCard extends StatelessWidget {
                   onChanged: onDoneChanged, // Callback to toggle done status
                   fillColor: MaterialStateProperty.all(colors.primary),
                 ),
+                // Edit button (only shown if onEdit is provided)
+                if (onEdit != null)
+                  IconButton(
+                    icon: Icon(Icons.edit, color: colors.primary, size: screenWidth * 0.06),
+                    onPressed: onEdit,
+                  ),
                 IconButton(
                   icon: Icon(Icons.delete, color: Colors.red, size: screenWidth * 0.06),
                   onPressed: onDelete, // Callback to delete exam
