@@ -9,7 +9,12 @@ abstract class ExamEvent extends Equatable {
 }
 
 class LoadExamsEvent extends ExamEvent {
-  const LoadExamsEvent();
+  final String userId;
+  
+  const LoadExamsEvent(this.userId);
+  
+  @override
+  List<Object?> get props => [userId];
 }
 
 class LoadExamsBySubjectEvent extends ExamEvent {
@@ -26,16 +31,18 @@ class CreateExamEvent extends ExamEvent {
   final String subjectId;
   final String subjectName;
   final DateTime dateTime;
+  final String userId;
 
   const CreateExamEvent(
     this.title,
     this.subjectId,
     this.subjectName,
     this.dateTime,
+    this.userId,
   );
 
   @override
-  List<Object?> get props => [title, subjectId, subjectName, dateTime];
+  List<Object?> get props => [title, subjectId, subjectName, dateTime, userId];
 }
 
 class UpdateExamEvent extends ExamEvent {

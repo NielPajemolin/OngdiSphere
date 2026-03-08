@@ -14,6 +14,7 @@ import '../features/exam/presentation/bloc/exam_state.dart';
 import '../features/task/presentation/bloc/task_bloc.dart';
 import '../features/task/presentation/bloc/task_event.dart';
 import '../features/task/presentation/bloc/task_state.dart';
+import '../features/auth/presentation/cubits/auth/auth_cubit.dart';
 
 class SubjectPage extends StatefulWidget {
   const SubjectPage({super.key});
@@ -27,9 +28,12 @@ class _SubjectPageState extends State<SubjectPage> {
   void initState() {
     super.initState();
     // Load subjects, tasks, and exams when page initializes
-    context.read<SubjectBloc>().add(const LoadSubjectsEvent());
-    context.read<ExamBloc>().add(const LoadExamsEvent());
-    context.read<TaskBloc>().add(const LoadTasksEvent());
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      context.read<SubjectBloc>().add(LoadSubjectsEvent(userId));
+      context.read<ExamBloc>().add(LoadExamsEvent(userId));
+      context.read<TaskBloc>().add(LoadTasksEvent(userId));
+    }
   }
 
   // Show a dialog to add a new subject
@@ -45,8 +49,9 @@ class _SubjectPageState extends State<SubjectPage> {
     final Subject newSubject = result['subject']; // Retrieve new subject from dialog
 
     // Add subject via BLoC
-    if (mounted) {
-      context.read<SubjectBloc>().add(CreateSubjectEvent(newSubject.name));
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (mounted && userId.isNotEmpty) {
+      context.read<SubjectBloc>().add(CreateSubjectEvent(newSubject.name, userId));
     }
   }
 

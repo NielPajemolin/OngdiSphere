@@ -11,6 +11,7 @@ import '../features/task/presentation/bloc/task_state.dart';
 import '../features/exam/presentation/bloc/exam_bloc.dart';
 import '../features/exam/presentation/bloc/exam_event.dart';
 import '../features/exam/presentation/bloc/exam_state.dart';
+import '../features/auth/presentation/cubits/auth/auth_cubit.dart';
 
 /// Page showing all tasks and exams that have been marked as done.
 /// Users can delete items from this page, but cannot mark them as undone.
@@ -26,8 +27,11 @@ class _DonePageState extends State<DonePage> {
   void initState() {
     super.initState();
     // Load tasks and exams when page initializes
-    context.read<TaskBloc>().add(const LoadTasksEvent());
-    context.read<ExamBloc>().add(const LoadExamsEvent());
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      context.read<TaskBloc>().add(LoadTasksEvent(userId));
+      context.read<ExamBloc>().add(LoadExamsEvent(userId));
+    }
   }
 
   /// Shows a confirmation dialog and deletes a task using BLoC

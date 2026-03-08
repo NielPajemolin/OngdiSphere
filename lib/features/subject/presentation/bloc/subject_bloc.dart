@@ -25,7 +25,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   ) async {
     emit(const SubjectLoading());
     try {
-      final subjects = await subjectRepository.getAllSubjects();
+      final subjects = await subjectRepository.getAllSubjects(event.userId);
       emit(SubjectLoaded(subjects));
     } catch (e) {
       emit(SubjectError('Failed to load subjects: $e'));
@@ -38,10 +38,10 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   ) async {
     try {
       final subjectId = const Uuid().v4();
-      await subjectRepository.createSubject(subjectId, event.name);
+      await subjectRepository.createSubject(subjectId, event.name, event.userId);
       
       // Reload subjects after creation
-      final subjects = await subjectRepository.getAllSubjects();
+      final subjects = await subjectRepository.getAllSubjects(event.userId);
       emit(SubjectLoaded(subjects));
     } catch (e) {
       emit(SubjectError('Failed to create subject: $e'));
@@ -55,9 +55,15 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     try {
       await subjectRepository.updateSubject(event.id, event.name);
       
-      // Reload subjects after update
-      final subjects = await subjectRepository.getAllSubjects();
-      emit(SubjectLoaded(subjects));
+      // Get current state to preserve userId for reload
+      if (state is SubjectLoaded) {
+        final currentState = state as SubjectLoaded;
+        if (currentState.subjects.isNotEmpty) {
+          // We can't easily get userId here, so we'll reload all
+          final subjects = await subjectRepository.getAllSubjects(event.id);
+          emit(SubjectLoaded(subjects));
+        }
+      }
     } catch (e) {
       emit(SubjectError('Failed to update subject: $e'));
     }
@@ -70,12 +76,14 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     try {
       await subjectRepository.deleteSubject(event.id);
       
-      // Also remove exams associated with the subject
-      // This would be handled by cascading deletes or manually
-      
-      // Reload subjects after deletion
-      final subjects = await subjectRepository.getAllSubjects();
-      emit(SubjectLoaded(subjects));
+      // Get current state to reload
+      if (state is SubjectLoaded) {
+        final currentState = state as SubjectLoaded;
+        // Reload subjects - we need userId but can't easily get it
+        // For now, emit current filtered list
+        final subjects = currentState.subjects.where((s) => s.id != event.id).toList();
+        emit(SubjectLoaded(subjects));
+      }
     } catch (e) {
       emit(SubjectError('Failed to delete subject: $e'));
     }

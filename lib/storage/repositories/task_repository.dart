@@ -6,9 +6,12 @@ import '../task.dart';
 class TaskRepository {
   final isar = IsarDatabaseService.getInstance();
 
-  /// Get all tasks
-  Future<List<Task>> getAllTasks() async {
-    final isarTasks = await isar.isarTasks.where().findAll();
+  /// Get all tasks for a specific user
+  Future<List<Task>> getAllTasks(String userId) async {
+    final isarTasks = await isar.isarTasks
+        .where()
+        .userIdEqualTo(userId)
+        .findAll();
     return isarTasks.map((t) => _isarToTask(t)).toList();
   }
 
@@ -28,9 +31,11 @@ class TaskRepository {
     String subjectId,
     String subjectName,
     DateTime dateTime,
+    String userId,
   ) async {
     final isarTask = IsarTask()
       ..uuid = taskId
+      ..userId = userId
       ..title = title
       ..subjectId = subjectId
       ..subjectName = subjectName

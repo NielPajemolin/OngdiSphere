@@ -9,6 +9,10 @@ class IsarSubject {
   
   @Index()
   late String uuid;
+  
+  @Index()
+  late String userId;
+  
   late String name;
   
   @Backlink(to: 'subject')

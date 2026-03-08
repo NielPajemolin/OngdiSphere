@@ -13,6 +13,7 @@ import '../features/subject/presentation/bloc/subject_state.dart';
 import '../features/task/presentation/bloc/task_bloc.dart';
 import '../features/task/presentation/bloc/task_event.dart';
 import '../features/task/presentation/bloc/task_state.dart';
+import '../features/auth/presentation/cubits/auth/auth_cubit.dart';
 
 
 class TaskPage extends StatefulWidget {
@@ -29,8 +30,11 @@ class _TaskPageState extends State<TaskPage> {
   void initState() {
     super.initState();
     // Load tasks and subjects when page initializes
-    context.read<SubjectBloc>().add(const LoadSubjectsEvent());
-    context.read<TaskBloc>().add(const LoadTasksEvent());
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      context.read<SubjectBloc>().add(LoadSubjectsEvent(userId));
+      context.read<TaskBloc>().add(LoadTasksEvent(userId));
+    }
   }
 
   /// Opens the AddTaskDialog to create a new task
@@ -62,13 +66,15 @@ class _TaskPageState extends State<TaskPage> {
     final Subject selectedSubject = result['subject'];
 
     // Add task via BLoC
-    if (mounted) {
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (mounted && userId.isNotEmpty) {
       context.read<TaskBloc>().add(
         CreateTaskEvent(
           newTask.title,
           selectedSubject.id,
           selectedSubject.name,
           newTask.dateTime,
+          userId,
         ),
       );
     }

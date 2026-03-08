@@ -6,9 +6,12 @@ import '../exam.dart';
 class ExamRepository {
   final isar = IsarDatabaseService.getInstance();
 
-  /// Get all exams
-  Future<List<Exam>> getAllExams() async {
-    final isarExams = await isar.isarExams.where().findAll();
+  /// Get all exams for a specific user
+  Future<List<Exam>> getAllExams(String userId) async {
+    final isarExams = await isar.isarExams
+        .where()
+        .userIdEqualTo(userId)
+        .findAll();
     return isarExams.map((e) => _isarToExam(e)).toList();
   }
 
@@ -28,9 +31,11 @@ class ExamRepository {
     String subjectId,
     String subjectName,
     DateTime dateTime,
+    String userId,
   ) async {
     final isarExam = IsarExam()
       ..uuid = examId
+      ..userId = userId
       ..title = title
       ..subjectId = subjectId
       ..subjectName = subjectName

@@ -8,16 +8,22 @@ abstract class SubjectEvent extends Equatable {
 }
 
 class LoadSubjectsEvent extends SubjectEvent {
-  const LoadSubjectsEvent();
+  final String userId;
+  
+  const LoadSubjectsEvent(this.userId);
+  
+  @override
+  List<Object?> get props => [userId];
 }
 
 class CreateSubjectEvent extends SubjectEvent {
   final String name;
+  final String userId;
 
-  const CreateSubjectEvent(this.name);
+  const CreateSubjectEvent(this.name, this.userId);
 
   @override
-  List<Object?> get props => [name];
+  List<Object?> get props => [name, userId];
 }
 
 class UpdateSubjectEvent extends SubjectEvent {

@@ -11,6 +11,7 @@ import '../features/subject/presentation/bloc/subject_state.dart';
 import '../features/exam/presentation/bloc/exam_bloc.dart';
 import '../features/exam/presentation/bloc/exam_event.dart';
 import '../features/exam/presentation/bloc/exam_state.dart';
+import '../features/auth/presentation/cubits/auth/auth_cubit.dart';
 
 /// Page displaying all exams, with filtering, adding, deleting, and marking done.
 class ExamPage extends StatefulWidget {
@@ -27,8 +28,11 @@ class _ExamPageState extends State<ExamPage> {
   void initState() {
     super.initState();
     // Load exams and subjects when the page initializes
-    context.read<SubjectBloc>().add(const LoadSubjectsEvent());
-    context.read<ExamBloc>().add(const LoadExamsEvent());
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      context.read<SubjectBloc>().add(LoadSubjectsEvent(userId));
+      context.read<ExamBloc>().add(LoadExamsEvent(userId));
+    }
   }
 
   /// Opens a dialog to add a new exam and saves it
@@ -47,13 +51,15 @@ class _ExamPageState extends State<ExamPage> {
     final Exam newExam = result['exam'];
 
     // Add exam via BLoC
-    if (mounted) {
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (mounted && userId.isNotEmpty) {
       context.read<ExamBloc>().add(
         CreateExamEvent(
           newExam.title,
           newExam.subjectId,
           newExam.subjectName,
           newExam.dateTime,
+          userId,
         ),
       );
     }

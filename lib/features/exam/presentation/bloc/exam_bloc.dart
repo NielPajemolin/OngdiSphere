@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../storage/repositories/exam_repository.dart';
+import '../../../../storage/exam.dart';
 import 'exam_event.dart';
 import 'exam_state.dart';
 
@@ -22,7 +23,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
   ) async {
     emit(const ExamLoading());
     try {
-      final exams = await examRepository.getAllExams();
+      final exams = await examRepository.getAllExams(event.userId);
       emit(ExamLoaded(exams));
     } catch (e) {
       emit(ExamError('Failed to load exams: $e'));
@@ -54,10 +55,11 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
         event.subjectId,
         event.subjectName,
         event.dateTime,
+        event.userId,
       );
 
       // Reload exams after creation
-      final exams = await examRepository.getAllExams();
+      final exams = await examRepository.getAllExams(event.userId);
       emit(ExamLoaded(exams));
     } catch (e) {
       emit(ExamError('Failed to create exam: $e'));
@@ -71,9 +73,14 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     try {
       await examRepository.updateExam(event.exam);
 
-      // Reload exams after update
-      final exams = await examRepository.getAllExams();
-      emit(ExamLoaded(exams));
+      // Update exam in current state with new list instance
+      if (state is ExamLoaded) {
+        final currentState = state as ExamLoaded;
+        final updatedExams = currentState.exams.map((e) => 
+          e.id == event.exam.id ? event.exam : e
+        ).toList();
+        emit(ExamLoaded(updatedExams));
+      }
     } catch (e) {
       emit(ExamError('Failed to update exam: $e'));
     }
@@ -86,9 +93,24 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     try {
       await examRepository.toggleExamDone(event.examId);
 
-      // Reload exams after toggle
-      final exams = await examRepository.getAllExams();
-      emit(ExamLoaded(exams));
+      // Update exam in current state
+      if (state is ExamLoaded) {
+        final currentState = state as ExamLoaded;
+        final updatedExams = currentState.exams.map((e) {
+          if (e.id == event.examId) {
+            return Exam(
+              id: e.id,
+              title: e.title,
+              subjectId: e.subjectId,
+              subjectName: e.subjectName,
+              dateTime: e.dateTime,
+              done: !e.done,
+            );
+          }
+          return e;
+        }).toList();
+        emit(ExamLoaded(updatedExams));
+      }
     } catch (e) {
       emit(ExamError('Failed to toggle exam: $e'));
     }
@@ -101,9 +123,12 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     try {
       await examRepository.deleteExam(event.examId);
 
-      // Reload exams after deletion
-      final exams = await examRepository.getAllExams();
-      emit(ExamLoaded(exams));
+      // Remove exam from current state
+      if (state is ExamLoaded) {
+        final currentState = state as ExamLoaded;
+        final exams = currentState.exams.where((e) => e.id != event.examId).toList();
+        emit(ExamLoaded(exams));
+      }
     } catch (e) {
       emit(ExamError('Failed to delete exam: $e'));
     }

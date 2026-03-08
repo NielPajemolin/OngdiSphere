@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../storage/repositories/task_repository.dart';
+import '../../../../storage/task.dart';
 import 'task_event.dart';
 import 'task_state.dart';
 
@@ -22,7 +23,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     emit(const TaskLoading());
     try {
-      final tasks = await taskRepository.getAllTasks();
+      final tasks = await taskRepository.getAllTasks(event.userId);
       emit(TaskLoaded(tasks));
     } catch (e) {
       emit(TaskError('Failed to load tasks: $e'));
@@ -54,10 +55,11 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         event.subjectId,
         event.subjectName,
         event.dateTime,
+        event.userId,
       );
 
       // Reload tasks after creation
-      final tasks = await taskRepository.getAllTasks();
+      final tasks = await taskRepository.getAllTasks(event.userId);
       emit(TaskLoaded(tasks));
     } catch (e) {
       emit(TaskError('Failed to create task: $e'));
@@ -71,9 +73,14 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     try {
       await taskRepository.updateTask(event.task);
 
-      // Reload tasks after update
-      final tasks = await taskRepository.getAllTasks();
-      emit(TaskLoaded(tasks));
+      // Update task in current state with new list instance
+      if (state is TaskLoaded) {
+        final currentState = state as TaskLoaded;
+        final updatedTasks = currentState.tasks.map((t) => 
+          t.id == event.task.id ? event.task : t
+        ).toList();
+        emit(TaskLoaded(updatedTasks));
+      }
     } catch (e) {
       emit(TaskError('Failed to update task: $e'));
     }
@@ -86,9 +93,24 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     try {
       await taskRepository.toggleTaskDone(event.taskId);
 
-      // Reload tasks after toggle
-      final tasks = await taskRepository.getAllTasks();
-      emit(TaskLoaded(tasks));
+      // Update task in current state
+      if (state is TaskLoaded) {
+        final currentState = state as TaskLoaded;
+        final updatedTasks = currentState.tasks.map((t) {
+          if (t.id == event.taskId) {
+            return Task(
+              id: t.id,
+              title: t.title,
+              subjectId: t.subjectId,
+              subjectName: t.subjectName,
+              dateTime: t.dateTime,
+              done: !t.done,
+            );
+          }
+          return t;
+        }).toList();
+        emit(TaskLoaded(updatedTasks));
+      }
     } catch (e) {
       emit(TaskError('Failed to toggle task: $e'));
     }
@@ -101,9 +123,12 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     try {
       await taskRepository.deleteTask(event.taskId);
 
-      // Reload tasks after deletion
-      final tasks = await taskRepository.getAllTasks();
-      emit(TaskLoaded(tasks));
+      // Remove task from current state
+      if (state is TaskLoaded) {
+        final currentState = state as TaskLoaded;
+        final tasks = currentState.tasks.where((t) => t.id != event.taskId).toList();
+        emit(TaskLoaded(tasks));
+      }
     } catch (e) {
       emit(TaskError('Failed to delete task: $e'));
     }

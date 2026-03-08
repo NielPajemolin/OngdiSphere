@@ -8,6 +8,10 @@ class IsarExam {
   
   @Index()
   late String uuid;
+  
+  @Index()
+  late String userId;
+  
   late String title;
   
   @Index()

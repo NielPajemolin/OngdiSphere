@@ -35,9 +35,12 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     // Load all data from BLoCs on init
-    context.read<SubjectBloc>().add(const LoadSubjectsEvent());
-    context.read<TaskBloc>().add(const LoadTasksEvent());
-    context.read<ExamBloc>().add(const LoadExamsEvent());
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    if (userId.isNotEmpty) {
+      context.read<SubjectBloc>().add(LoadSubjectsEvent(userId));
+      context.read<TaskBloc>().add(LoadTasksEvent(userId));
+      context.read<ExamBloc>().add(LoadExamsEvent(userId));
+    }
   }
 
   @override
@@ -150,8 +153,18 @@ class _HomePageState extends State<HomePage> {
                         MenuButton(
                           icon: Icons.list,
                           label: "Subjects",
-                          onTap: () {
-                            Navigator.pushNamed(context, '/subjects');
+                          onTap: () async {
+                            final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+                            final taskBloc = context.read<TaskBloc>();
+                            final examBloc = context.read<ExamBloc>();
+                            
+                            await Navigator.pushNamed(context, '/subjects');
+                            
+                            // Reload data when returning from subjects page
+                            if (mounted && userId.isNotEmpty) {
+                              taskBloc.add(LoadTasksEvent(userId));
+                              examBloc.add(LoadExamsEvent(userId));
+                            }
                           },
                         ),
                         SizedBox(height: screenHeight * 0.02),
@@ -160,8 +173,16 @@ class _HomePageState extends State<HomePage> {
                         MenuButton(
                           icon: Icons.checklist,
                           label: "Task",
-                          onTap: () {
-                            Navigator.pushNamed(context, '/tasks');
+                          onTap: () async {
+                            final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+                            final taskBloc = context.read<TaskBloc>();
+                            
+                            await Navigator.pushNamed(context, '/tasks');
+                            
+                            // Reload data when returning
+                            if (mounted && userId.isNotEmpty) {
+                              taskBloc.add(LoadTasksEvent(userId));
+                            }
                           },
                         ),
                         SizedBox(height: screenHeight * 0.02),
@@ -170,8 +191,16 @@ class _HomePageState extends State<HomePage> {
                         MenuButton(
                           icon: Icons.folder,
                           label: "Exam",
-                          onTap: () {
-                            Navigator.pushNamed(context, '/exams');
+                          onTap: () async {
+                            final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+                            final examBloc = context.read<ExamBloc>();
+                            
+                            await Navigator.pushNamed(context, '/exams');
+                            
+                            // Reload data when returning
+                            if (mounted && userId.isNotEmpty) {
+                              examBloc.add(LoadExamsEvent(userId));
+                            }
                           },
                         ),
                       ],

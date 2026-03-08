@@ -8,9 +8,12 @@ import 'exam_repository.dart';
 class SubjectRepository {
   final isar = IsarDatabaseService.getInstance();
 
-  /// Get all subjects
-  Future<List<Subject>> getAllSubjects() async {
-    final isarSubjects = await isar.isarSubjects.where().findAll();
+  /// Get all subjects for a specific user
+  Future<List<Subject>> getAllSubjects(String userId) async {
+    final isarSubjects = await isar.isarSubjects
+        .where()
+        .userIdEqualTo(userId)
+        .findAll();
     return isarSubjects.map((s) => _isarToSubject(s)).toList();
   }
 
@@ -24,9 +27,10 @@ class SubjectRepository {
   }
 
   /// Create a new subject
-  Future<Subject> createSubject(String subjectId, String name) async {
+  Future<Subject> createSubject(String subjectId, String name, String userId) async {
     final isarSubject = IsarSubject()
       ..uuid = subjectId
+      ..userId = userId
       ..name = name;
 
     await isar.writeTxn(() async {
