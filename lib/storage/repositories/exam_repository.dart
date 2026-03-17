@@ -1,22 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../exam.dart';
 
 class ExamRepository {
-  final CollectionReference<Map<String, dynamic>> _exams = FirebaseFirestore
-      .instance
-      .collection('exams');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  String? get _currentUserId => _firebaseAuth.currentUser?.uid;
+
+  CollectionReference<Map<String, dynamic>> _examsForUser(String userId) {
+    return _firestore.collection('users').doc(userId).collection('exams');
+  }
 
   /// Get all exams for a specific user
   Future<List<Exam>> getAllExams(String userId) async {
-    final snapshot = await _exams.where('userId', isEqualTo: userId).get();
+    final snapshot = await _examsForUser(userId).get();
     return snapshot.docs.map(_docToExam).toList();
   }
 
   /// Get exams by subject ID
   Future<List<Exam>> getExamsBySubjectId(String subjectId) async {
-    final snapshot = await _exams
-        .where('subjectId', isEqualTo: subjectId)
-        .get();
+    final userId = _currentUserId;
+    if (userId == null) {
+      return [];
+    }
+
+    final snapshot = await _examsForUser(
+      userId,
+    ).where('subjectId', isEqualTo: subjectId).get();
     return snapshot.docs.map(_docToExam).toList();
   }
 
@@ -29,9 +40,8 @@ class ExamRepository {
     DateTime dateTime,
     String userId,
   ) async {
-    await _exams.doc(examId).set({
+    await _examsForUser(userId).doc(examId).set({
       'id': examId,
-      'userId': userId,
       'title': title,
       'subjectId': subjectId,
       'subjectName': subjectName,
@@ -51,7 +61,12 @@ class ExamRepository {
 
   /// Update an exam
   Future<void> updateExam(Exam exam) async {
-    await _exams.doc(exam.id).update({
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    await _examsForUser(userId).doc(exam.id).update({
       'title': exam.title,
       'subjectId': exam.subjectId,
       'subjectName': exam.subjectName,
@@ -62,7 +77,12 @@ class ExamRepository {
 
   /// Toggle exam done status
   Future<void> toggleExamDone(String examId) async {
-    final examRef = _exams.doc(examId);
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    final examRef = _examsForUser(userId).doc(examId);
     final snapshot = await examRef.get();
     final data = snapshot.data();
 
@@ -76,15 +96,25 @@ class ExamRepository {
 
   /// Delete an exam
   Future<void> deleteExam(String examId) async {
-    await _exams.doc(examId).delete();
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    await _examsForUser(userId).doc(examId).delete();
   }
 
   /// Delete all exams by subject ID
   Future<void> deleteExamsBySubjectId(String subjectId) async {
-    final snapshot = await _exams
-        .where('subjectId', isEqualTo: subjectId)
-        .get();
-    final batch = FirebaseFirestore.instance.batch();
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    final snapshot = await _examsForUser(
+      userId,
+    ).where('subjectId', isEqualTo: subjectId).get();
+    final batch = _firestore.batch();
 
     for (final doc in snapshot.docs) {
       batch.delete(doc.reference);

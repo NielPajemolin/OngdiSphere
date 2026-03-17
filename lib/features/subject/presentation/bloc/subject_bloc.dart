@@ -9,10 +9,8 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   final SubjectRepository subjectRepository;
   final ExamRepository examRepository;
 
-  SubjectBloc({
-    required this.subjectRepository,
-    required this.examRepository,
-  }) : super(const SubjectInitial()) {
+  SubjectBloc({required this.subjectRepository, required this.examRepository})
+    : super(const SubjectInitial()) {
     on<LoadSubjectsEvent>(_onLoadSubjects);
     on<CreateSubjectEvent>(_onCreateSubject);
     on<UpdateSubjectEvent>(_onUpdateSubject);
@@ -23,7 +21,9 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     LoadSubjectsEvent event,
     Emitter<SubjectState> emit,
   ) async {
-    emit(const SubjectLoading());
+    if (state is! SubjectLoaded) {
+      emit(const SubjectLoading());
+    }
     try {
       final subjects = await subjectRepository.getAllSubjects(event.userId);
       emit(SubjectLoaded(subjects));
@@ -38,8 +38,12 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   ) async {
     try {
       final subjectId = const Uuid().v4();
-      await subjectRepository.createSubject(subjectId, event.name, event.userId);
-      
+      await subjectRepository.createSubject(
+        subjectId,
+        event.name,
+        event.userId,
+      );
+
       // Reload subjects after creation
       final subjects = await subjectRepository.getAllSubjects(event.userId);
       emit(SubjectLoaded(subjects));
@@ -54,7 +58,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   ) async {
     try {
       await subjectRepository.updateSubject(event.id, event.name);
-      
+
       // Get current state to preserve userId for reload
       if (state is SubjectLoaded) {
         final currentState = state as SubjectLoaded;
@@ -75,13 +79,15 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   ) async {
     try {
       await subjectRepository.deleteSubject(event.id);
-      
+
       // Get current state to reload
       if (state is SubjectLoaded) {
         final currentState = state as SubjectLoaded;
         // Reload subjects - we need userId but can't easily get it
         // For now, emit current filtered list
-        final subjects = currentState.subjects.where((s) => s.id != event.id).toList();
+        final subjects = currentState.subjects
+            .where((s) => s.id != event.id)
+            .toList();
         emit(SubjectLoaded(subjects));
       }
     } catch (e) {

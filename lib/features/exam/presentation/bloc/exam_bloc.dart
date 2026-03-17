@@ -21,7 +21,9 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     LoadExamsEvent event,
     Emitter<ExamState> emit,
   ) async {
-    emit(const ExamLoading());
+    if (state is! ExamLoaded) {
+      emit(const ExamLoading());
+    }
     try {
       final exams = await examRepository.getAllExams(event.userId);
       emit(ExamLoaded(exams));
@@ -34,7 +36,9 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     LoadExamsBySubjectEvent event,
     Emitter<ExamState> emit,
   ) async {
-    emit(const ExamLoading());
+    if (state is! ExamLoaded) {
+      emit(const ExamLoading());
+    }
     try {
       final exams = await examRepository.getExamsBySubjectId(event.subjectId);
       emit(ExamLoaded(exams));
@@ -76,9 +80,9 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
       // Update exam in current state with new list instance
       if (state is ExamLoaded) {
         final currentState = state as ExamLoaded;
-        final updatedExams = currentState.exams.map((e) => 
-          e.id == event.exam.id ? event.exam : e
-        ).toList();
+        final updatedExams = currentState.exams
+            .map((e) => e.id == event.exam.id ? event.exam : e)
+            .toList();
         emit(ExamLoaded(updatedExams));
       }
     } catch (e) {
@@ -126,7 +130,9 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
       // Remove exam from current state
       if (state is ExamLoaded) {
         final currentState = state as ExamLoaded;
-        final exams = currentState.exams.where((e) => e.id != event.examId).toList();
+        final exams = currentState.exams
+            .where((e) => e.id != event.examId)
+            .toList();
         emit(ExamLoaded(exams));
       }
     } catch (e) {

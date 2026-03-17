@@ -1,22 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../task.dart';
 
 class TaskRepository {
-  final CollectionReference<Map<String, dynamic>> _tasks = FirebaseFirestore
-      .instance
-      .collection('tasks');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+
+  String? get _currentUserId => _firebaseAuth.currentUser?.uid;
+
+  CollectionReference<Map<String, dynamic>> _tasksForUser(String userId) {
+    return _firestore.collection('users').doc(userId).collection('tasks');
+  }
 
   /// Get all tasks for a specific user
   Future<List<Task>> getAllTasks(String userId) async {
-    final snapshot = await _tasks.where('userId', isEqualTo: userId).get();
+    final snapshot = await _tasksForUser(userId).get();
     return snapshot.docs.map(_docToTask).toList();
   }
 
   /// Get tasks by subject ID
   Future<List<Task>> getTasksBySubjectId(String subjectId) async {
-    final snapshot = await _tasks
-        .where('subjectId', isEqualTo: subjectId)
-        .get();
+    final userId = _currentUserId;
+    if (userId == null) {
+      return [];
+    }
+
+    final snapshot = await _tasksForUser(
+      userId,
+    ).where('subjectId', isEqualTo: subjectId).get();
     return snapshot.docs.map(_docToTask).toList();
   }
 
@@ -29,9 +40,8 @@ class TaskRepository {
     DateTime dateTime,
     String userId,
   ) async {
-    await _tasks.doc(taskId).set({
+    await _tasksForUser(userId).doc(taskId).set({
       'id': taskId,
-      'userId': userId,
       'title': title,
       'subjectId': subjectId,
       'subjectName': subjectName,
@@ -51,7 +61,12 @@ class TaskRepository {
 
   /// Update a task
   Future<void> updateTask(Task task) async {
-    await _tasks.doc(task.id).update({
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    await _tasksForUser(userId).doc(task.id).update({
       'title': task.title,
       'subjectId': task.subjectId,
       'subjectName': task.subjectName,
@@ -62,7 +77,12 @@ class TaskRepository {
 
   /// Toggle task done status
   Future<void> toggleTaskDone(String taskId) async {
-    final taskRef = _tasks.doc(taskId);
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    final taskRef = _tasksForUser(userId).doc(taskId);
     final snapshot = await taskRef.get();
     final data = snapshot.data();
 
@@ -76,15 +96,25 @@ class TaskRepository {
 
   /// Delete a task
   Future<void> deleteTask(String taskId) async {
-    await _tasks.doc(taskId).delete();
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    await _tasksForUser(userId).doc(taskId).delete();
   }
 
   /// Delete all tasks by subject ID
   Future<void> deleteTasksBySubjectId(String subjectId) async {
-    final snapshot = await _tasks
-        .where('subjectId', isEqualTo: subjectId)
-        .get();
-    final batch = FirebaseFirestore.instance.batch();
+    final userId = _currentUserId;
+    if (userId == null) {
+      return;
+    }
+
+    final snapshot = await _tasksForUser(
+      userId,
+    ).where('subjectId', isEqualTo: subjectId).get();
+    final batch = _firestore.batch();
 
     for (final doc in snapshot.docs) {
       batch.delete(doc.reference);

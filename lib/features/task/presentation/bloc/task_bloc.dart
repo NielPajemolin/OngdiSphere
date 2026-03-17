@@ -21,7 +21,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     LoadTasksEvent event,
     Emitter<TaskState> emit,
   ) async {
-    emit(const TaskLoading());
+    if (state is! TaskLoaded) {
+      emit(const TaskLoading());
+    }
     try {
       final tasks = await taskRepository.getAllTasks(event.userId);
       emit(TaskLoaded(tasks));
@@ -34,7 +36,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     LoadTasksBySubjectEvent event,
     Emitter<TaskState> emit,
   ) async {
-    emit(const TaskLoading());
+    if (state is! TaskLoaded) {
+      emit(const TaskLoading());
+    }
     try {
       final tasks = await taskRepository.getTasksBySubjectId(event.subjectId);
       emit(TaskLoaded(tasks));
@@ -76,9 +80,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       // Update task in current state with new list instance
       if (state is TaskLoaded) {
         final currentState = state as TaskLoaded;
-        final updatedTasks = currentState.tasks.map((t) => 
-          t.id == event.task.id ? event.task : t
-        ).toList();
+        final updatedTasks = currentState.tasks
+            .map((t) => t.id == event.task.id ? event.task : t)
+            .toList();
         emit(TaskLoaded(updatedTasks));
       }
     } catch (e) {
@@ -126,7 +130,9 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       // Remove task from current state
       if (state is TaskLoaded) {
         final currentState = state as TaskLoaded;
-        final tasks = currentState.tasks.where((t) => t.id != event.taskId).toList();
+        final tasks = currentState.tasks
+            .where((t) => t.id != event.taskId)
+            .toList();
         emit(TaskLoaded(tasks));
       }
     } catch (e) {
