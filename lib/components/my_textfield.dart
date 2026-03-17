@@ -6,6 +6,10 @@ class MyTextfield extends StatelessWidget {
   final String hintText;
   final String labeltext;
   final bool obscureText;
+  final IconData? prefixIcon;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final VoidCallback? onEditingComplete;
 
   const MyTextfield({
     super.key,
@@ -13,51 +17,50 @@ class MyTextfield extends StatelessWidget {
     required this.hintText,
     required this.labeltext,
     required this.obscureText,
+    this.prefixIcon,
+    this.keyboardType,
+    this.textInputAction,
+    this.onEditingComplete,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.02, 
-        vertical: screenHeight * 0.011,  
-      ),
-      child: SizedBox(
-        width: screenWidth * 0.96,
-        child: TextField(
-          controller: controller,
-          obscureText: obscureText,
-          style: TextStyle(
-            fontSize: screenWidth * 0.042, 
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        textInputAction: textInputAction,
+        onEditingComplete: onEditingComplete,
+        style: const TextStyle(fontSize: 15.5),
+        decoration: InputDecoration(
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 14,
+            horizontal: 14,
           ),
-          decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(
-              vertical: screenHeight * 0.015, 
-              horizontal: screenWidth * 0.03,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(screenWidth * 0.04),
-              borderSide: BorderSide(),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(screenWidth * 0.04),
-              borderSide: BorderSide(
-                color: colors.primary,
-              ),
-            ),
-            filled: true,
-            fillColor: Colors.white,
-            labelText: labeltext,
-            hintText: hintText,
-            hintStyle: TextStyle(
-              color: Colors.grey,
-              fontSize: screenWidth * 0.042,
-            ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFD7E4FA)),
           ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Color(0xFFD7E4FA)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: colors.primary, width: 1.6),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          labelText: labeltext,
+          hintText: hintText,
+          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14.5),
+          prefixIcon: prefixIcon != null
+              ? Icon(prefixIcon, color: colors.primary, size: 20)
+              : null,
         ),
       ),
     );

@@ -1,147 +1,275 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.dart';
 import '../colorpalette/color_palette.dart';
-import '../components/my_button.dart'; 
+import '../components/my_button.dart';
 
 class ProfilePage extends StatelessWidget {
-   ProfilePage({super.key});
-
-  final user = FirebaseAuth.instance.currentUser;
+  const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     // Get current user from AuthCubit
-    final user = context.read<AuthCubit>().currenUser;
+    final currentUser = context.read<AuthCubit>().currenUser;
+    final rawName = currentUser?.name?.trim() ?? '';
+    final rawEmail = currentUser?.email.trim() ?? '';
+    final userName = rawName.isNotEmpty ? rawName : 'No name';
+    final userEmail = rawEmail.isNotEmpty ? rawEmail : 'No email';
+    final userInitial = userName.isNotEmpty
+        ? userName.characters.first.toUpperCase()
+        : 'U';
 
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
         elevation: 0,
         title: Text(
-          "Profile",
+          'Profile',
           style: TextStyle(
-            color: colors.primaryText,
-            fontSize: screenWidth * 0.06,
-            fontWeight: FontWeight.bold,
+            color: colors.tertiaryText,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Avatar
-            CircleAvatar(
-              radius: screenWidth * 0.18,
-              backgroundColor: colors.primary,
-              child: Icon(
-                Icons.person,
-                color: colors.primaryText,
-                size: screenWidth * 0.18,
-              ),
-            ),
-
-            SizedBox(height: screenWidth * 0.05),
-
-            // User name
-
-            SizedBox(height: screenWidth * 0.05),
-
-            // Profile info card
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(screenWidth * 0.05),
-              decoration: BoxDecoration(
-                color: colors.secondary,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Account Information",
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.05,
-                      fontWeight: FontWeight.bold,
-                      color: colors.primaryText,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-
-                  // Name
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.person, color: colors.primary),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "Name: ${user?.name ?? 'No name'}",
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.045,
-                            fontWeight: FontWeight.bold,
-                            color: colors.primaryText,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-
-                  // Email
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.email, color: colors.primary),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          "Email: ${user?.email ?? 'No email'}",
-                          style: TextStyle(
-                            fontSize: screenWidth * 0.045,
-                            fontWeight: FontWeight.bold,
-                            color: colors.primaryText,
-                          ),
-                          softWrap: true, // allows wrapping for long emails
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-
-            const Spacer(),
-
-            // ⭐ Use your custom MyButton here
-            MyButton(
-              label: "Edit Profile",
-              onPressed: () {
-               
-              },
-            ),
-
-
-            SizedBox(height: screenWidth * 0.05),
-          ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [colors.surface, const Color(0xFFE8F2FF)],
+          ),
         ),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+            children: [
+              Container(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                  ),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x301565C0),
+                      blurRadius: 24,
+                      offset: Offset(0, 12),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 34,
+                      backgroundColor: Colors.white.withValues(alpha: 0.25),
+                      child: CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        child: Text(
+                          userInitial,
+                          style: const TextStyle(
+                            color: Color(0xFF0D47A1),
+                            fontSize: 28,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            userName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            userEmail,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0x1F1565C0)),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x12000000),
+                      blurRadius: 20,
+                      offset: Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 3,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1565C0),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Account Information',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: colors.tertiaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    _ProfileInfoTile(
+                      icon: Icons.person_rounded,
+                      label: 'Name',
+                      value: userName,
+                    ),
+                    const SizedBox(height: 12),
+                    _ProfileInfoTile(
+                      icon: Icons.email_rounded,
+                      label: 'Email',
+                      value: userEmail,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0x1F1565C0)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 3,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1565C0),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Settings',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: colors.tertiaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    MyButton(
+                      label: 'Edit Profile',
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Profile editing is coming soon.'),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileInfoTile extends StatelessWidget {
+  const _ProfileInfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF4F8FF),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: const Color(0xFF0D47A1)),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

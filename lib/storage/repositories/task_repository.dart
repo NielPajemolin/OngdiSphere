@@ -75,23 +75,20 @@ class TaskRepository {
     });
   }
 
-  /// Toggle task done status
-  Future<void> toggleTaskDone(String taskId) async {
+  /// Set task done status directly to avoid an extra read before update.
+  Future<void> setTaskDone(String taskId, bool done, {bool? wasLate}) async {
     final userId = _currentUserId;
     if (userId == null) {
       return;
     }
 
-    final taskRef = _tasksForUser(userId).doc(taskId);
-    final snapshot = await taskRef.get();
-    final data = snapshot.data();
-
-    if (data == null) {
-      return;
+    final update = <String, dynamic>{'done': done};
+    if (done) {
+      update['wasLate'] = wasLate ?? false;
+    } else {
+      update['wasLate'] = FieldValue.delete();
     }
-
-    final currentDone = (data['done'] as bool?) ?? false;
-    await taskRef.update({'done': !currentDone});
+    await _tasksForUser(userId).doc(taskId).update(update);
   }
 
   /// Delete a task
@@ -143,6 +140,7 @@ class TaskRepository {
       subjectName: (data['subjectName'] as String?) ?? '',
       dateTime: parsedDate,
       done: (data['done'] as bool?) ?? false,
+      wasLate: data['wasLate'] as bool?,
     );
   }
 }

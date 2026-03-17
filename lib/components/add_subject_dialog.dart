@@ -11,55 +11,106 @@ class AddSubjectDialog extends StatefulWidget {
 }
 
 class _AddSubjectDialogState extends State<AddSubjectDialog> {
-  // Controller to manage the text input for the subject name
   final TextEditingController subjectController = TextEditingController();
 
-  // Function triggered when the user taps the "Add" button
   void submit() {
-    // Check if the text field is empty
     if (subjectController.text.isEmpty) {
-      // Return an error map to indicate the field is missing
       Navigator.of(context).pop({'error': 'field-missing'});
       return;
     }
 
-    // Create a new Subject object with a unique ID
     final newSubject = Subject(
       id: const Uuid().v4(),
       name: subjectController.text,
-      tasks: [], // Initialize with empty task list
+      tasks: [],
     );
 
-    // Return the newly created subject to the caller
     Navigator.of(context).pop({'subject': newSubject});
   }
 
   @override
+  void dispose() {
+    subjectController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Access custom theme colors
     final colors = Theme.of(context).extension<AppColors>()!;
 
     return AlertDialog(
-      backgroundColor: colors.surface, // Dialog background color
-      title: const Text("Add Subject"), // Dialog title
-      content: TextField(
-        controller: subjectController, // Connect text field to controller
-        decoration: const InputDecoration(
-          labelText: "Subject Name", // Label inside the text field
-          border: OutlineInputBorder(), // Outline style for the input field
+      backgroundColor: colors.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      title: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(Icons.menu_book_rounded, color: colors.primary, size: 20),
+          ),
+          const SizedBox(width: 10),
+          const Text(
+            'Add Subject',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: 340,
+        child: TextField(
+          controller: subjectController,
+          autofocus: true,
+          style: TextStyle(
+            color: colors.tertiaryText,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+          onSubmitted: (_) => submit(),
+          decoration: InputDecoration(
+            labelText: 'Subject Name',
+            labelStyle: TextStyle(
+              color: colors.tertiaryText.withValues(alpha: 0.7),
+              fontWeight: FontWeight.w600,
+            ),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.95),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: colors.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(
+                color: colors.primary.withValues(alpha: 0.2),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: colors.primary, width: 1.4),
+            ),
+            prefixIcon: Icon(
+              Icons.edit_note_rounded,
+              color: colors.primary,
+              size: 20,
+            ),
+          ),
         ),
       ),
       actions: [
-        // Cancel button closes the dialog without returning data
         TextButton(
           onPressed: () => Navigator.of(context).pop(null),
-          child: const Text("Cancel"),
+          child: const Text('Cancel'),
         ),
-        // Add button triggers the submit function
-        ElevatedButton(
-          onPressed: submit,
-          child: const Text("Add"),
-        ),
+        FilledButton(onPressed: submit, child: const Text('Add')),
       ],
     );
   }

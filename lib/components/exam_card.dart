@@ -3,14 +3,11 @@ import 'package:intl/intl.dart';
 import '../colorpalette/color_palette.dart';
 import '../storage/exam.dart';
 
-/// A card widget that displays information about an exam, with a checkbox for marking done
-/// and a delete button.
-/// Designed to be responsive using MediaQuery for font sizes and padding.
 class ExamCard extends StatelessWidget {
-  final Exam exam; // The exam object to display
-  final ValueChanged<bool?>? onDoneChanged; // Callback when the "done" checkbox changes
-  final VoidCallback? onDelete; // Callback when the delete button is pressed
-  final VoidCallback? onEdit; // Callback when the edit button is pressed
+  final Exam exam;
+  final ValueChanged<bool?>? onDoneChanged;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const ExamCard({
     super.key,
@@ -23,27 +20,30 @@ class ExamCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width; // Used for responsive sizing
-    final screenHeight = MediaQuery.of(context).size.height;
 
-    // Determine if the exam is past its date/time
-    final isOverdue = exam.dateTime.isBefore(DateTime.now());
+    final isOverdue = exam.done
+        ? (exam.wasLate ?? false)
+        : exam.dateTime.isBefore(DateTime.now());
 
     return Card(
-      color: colors.secondary, // Card background color
-      margin: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.03,
-        vertical: screenHeight * 0.008,
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      color: Colors.white,
+      shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.1),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(
+          color: isOverdue
+              ? Colors.red.withValues(alpha: 0.45)
+              : colors.primary.withValues(alpha: 0.15),
+          width: isOverdue ? 1.4 : 1.0,
+        ),
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.03,
-          vertical: screenHeight * 0.012,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Exam information: title, subject, date
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -51,50 +51,99 @@ class ExamCard extends StatelessWidget {
                   Text(
                     exam.title,
                     style: TextStyle(
-                      color: colors.primaryText,
-                      fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.045, // Responsive font size
+                      color: colors.tertiaryText,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.005),
-                  Text(
-                    "Subject: ${exam.subjectName}",
-                    style: TextStyle(
-                      color: colors.surface.withOpacity(0.7), // Slightly faded text
-                      fontSize: screenWidth * 0.04,
-                    ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(Icons.menu_book_rounded, size: 13, color: Colors.black45),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          exam.subjectName,
+                          style: const TextStyle(color: Colors.black54, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: screenHeight * 0.005),
-                  Text(
-                    "Date: ${DateFormat.yMd().add_jm().format(exam.dateTime.toLocal())}",
-                    style: TextStyle(
-                      color: isOverdue
-                          ? Colors.red // Highlight overdue exams
-                          : colors.surface.withOpacity(0.7),
-                      fontSize: screenWidth * 0.04,
-                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.event_rounded,
+                        size: 13,
+                        color: isOverdue ? Colors.red : Colors.black45,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          DateFormat.yMd().add_jm().format(exam.dateTime.toLocal()),
+                          style: TextStyle(
+                            color: isOverdue ? Colors.red : Colors.black54,
+                            fontSize: 13,
+                            fontWeight: isOverdue ? FontWeight.w600 : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      if (isOverdue)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Late',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
-
-            // Checkbox for marking done, edit button, and delete button
-            Row(
+            const SizedBox(width: 6),
+            Column(
               children: [
                 Checkbox(
                   value: exam.done,
-                  onChanged: onDoneChanged, // Callback to toggle done status
-                  fillColor: MaterialStateProperty.all(colors.primary),
-                ),
-                // Edit button (only shown if onEdit is provided)
-                if (onEdit != null)
-                  IconButton(
-                    icon: Icon(Icons.edit, color: colors.primary, size: screenWidth * 0.06),
-                    onPressed: onEdit,
+                  onChanged: onDoneChanged,
+                  fillColor: WidgetStateProperty.resolveWith(
+                    (states) => colors.primary,
                   ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red, size: screenWidth * 0.06),
-                  onPressed: onDelete, // Callback to delete exam
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onEdit != null)
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.edit_rounded,
+                          color: colors.primary,
+                          size: 20,
+                        ),
+                        onPressed: onEdit,
+                      ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      onPressed: onDelete,
+                    ),
+                  ],
                 ),
               ],
             ),

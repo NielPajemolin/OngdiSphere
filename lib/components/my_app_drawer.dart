@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.dart';
@@ -7,15 +6,9 @@ import '../colorpalette/color_palette.dart';
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
-  void logout() {
-    FirebaseAuth.instance.signOut();
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Drawer(
       backgroundColor: colors.surface,
@@ -24,28 +17,46 @@ class AppDrawer extends StatelessWidget {
         children: [
           Column(
             children: [
-              // Drawer Header
-              DrawerHeader(
-                child: Image.asset(
-                  'assets/images/kuromi.jpeg',
-                  width: screenWidth * 0.9,
-                  height: screenHeight * 0.30,
-                  fit: BoxFit.contain,
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(16, 56, 16, 18),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.asset(
+                        'assets/images/kuromi.jpeg',
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'OngdiSphere',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 8),
 
-              // Profile
               Padding(
-                padding: EdgeInsets.only(left: screenWidth * 0.06),
-                child: ListTile(
-                  leading: Icon(Icons.person, size: screenWidth * 0.07),
-                  title: Text(
-                    'P R O F I L E',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.045,
-                      color: colors.tertiaryText
-                      ),
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _DrawerActionTile(
+                  icon: Icons.person_rounded,
+                  label: 'Profile',
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/profile');
@@ -53,18 +64,11 @@ class AppDrawer extends StatelessWidget {
                 ),
               ),
 
-              // Done Section
               Padding(
-                padding: EdgeInsets.only(left: screenWidth * 0.06),
-                child: ListTile(
-                  leading: Icon(Icons.check_box, size: screenWidth * 0.07),
-                  title: Text(
-                    'D O N E',
-                    style: TextStyle(
-                      fontSize: screenWidth * 0.045,
-                      color: colors.tertiaryText
-                      ),
-                  ),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _DrawerActionTile(
+                  icon: Icons.check_circle_rounded,
+                  label: 'Done',
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/done');
@@ -74,21 +78,12 @@ class AppDrawer extends StatelessWidget {
             ],
           ),
 
-          // Logout
           Padding(
-            padding: EdgeInsets.only(
-              left: screenWidth * 0.06,
-              bottom: screenHeight * 0.03,
-            ),
-            child: ListTile(
-              leading: Icon(Icons.logout, size: screenWidth * 0.07),
-              title: Text(
-                'L O G O U T',
-                style: TextStyle(
-                      fontSize: screenWidth * 0.045,
-                      color: colors.tertiaryText
-                      ),
-                  ),
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
+            child: _DrawerActionTile(
+              icon: Icons.logout_rounded,
+              label: 'Logout',
+              iconColor: Colors.red,
               onTap: () {
                 final authCubit = context.read<AuthCubit>();
                 authCubit.logout();
@@ -96,6 +91,42 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DrawerActionTile extends StatelessWidget {
+  const _DrawerActionTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.iconColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final Color? iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).extension<AppColors>()!;
+
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        leading: Icon(icon, color: iconColor ?? colors.tertiaryText),
+        title: Text(
+          label,
+          style: TextStyle(
+            color: colors.tertiaryText,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        onTap: onTap,
       ),
     );
   }

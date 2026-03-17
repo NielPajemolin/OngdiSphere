@@ -75,23 +75,20 @@ class ExamRepository {
     });
   }
 
-  /// Toggle exam done status
-  Future<void> toggleExamDone(String examId) async {
+  /// Set exam done status directly to avoid an extra read before update.
+  Future<void> setExamDone(String examId, bool done, {bool? wasLate}) async {
     final userId = _currentUserId;
     if (userId == null) {
       return;
     }
 
-    final examRef = _examsForUser(userId).doc(examId);
-    final snapshot = await examRef.get();
-    final data = snapshot.data();
-
-    if (data == null) {
-      return;
+    final update = <String, dynamic>{'done': done};
+    if (done) {
+      update['wasLate'] = wasLate ?? false;
+    } else {
+      update['wasLate'] = FieldValue.delete();
     }
-
-    final currentDone = (data['done'] as bool?) ?? false;
-    await examRef.update({'done': !currentDone});
+    await _examsForUser(userId).doc(examId).update(update);
   }
 
   /// Delete an exam
@@ -143,6 +140,7 @@ class ExamRepository {
       subjectName: (data['subjectName'] as String?) ?? '',
       dateTime: parsedDate,
       done: (data['done'] as bool?) ?? false,
+      wasLate: data['wasLate'] as bool?,
     );
   }
 }

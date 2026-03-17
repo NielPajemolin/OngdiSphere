@@ -1,10 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.dart';
 import '../colorpalette/color_palette.dart';
-import '../components/dashboard_card.dart';
-import '../components/menu_button.dart';
+import '../components/home_sections.dart';
+import '../components/motivational_quote_section.dart';
 import '../components/my_app_drawer.dart';
 import '../features/subject/presentation/bloc/subject_bloc.dart';
 import '../features/subject/presentation/bloc/subject_event.dart';
@@ -21,19 +20,23 @@ import '../features/exam/presentation/bloc/exam_state.dart';
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  /// Logs out the currently authenticated Firebase user
-  void logout() {
-    FirebaseAuth.instance.signOut();
-  }
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _entranceController;
+
   @override
   void initState() {
     super.initState();
+
+    _entranceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 820),
+    )..forward();
+
     // Load all data from BLoCs on init
     final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
     if (userId.isNotEmpty) {
@@ -43,11 +46,61 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Widget _buildAnimatedSection({
+    required Widget child,
+    required double begin,
+    required double end,
+  }) {
+    final animation = CurvedAnimation(
+      parent: _entranceController,
+      curve: Interval(begin, end, curve: Curves.easeOutCubic),
+    );
+
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.09),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _entranceController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _navigateAndReload({
+    required String route,
+    required bool refreshTasks,
+    required bool refreshExams,
+  }) async {
+    final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
+    final taskBloc = context.read<TaskBloc>();
+    final examBloc = context.read<ExamBloc>();
+
+    await Navigator.pushNamed(context, route);
+
+    if (!mounted || userId.isEmpty) {
+      return;
+    }
+
+    if (refreshTasks) {
+      taskBloc.add(LoadTasksEvent(userId));
+    }
+
+    if (refreshExams) {
+      examBloc.add(LoadExamsEvent(userId));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     final authCubit = context.read<AuthCubit>();
     final userName = authCubit.currenUser?.name ?? 'User';
@@ -55,161 +108,109 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text("Hello, $userName!",
+        centerTitle: false,
+        title: Text(
+          'OngdiSphere',
           style: TextStyle(
-            color: colors.primaryText,
-            fontSize: screenWidth * 0.07, // Responsive font size
-            fontWeight: FontWeight.bold,
+            color: colors.tertiaryText,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.5,
           ),
         ),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: colors.primaryText),
-            onPressed: () => Scaffold.of(context).openDrawer(), // Open the drawer
+            icon: Icon(Icons.menu_rounded, color: colors.tertiaryText),
+            onPressed: () =>
+                Scaffold.of(context).openDrawer(), // Open the drawer
           ),
         ),
       ),
       drawer: const AppDrawer(), // Custom navigation drawer
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Dashboard section: shows count of tasks and exams
-            Padding(
-              padding: EdgeInsets.all(screenWidth * 0.05),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Dashboard',
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontSize: screenWidth * 0.07,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Divider(thickness: 0.5, color: colors.primary),
-                  SizedBox(height: screenHeight * 0.02),
-                  BlocBuilder<TaskBloc, TaskState>(
-                    builder: (context, taskState) {
-                      return BlocBuilder<ExamBloc, ExamState>(
-                        builder: (context, examState) {
-                          int taskCount = 0;
-                          int examCount = 0;
-
-                          if (taskState is TaskLoaded) {
-                            taskCount = taskState.tasks.where((t) => !t.done).length;
-                          }
-
-                          if (examState is ExamLoaded) {
-                            examCount = examState.exams.where((e) => !e.done).length;
-                          }
-
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              DashboardCard(
-                                title: "Task",
-                                count: taskCount, // Shows unfinished tasks
-                                icon: Icons.calendar_today,
-                              ),
-                              DashboardCard(
-                                title: "Exam",
-                                count: examCount, // Shows unfinished exams
-                                icon: Icons.description,
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              colors.surface,
+              colors.surface.withValues(alpha: 0.96),
+              const Color(0xFFE2EEFF),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(18, 8, 18, 22),
+            children: [
+              _buildAnimatedSection(
+                begin: 0,
+                end: 0.45,
+                child: HomeWelcomeBanner(userName: userName),
               ),
-            ),
+              const SizedBox(height: 16),
+              _buildAnimatedSection(
+                begin: 0.15,
+                end: 0.62,
+                child: BlocBuilder<TaskBloc, TaskState>(
+                  builder: (context, taskState) {
+                    return BlocBuilder<ExamBloc, ExamState>(
+                      builder: (context, examState) {
+                        int taskCount = 0;
+                        int examCount = 0;
 
-            // Menu section: navigation buttons to other pages
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Menu',
-                    style: TextStyle(
-                      color: colors.primary,
-                      fontSize: screenWidth * 0.07,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Divider(thickness: 0.5, color: colors.primary),
-                  SizedBox(height: screenHeight * 0.02),
-                  Padding(
-                    padding: EdgeInsets.all(screenWidth * 0.02),
-                    child: Column(
-                      children: [
-                        // Button to navigate to subjects page
-                        MenuButton(
-                          icon: Icons.list,
-                          label: "Subjects",
-                          onTap: () async {
-                            final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
-                            final taskBloc = context.read<TaskBloc>();
-                            final examBloc = context.read<ExamBloc>();
-                            
-                            await Navigator.pushNamed(context, '/subjects');
-                            
-                            // Reload data when returning from subjects page
-                            if (mounted && userId.isNotEmpty) {
-                              taskBloc.add(LoadTasksEvent(userId));
-                              examBloc.add(LoadExamsEvent(userId));
-                            }
-                          },
-                        ),
-                        SizedBox(height: screenHeight * 0.02),
+                        if (taskState is TaskLoaded) {
+                          taskCount = taskState.tasks
+                              .where((task) => !task.done)
+                              .length;
+                        }
 
-                        // Button to navigate to tasks page
-                        MenuButton(
-                          icon: Icons.checklist,
-                          label: "Task",
-                          onTap: () async {
-                            final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
-                            final taskBloc = context.read<TaskBloc>();
-                            
-                            await Navigator.pushNamed(context, '/tasks');
-                            
-                            // Reload data when returning
-                            if (mounted && userId.isNotEmpty) {
-                              taskBloc.add(LoadTasksEvent(userId));
-                            }
-                          },
-                        ),
-                        SizedBox(height: screenHeight * 0.02),
+                        if (examState is ExamLoaded) {
+                          examCount = examState.exams
+                              .where((exam) => !exam.done)
+                              .length;
+                        }
 
-                        // Button to navigate to exams page
-                        MenuButton(
-                          icon: Icons.folder,
-                          label: "Exam",
-                          onTap: () async {
-                            final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
-                            final examBloc = context.read<ExamBloc>();
-                            
-                            await Navigator.pushNamed(context, '/exams');
-                            
-                            // Reload data when returning
-                            if (mounted && userId.isNotEmpty) {
-                              examBloc.add(LoadExamsEvent(userId));
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                        return HomeOverviewSection(
+                          taskCount: taskCount,
+                          examCount: examCount,
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              _buildAnimatedSection(
+                begin: 0.28,
+                end: 0.8,
+                child: const MotivationalQuoteSection(),
+              ),
+              const SizedBox(height: 16),
+              _buildAnimatedSection(
+                begin: 0.4,
+                end: 1,
+                child: HomeActionsSection(
+                  onSubjectsTap: () => _navigateAndReload(
+                    route: '/subjects',
+                    refreshTasks: true,
+                    refreshExams: true,
+                  ),
+                  onTasksTap: () => _navigateAndReload(
+                    route: '/tasks',
+                    refreshTasks: true,
+                    refreshExams: false,
+                  ),
+                  onExamsTap: () => _navigateAndReload(
+                    route: '/exams',
+                    refreshTasks: false,
+                    refreshExams: true,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -55,7 +55,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     try {
       final taskId = const Uuid().v4();
-      await taskRepository.createTask(
+      final createdTask = await taskRepository.createTask(
         taskId,
         event.title,
         event.subjectId,
@@ -64,9 +64,15 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         event.userId,
       );
 
-      // Reload tasks after creation
+      // Fast path: update in-memory state instantly instead of refetching all tasks.
+      if (state is TaskLoaded) {
+        final currentState = state as TaskLoaded;
+        emit(TaskLoaded([...currentState.tasks, createdTask], currentState.userId));
+        return;
+      }
+
       final tasks = await taskRepository.getAllTasks(event.userId);
-        emit(TaskLoaded(tasks, event.userId));
+      emit(TaskLoaded(tasks, event.userId));
     } catch (e) {
       emit(TaskError('Failed to create task: $e'));
     }
@@ -96,27 +102,40 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     ToggleTaskDoneEvent event,
     Emitter<TaskState> emit,
   ) async {
-    try {
-      await taskRepository.toggleTaskDone(event.taskId);
+    if (state is! TaskLoaded) {
+      return;
+    }
 
-      // Update task in current state
-      if (state is TaskLoaded) {
-        final currentState = state as TaskLoaded;
-        final updatedTasks = currentState.tasks.map((t) {
-          if (t.id == event.taskId) {
-            return Task(
-              id: t.id,
-              title: t.title,
-              subjectId: t.subjectId,
-              subjectName: t.subjectName,
-              dateTime: t.dateTime,
-              done: !t.done,
-            );
-          }
-          return t;
-        }).toList();
-          emit(TaskLoaded(updatedTasks, currentState.userId));
-      }
+    final currentState = state as TaskLoaded;
+    final taskIndex = currentState.tasks.indexWhere((t) => t.id == event.taskId);
+    if (taskIndex == -1) {
+      return;
+    }
+
+    final targetTask = currentState.tasks[taskIndex];
+    final nextDoneValue = !targetTask.done;
+    final wasLate = nextDoneValue
+        ? targetTask.dateTime.isBefore(DateTime.now())
+        : null;
+
+    try {
+      await taskRepository.setTaskDone(event.taskId, nextDoneValue, wasLate: wasLate);
+
+      final updatedTasks = currentState.tasks.map((task) {
+        if (task.id == event.taskId) {
+          return Task(
+            id: task.id,
+            title: task.title,
+            subjectId: task.subjectId,
+            subjectName: task.subjectName,
+            dateTime: task.dateTime,
+            done: nextDoneValue,
+            wasLate: nextDoneValue ? wasLate : null,
+          );
+        }
+        return task;
+      }).toList();
+      emit(TaskLoaded(updatedTasks, currentState.userId));
     } catch (e) {
       emit(TaskError('Failed to toggle task: $e'));
     }

@@ -5,6 +5,7 @@ class Exam {
   String subjectName;
   DateTime dateTime;
   bool done;
+  bool? wasLate;
 
   Exam({
     required this.id,
@@ -13,6 +14,7 @@ class Exam {
     required this.subjectName,
     required this.dateTime,
     this.done = false,
+    this.wasLate,
   });
 
   factory Exam.fromJson(Map<String, dynamic> json) => Exam(
@@ -22,6 +24,7 @@ class Exam {
         subjectName: json['subjectName'],
         dateTime: DateTime.parse(json['dateTime']),
         done: json['done'] ?? false,
+        wasLate: json['wasLate'] as bool?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -31,5 +34,6 @@ class Exam {
         'subjectName': subjectName,
         'dateTime': dateTime.toIso8601String(),
         'done': done,
+        if (wasLate != null) 'wasLate': wasLate,
       };
 }

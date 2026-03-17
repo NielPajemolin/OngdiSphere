@@ -4,10 +4,10 @@ import '../colorpalette/color_palette.dart';
 import '../storage/task.dart';
 
 class TaskCard extends StatelessWidget {
-  final Task task; // The Task object to display
-  final ValueChanged<bool?>? onDoneChanged; // Callback for when the done checkbox changes
-  final VoidCallback? onDelete; // Callback for when the delete button is pressed
-  final VoidCallback? onEdit; // Callback for when the edit button is pressed
+  final Task task;
+  final ValueChanged<bool?>? onDoneChanged;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const TaskCard({
     super.key,
@@ -19,81 +19,131 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!; // Custom color palette
-    final screenWidth = MediaQuery.of(context).size.width; // Screen width for responsive sizing
-    final screenHeight = MediaQuery.of(context).size.height; // Screen height for responsive padding
+    final colors = Theme.of(context).extension<AppColors>()!;
 
-    final isOverdue = task.dateTime.isBefore(DateTime.now()); // Check if the task is past its deadline
+    final isOverdue = task.done
+        ? (task.wasLate ?? false)
+        : task.dateTime.isBefore(DateTime.now());
 
     return Card(
-      color: colors.secondary, // Card background color
-      margin: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.03, vertical: screenHeight * 0.008), // Responsive margin
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      color: Colors.white,
+      shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.1),
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(
+          color: isOverdue
+              ? Colors.red.withValues(alpha: 0.45)
+              : colors.primary.withValues(alpha: 0.15),
+          width: isOverdue ? 1.4 : 1.0,
+        ),
+      ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.03, vertical: screenHeight * 0.012), // Responsive padding
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Task information section
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Task title
                   Text(
                     task.title,
                     style: TextStyle(
-                      color: colors.primaryText,
-                      fontWeight: FontWeight.bold,
-                      fontSize: screenWidth * 0.045, // Responsive font size
+                      color: colors.tertiaryText,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.005), // Small vertical spacing
-                  
-                  // Subject name
-                  Text(
-                    "Subject: ${task.subjectName}",
-                    style: TextStyle(
-                      color: colors.surface.withOpacity(0.7), // Slightly muted text
-                      fontSize: screenWidth * 0.04, // Responsive font size
-                    ),
+                  const SizedBox(height: 5),
+                  Row(
+                    children: [
+                      const Icon(Icons.menu_book_rounded, size: 13, color: Colors.black45),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          task.subjectName,
+                          style: const TextStyle(color: Colors.black54, fontSize: 13),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: screenHeight * 0.005),
-                  
-                  // Deadline
-                  Text(
-                    "Deadline: ${DateFormat.yMd().add_jm().format(task.dateTime.toLocal())}",
-                    style: TextStyle(
-                      color: isOverdue ? Colors.red : colors.surface.withOpacity(0.7), // Red if overdue
-                      fontSize: screenWidth * 0.04,
-                    ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 13,
+                        color: isOverdue ? Colors.red : Colors.black45,
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          DateFormat.yMd().add_jm().format(task.dateTime.toLocal()),
+                          style: TextStyle(
+                            color: isOverdue ? Colors.red : Colors.black54,
+                            fontSize: 13,
+                            fontWeight: isOverdue ? FontWeight.w600 : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      if (isOverdue)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.red.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Late',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
             ),
-
-            // Action buttons: Done checkbox, Edit, and Delete button
-            Row(
+            const SizedBox(width: 6),
+            Column(
               children: [
-                // Checkbox to mark task as done
                 Checkbox(
                   value: task.done,
                   onChanged: onDoneChanged,
-                  fillColor: MaterialStateProperty.all(colors.primary), // Checkbox color
-                ),
-                
-                // Edit button (only shown if onEdit is provided)
-                if (onEdit != null)
-                  IconButton(
-                    icon: Icon(Icons.edit, color: colors.primary, size: screenWidth * 0.06),
-                    onPressed: onEdit,
+                  fillColor: WidgetStateProperty.resolveWith(
+                    (states) => colors.primary,
                   ),
-                
-                // Delete button
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red, size: screenWidth * 0.06),
-                  onPressed: onDelete,
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (onEdit != null)
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        icon: Icon(
+                          Icons.edit_rounded,
+                          color: colors.primary,
+                          size: 20,
+                        ),
+                        onPressed: onEdit,
+                      ),
+                    IconButton(
+                      visualDensity: VisualDensity.compact,
+                      icon: const Icon(
+                        Icons.delete_outline_rounded,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      onPressed: onDelete,
+                    ),
+                  ],
                 ),
               ],
             ),

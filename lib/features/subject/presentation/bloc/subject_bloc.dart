@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../storage/repositories/subject_repository.dart';
 import '../../../../storage/repositories/exam_repository.dart';
+import '../../../../storage/subject.dart';
 import 'subject_event.dart';
 import 'subject_state.dart';
 
@@ -39,15 +40,25 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
   ) async {
     try {
       final subjectId = const Uuid().v4();
-      await subjectRepository.createSubject(
+      final createdSubject = await subjectRepository.createSubject(
         subjectId,
         event.name,
         event.userId,
       );
 
-      // Reload subjects after creation
+      if (state is SubjectLoaded) {
+        final currentState = state as SubjectLoaded;
+        emit(
+          SubjectLoaded(
+            [...currentState.subjects, createdSubject],
+            currentState.userId,
+          ),
+        );
+        return;
+      }
+
       final subjects = await subjectRepository.getAllSubjects(event.userId);
-        emit(SubjectLoaded(subjects, event.userId));
+      emit(SubjectLoaded(subjects, event.userId));
     } catch (e) {
       emit(SubjectError('Failed to create subject: $e'));
     }
@@ -60,14 +71,15 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     try {
       await subjectRepository.updateSubject(event.id, event.name);
 
-      // Get current state to preserve userId for reload
       if (state is SubjectLoaded) {
         final currentState = state as SubjectLoaded;
-        if (currentState.subjects.isNotEmpty) {
-          // We can't easily get userId here, so we'll reload all
-          final subjects = await subjectRepository.getAllSubjects(event.id);
-            emit(SubjectLoaded(subjects, currentState.userId));
-        }
+        final updatedSubjects = currentState.subjects.map((subject) {
+          if (subject.id != event.id) {
+            return subject;
+          }
+          return Subject(id: subject.id, name: event.name, tasks: subject.tasks);
+        }).toList();
+        emit(SubjectLoaded(updatedSubjects, currentState.userId));
       }
     } catch (e) {
       emit(SubjectError('Failed to update subject: $e'));
@@ -81,15 +93,12 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     try {
       await subjectRepository.deleteSubject(event.id);
 
-      // Get current state to reload
       if (state is SubjectLoaded) {
         final currentState = state as SubjectLoaded;
-        // Reload subjects - we need userId but can't easily get it
-        // For now, emit current filtered list
         final subjects = currentState.subjects
             .where((s) => s.id != event.id)
             .toList();
-            emit(SubjectLoaded(subjects, currentState.userId));
+        emit(SubjectLoaded(subjects, currentState.userId));
       }
     } catch (e) {
       emit(SubjectError('Failed to delete subject: $e'));

@@ -1,12 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../colorpalette/color_palette.dart';
 import '../storage/task.dart';
 import '../storage/subject.dart';
 import '../components/task_card.dart';
-import '../components/add_exam_dialog.dart';
+import '../components/add_task_dialog.dart';
+import '../components/summary_header_card.dart';
+import '../components/subject_filter_dropdown.dart';
 import '../features/subject/presentation/bloc/subject_bloc.dart';
 import '../features/subject/presentation/bloc/subject_event.dart';
 import '../features/subject/presentation/bloc/subject_state.dart';
@@ -14,7 +14,6 @@ import '../features/task/presentation/bloc/task_bloc.dart';
 import '../features/task/presentation/bloc/task_event.dart';
 import '../features/task/presentation/bloc/task_state.dart';
 import '../features/auth/presentation/cubits/auth/auth_cubit.dart';
-
 
 class TaskPage extends StatefulWidget {
   const TaskPage({super.key});
@@ -24,7 +23,8 @@ class TaskPage extends StatefulWidget {
 }
 
 class _TaskPageState extends State<TaskPage> {
-  String? selectedSubjectId; // Currently selected subject filter (null = show all)
+  String?
+  selectedSubjectId; // Currently selected subject filter (null = show all)
 
   @override
   void initState() {
@@ -41,23 +41,24 @@ class _TaskPageState extends State<TaskPage> {
   Future<void> addTask(List<Subject> subjects) async {
     if (subjects.isEmpty) {
       // If there are no subjects, show a message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No subjects available')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No subjects available')));
       return;
     }
 
     final result = await showDialog<Map<String, dynamic>?>(
       context: context,
-      builder: (_) => AddTaskDialog(subjects: subjects), // Pass subjects for selection
+      builder: (_) =>
+          AddTaskDialog(subjects: subjects), // Pass subjects for selection
     );
 
     if (!mounted || result == null) return;
 
     if (result.containsKey('error')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -86,15 +87,18 @@ class _TaskPageState extends State<TaskPage> {
 
     final result = await showDialog<Map<String, dynamic>?>(
       context: context,
-      builder: (_) => AddTaskDialog(subjects: subjects, task: task), // Pass task for editing
+      builder: (_) => AddTaskDialog(
+        subjects: subjects,
+        task: task,
+      ), // Pass task for editing
     );
 
     if (!mounted || result == null) return;
 
     if (result.containsKey('error')) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
@@ -125,8 +129,14 @@ class _TaskPageState extends State<TaskPage> {
         title: const Text('Delete Task'),
         content: const Text('Are you sure you want to delete this task?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Delete')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -142,18 +152,16 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
         title: Text(
-          "Tasks",
+          'Tasks',
           style: TextStyle(
-            color: colors.primaryText,
-            fontSize: screenWidth * 0.07, // Responsive font size
-            fontWeight: FontWeight.bold,
+            color: colors.tertiaryText,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -165,87 +173,111 @@ class _TaskPageState extends State<TaskPage> {
           }
           return FloatingActionButton(
             onPressed: () => addTask(subjects), // Add a new task
-            child: const Icon(Icons.add),
+            child: const Icon(Icons.add_rounded),
           );
         },
       ),
-      body: BlocBuilder<SubjectBloc, SubjectState>(
-        builder: (context, subjectState) {
-          List<Subject> subjects = [];
-          if (subjectState is SubjectLoaded) {
-            subjects = subjectState.subjects;
-          }
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [colors.surface, const Color(0xFFE6F2FF)],
+          ),
+        ),
+        child: BlocBuilder<SubjectBloc, SubjectState>(
+          builder: (context, subjectState) {
+            List<Subject> subjects = [];
+            if (subjectState is SubjectLoaded) {
+              subjects = subjectState.subjects;
+            }
 
-          return BlocBuilder<TaskBloc, TaskState>(
-            builder: (context, taskState) {
-              List<Task> tasks = [];
-              if (taskState is TaskLoaded) {
-                tasks = taskState.tasks;
-              }
+            return BlocBuilder<TaskBloc, TaskState>(
+              builder: (context, taskState) {
+                List<Task> tasks = [];
+                if (taskState is TaskLoaded) {
+                  tasks = taskState.tasks;
+                }
 
-              if (taskState is TaskLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+                if (taskState is TaskLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (taskState is TaskError) {
-                return Center(child: Text(taskState.message));
-              }
+                if (taskState is TaskError) {
+                  return Center(child: Text(taskState.message));
+                }
 
-              // Apply filter: show all tasks or only those for the selected subject
-              final filteredTasks = selectedSubjectId == null
-                  ? tasks.where((t) => !t.done).toList() // Exclude done tasks
-                  : tasks.where((t) => t.subjectId == selectedSubjectId && !t.done).toList();
+                final filteredTasks = selectedSubjectId == null
+                    ? tasks.where((task) => !task.done).toList()
+                    : tasks
+                          .where(
+                            (task) =>
+                                task.subjectId == selectedSubjectId &&
+                                !task.done,
+                          )
+                          .toList();
 
-              return Column(
-                children: [
-                  // Dropdown to filter tasks by subject
-                  Padding(
-                    padding: EdgeInsets.all(screenWidth * 0.03),
-                    child: DropdownButtonFormField<String>(
-                      value: selectedSubjectId,
-                      hint: const Text("Filter by Subject"),
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
+                      child: SummaryHeaderCard(
+                        icon: Icons.checklist_rounded,
+                        iconColor: const Color(0xFF0D47A1),
+                        iconBackgroundColor: const Color(0x1A1565C0),
+                        title: 'Active Tasks',
+                        subtitle: '${filteredTasks.length} pending item(s)',
+                        titleColor: colors.tertiaryText,
                       ),
-                      items: [
-                        const DropdownMenuItem(value: null, child: Text("All Subjects")),
-                        ...subjects.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
-                      ],
-                      onChanged: (value) => setState(() => selectedSubjectId = value),
                     ),
-                  ),
-
-                  // Display task list
-                  Expanded(
-                    child: filteredTasks.isEmpty
-                        ? const Center(child: Text("No tasks"))
-                        : ListView.builder(
-                            itemCount: filteredTasks.length,
-                            itemBuilder: (context, index) {
-                              final task = filteredTasks[index];
-                              return TaskCard(
-                                task: task,
-                                // Checkbox toggle for marking task done
-                                onDoneChanged: (value) {
-                                  context.read<TaskBloc>().add(ToggleTaskDoneEvent(task.id));
-                                },
-                                // Edit task
-                                onEdit: () => editTask(subjects, task),
-                                // Delete task
-                                onDelete: () => deleteTask(task),
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+                      child: SubjectFilterDropdown(
+                        value: selectedSubjectId,
+                        subjects: subjects,
+                        onChanged: (value) => setState(() {
+                          selectedSubjectId = value;
+                        }),
+                      ),
+                    ),
+                    Expanded(
+                      child: filteredTasks.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No active tasks found',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(
+                                12,
+                                0,
+                                12,
+                                120,
+                              ),
+                              itemCount: filteredTasks.length,
+                              itemBuilder: (context, index) {
+                                final task = filteredTasks[index];
+                                return TaskCard(
+                                  task: task,
+                                  onDoneChanged: (value) {
+                                    context.read<TaskBloc>().add(
+                                      ToggleTaskDoneEvent(task.id),
+                                    );
+                                  },
+                                  onEdit: () => editTask(subjects, task),
+                                  onDelete: () => deleteTask(task),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
 }
-

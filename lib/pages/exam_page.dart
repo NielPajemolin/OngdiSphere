@@ -4,7 +4,9 @@ import '../colorpalette/color_palette.dart';
 import '../storage/exam.dart';
 import '../storage/subject.dart';
 import '../components/exam_card.dart';
-import '../components/add_task_dialog.dart';
+import '../components/add_exam_dialog.dart';
+import '../components/summary_header_card.dart';
+import '../components/subject_filter_dropdown.dart';
 import '../features/subject/presentation/bloc/subject_bloc.dart';
 import '../features/subject/presentation/bloc/subject_event.dart';
 import '../features/subject/presentation/bloc/subject_state.dart';
@@ -38,14 +40,17 @@ class _ExamPageState extends State<ExamPage> {
   /// Opens a dialog to add a new exam and saves it
   Future<void> addExam(List<Subject> subjects) async {
     if (subjects.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No subjects available')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No subjects available')));
       return;
     }
 
     // Show the AddExam dialog
-    final result = await showAddExamDialog(context: context, subjects: subjects);
+    final result = await showAddExamDialog(
+      context: context,
+      subjects: subjects,
+    );
     if (!mounted || result == null || result['error'] != null) return;
 
     final Exam newExam = result['exam'];
@@ -102,8 +107,14 @@ class _ExamPageState extends State<ExamPage> {
         title: const Text('Delete Exam'),
         content: const Text('Are you sure you want to delete this exam?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Delete')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
         ],
       ),
     );
@@ -119,18 +130,16 @@ class _ExamPageState extends State<ExamPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
         title: Text(
-          "Exams",
+          'Exams',
           style: TextStyle(
-            color: colors.primaryText,
-            fontSize: screenWidth * 0.07, // Responsive font size
-            fontWeight: FontWeight.bold,
+            color: colors.tertiaryText,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
@@ -142,83 +151,110 @@ class _ExamPageState extends State<ExamPage> {
           }
           return FloatingActionButton(
             onPressed: () => addExam(subjects),
-            child: const Icon(Icons.add),
+            child: const Icon(Icons.add_rounded),
           );
         },
       ),
-      body: BlocBuilder<SubjectBloc, SubjectState>(
-        builder: (context, subjectState) {
-          List<Subject> subjects = [];
-          if (subjectState is SubjectLoaded) {
-            subjects = subjectState.subjects;
-          }
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [colors.surface, const Color(0xFFE9EEFF)],
+          ),
+        ),
+        child: BlocBuilder<SubjectBloc, SubjectState>(
+          builder: (context, subjectState) {
+            List<Subject> subjects = [];
+            if (subjectState is SubjectLoaded) {
+              subjects = subjectState.subjects;
+            }
 
-          return BlocBuilder<ExamBloc, ExamState>(
-            builder: (context, examState) {
-              List<Exam> exams = [];
-              if (examState is ExamLoaded) {
-                exams = examState.exams;
-              }
+            return BlocBuilder<ExamBloc, ExamState>(
+              builder: (context, examState) {
+                List<Exam> exams = [];
+                if (examState is ExamLoaded) {
+                  exams = examState.exams;
+                }
 
-              if (examState is ExamLoading) {
-                return const Center(child: CircularProgressIndicator());
-              }
+                if (examState is ExamLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (examState is ExamError) {
-                return Center(child: Text(examState.message));
-              }
+                if (examState is ExamError) {
+                  return Center(child: Text(examState.message));
+                }
 
-              // Apply filter: show all exams or only those matching the selected subject and not done
-              final filteredExams = selectedSubjectId == null
-                  ? exams.where((e) => !e.done).toList()
-                  : exams.where((e) => e.subjectId == selectedSubjectId && !e.done).toList();
+                final filteredExams = selectedSubjectId == null
+                    ? exams.where((exam) => !exam.done).toList()
+                    : exams
+                          .where(
+                            (exam) =>
+                                exam.subjectId == selectedSubjectId &&
+                                !exam.done,
+                          )
+                          .toList();
 
-              return Column(
-                children: [
-                  // Subject filter dropdown
-                  Padding(
-                    padding: EdgeInsets.all(screenWidth * 0.03),
-                    child: DropdownButtonFormField<String>(
-                      value: selectedSubjectId,
-                      hint: const Text("Filter by Subject"),
-                      isExpanded: true,
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
+                      child: SummaryHeaderCard(
+                        icon: Icons.description_rounded,
+                        iconColor: const Color(0xFF6A1B9A),
+                        iconBackgroundColor: const Color(0x1A8E24AA),
+                        title: 'Upcoming Exams',
+                        subtitle: '${filteredExams.length} pending exam(s)',
+                        titleColor: colors.tertiaryText,
                       ),
-                      items: [
-                        const DropdownMenuItem(value: null, child: Text("All Subjects")), // Option to show all exams
-                        ...subjects.map((s) => DropdownMenuItem(value: s.id, child: Text(s.name)))
-                      ],
-                      onChanged: (value) => setState(() => selectedSubjectId = value), // Apply filter
                     ),
-                  ),
-
-                  // Exams list
-                  Expanded(
-                    child: filteredExams.isEmpty
-                        ? const Center(child: Text("No exams yet")) // Show message if no exams
-                        : ListView.builder(
-                            itemCount: filteredExams.length,
-                            itemBuilder: (context, index) {
-                              final exam = filteredExams[index];
-                              return ExamCard(
-                                exam: exam,
-                                onDoneChanged: (value) {
-                                  context.read<ExamBloc>().add(ToggleExamDoneEvent(exam.id));
-                                },
-                                // Edit exam
-                                onEdit: () => editExam(subjects, exam),
-                                onDelete: () => deleteExam(exam), // Delete exam
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              );
-            },
-          );
-        },
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+                      child: SubjectFilterDropdown(
+                        value: selectedSubjectId,
+                        subjects: subjects,
+                        onChanged: (value) => setState(() {
+                          selectedSubjectId = value;
+                        }),
+                      ),
+                    ),
+                    Expanded(
+                      child: filteredExams.isEmpty
+                          ? const Center(
+                              child: Text(
+                                'No pending exams',
+                                style: TextStyle(color: Colors.black54),
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: const EdgeInsets.fromLTRB(
+                                12,
+                                0,
+                                12,
+                                120,
+                              ),
+                              itemCount: filteredExams.length,
+                              itemBuilder: (context, index) {
+                                final exam = filteredExams[index];
+                                return ExamCard(
+                                  exam: exam,
+                                  onDoneChanged: (value) {
+                                    context.read<ExamBloc>().add(
+                                      ToggleExamDoneEvent(exam.id),
+                                    );
+                                  },
+                                  onEdit: () => editExam(subjects, exam),
+                                  onDelete: () => deleteExam(exam),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

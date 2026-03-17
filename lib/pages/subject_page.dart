@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../colorpalette/color_palette.dart';
 import '../storage/subject.dart';
 import '../storage/exam.dart';
+import '../storage/task.dart';
 import '../components/subject_card.dart';
 import '../components/add_subject_dialog.dart';
+import '../components/summary_header_card.dart';
 import '../features/subject/presentation/bloc/subject_bloc.dart';
 import '../features/subject/presentation/bloc/subject_event.dart';
 import '../features/subject/presentation/bloc/subject_state.dart';
@@ -40,18 +42,22 @@ class _SubjectPageState extends State<SubjectPage> {
   Future<void> addSubject() async {
     final result = await showDialog<Map<String, dynamic>?>(
       context: context,
-      builder: (_) => const AddSubjectDialog(), // Custom dialog to enter subject name
+      builder: (_) =>
+          const AddSubjectDialog(), // Custom dialog to enter subject name
     );
 
     // Exit if dialog was cancelled or returned an error
     if (!mounted || result == null || result['error'] != null) return;
 
-    final Subject newSubject = result['subject']; // Retrieve new subject from dialog
+    final Subject newSubject =
+        result['subject']; // Retrieve new subject from dialog
 
     // Add subject via BLoC
     final userId = context.read<AuthCubit>().currenUser?.uid ?? '';
     if (mounted && userId.isNotEmpty) {
-      context.read<SubjectBloc>().add(CreateSubjectEvent(newSubject.name, userId));
+      context.read<SubjectBloc>().add(
+        CreateSubjectEvent(newSubject.name, userId),
+      );
     }
   }
 
@@ -65,11 +71,13 @@ class _SubjectPageState extends State<SubjectPage> {
         content: const Text('Are you sure you want to delete this subject?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), // Cancel deletion
+            onPressed: () =>
+                Navigator.of(context).pop(false), // Cancel deletion
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true),  // Confirm deletion
+            onPressed: () =>
+                Navigator.of(context).pop(true), // Confirm deletion
             child: const Text('Delete'),
           ),
         ],
@@ -86,80 +94,130 @@ class _SubjectPageState extends State<SubjectPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!; // Get theme colors
-    final screenWidth = MediaQuery.of(context).size.width;    // Responsive width
+    final colors = Theme.of(context).extension<AppColors>()!;
 
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colors.primary,
         title: Text(
-          "Subjects",
+          'Subjects',
           style: TextStyle(
-            color: colors.primaryText,
-            fontSize: screenWidth * 0.07,  // Responsive font size
-            fontWeight: FontWeight.bold,
+            color: colors.tertiaryText,
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: addSubject, // Open dialog to add new subject
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_rounded),
       ),
-      body: BlocBuilder<SubjectBloc, SubjectState>(
-        builder: (context, subjectState) {
-          return BlocBuilder<ExamBloc, ExamState>(
-            builder: (context, examState) {
-              return BlocBuilder<TaskBloc, TaskState>(
-                builder: (context, taskState) {
-                  List<Subject> subjects = [];
-                  List<Exam> exams = [];
-                  List<dynamic> tasks = [];
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [colors.surface, const Color(0xFFE6F1FF)],
+          ),
+        ),
+        child: BlocBuilder<SubjectBloc, SubjectState>(
+          builder: (context, subjectState) {
+            return BlocBuilder<ExamBloc, ExamState>(
+              builder: (context, examState) {
+                return BlocBuilder<TaskBloc, TaskState>(
+                  builder: (context, taskState) {
+                    List<Subject> subjects = [];
+                    List<Exam> exams = [];
+                    List<Task> tasks = [];
 
-                  if (subjectState is SubjectLoaded) {
-                    subjects = subjectState.subjects;
-                  }
+                    if (subjectState is SubjectLoaded) {
+                      subjects = subjectState.subjects;
+                    }
 
-                  if (examState is ExamLoaded) {
-                    exams = examState.exams;
-                  }
+                    if (examState is ExamLoaded) {
+                      exams = examState.exams;
+                    }
 
-                  if (taskState is TaskLoaded) {
-                    tasks = taskState.tasks;
-                  }
+                    if (taskState is TaskLoaded) {
+                      tasks = taskState.tasks;
+                    }
 
-                  if (subjectState is SubjectLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+                    if (subjectState is SubjectLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                  if (subjectState is SubjectError) {
-                    return Center(child: Text(subjectState.message));
-                  }
+                    if (subjectState is SubjectError) {
+                      return Center(child: Text(subjectState.message));
+                    }
 
-                  return subjects.isEmpty
-                      ? const Center(child: Text("No subjects yet")) // Show when list is empty
-                      : ListView.builder(
-                          itemCount: subjects.length,
-                          itemBuilder: (context, index) {
-                            final subject = subjects[index];
-                            // Count tasks for this subject
-                            final taskCount = tasks.where((t) => t.subjectId == subject.id).length;
-                            // Count exams for this subject
-                            final examCount = exams.where((e) => e.subjectId == subject.id).length;
+                    return ListView(
+                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 120),
+                      children: [
+                        SummaryHeaderCard(
+                          icon: Icons.menu_book_rounded,
+                          iconColor: const Color(0xFF0D47A1),
+                          iconBackgroundColor: const Color(0x1A1565C0),
+                          title: 'Learning Spaces',
+                          subtitle: '${subjects.length} subject(s) organized',
+                          titleColor: colors.tertiaryText,
+                          showShadow: true,
+                        ),
+                        const SizedBox(height: 14),
+                        if (subjects.isEmpty)
+                          Container(
+                            padding: const EdgeInsets.all(22),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Icons.library_add_rounded,
+                                  size: 36,
+                                  color: Color(0xFF1565C0),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'No subjects yet',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 4),
+                                Text(
+                                  'Tap the + button to create your first subject.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          ...subjects.map((subject) {
+                            final taskCount = tasks
+                                .where((task) => task.subjectId == subject.id)
+                                .length;
+                            final examCount = exams
+                                .where((exam) => exam.subjectId == subject.id)
+                                .length;
 
                             return SubjectCard(
                               subject: subject,
-                              taskCount: taskCount,   // Pass task count to card
-                              examCount: examCount,   // Pass exam count to card
-                              onDelete: () => deleteSubject(subject), // Delete callback
+                              taskCount: taskCount,
+                              examCount: examCount,
+                              onDelete: () => deleteSubject(subject),
                             );
-                          },
-                        );
-                },
-              );
-            },
-          );
-        },
+                          }),
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

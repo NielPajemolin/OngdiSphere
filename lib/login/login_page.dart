@@ -21,169 +21,223 @@ class _LoginPageState extends State<LoginPage> {
   final passwordController = TextEditingController();
   final resetpwController = TextEditingController();
 
-    //auth cubit
   late final authCubit = context.read<AuthCubit>();
 
-  //log button pressed
   void login() {
-    //prepare email &p w
     final String email = emailController.text;
     final String pw = passwordController.text;
 
-    //make sure all the fields are filled
     if (email.isNotEmpty && pw.isNotEmpty) {
-      //login
       authCubit.login(email, pw);
-    }
-    //field are empty
-    else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter both email and password")),
+        const SnackBar(content: Text('Please enter both email and password')),
       );
     }
   }
 
-  //forgot password box
   void openForgotPasswordBox() {
+    final colors = Theme.of(context).extension<AppColors>()!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Forgot Password?"),
-        content: MyTextfield(
-          controller: resetpwController, 
-          hintText: "", 
-          labeltext: "Enter email...", 
-          obscureText: false,
-          ),
-          actions: [
-            // cancel button
-            TextButton(onPressed: () => Navigator.pop(context), 
-            child: const Text("Cancel"),
+        backgroundColor: colors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: colors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(Icons.lock_reset_rounded, color: colors.primary, size: 20),
             ),
+            const SizedBox(width: 10),
+            const Text('Forgot Password?', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+          ],
+        ),
+        content: MyTextfield(
+          controller: resetpwController,
+          hintText: 'you@example.com',
+          labeltext: 'Email address',
+          obscureText: false,
+          prefixIcon: Icons.email_rounded,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.done,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              final message = await authCubit.forgotPassword(
+                resetpwController.text,
+              );
 
-            //reset button
-            TextButton(onPressed: () async {
-              String message = 
-                  await authCubit.forgotPassword(resetpwController.text);
-
-              if (message == "Password reset email sent! Check your email.") {
+              if (message == 'Password reset email sent! Check your email.') {
                 Navigator.pop(context);
                 resetpwController.clear();
               }
 
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(message)));
-            }, 
-            child: const Text("Reset"),
-            ),
-          ],
-        ),
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(message)));
+            },
+            child: const Text('Send Reset Email'),
+          ),
+        ],
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    resetpwController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: colors.surface,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [colors.surface, const Color(0xFFE7F2FF)],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
             child: Column(
               children: [
-                SizedBox(height: screenHeight * 0.03),
-
-                // Logo
-                Image.asset(
-                  'assets/images/logowithname.png',
-                  width: screenWidth * 0.8,
-                  height: screenHeight * 0.30,
-                  fit: BoxFit.contain,
-                ),
-
-                SizedBox(height: screenHeight * 0.03),
-
-                // Welcome text
-                Text(
-                  "Welcome Back",
-                  style: TextStyle(
-                    color: colors.tertiaryText,
-                    fontSize: screenWidth * 0.07,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                    ),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x301565C0),
+                        blurRadius: 24,
+                        offset: Offset(0, 12),
+                      ),
+                    ],
                   ),
-                ),
-
-                SizedBox(height: screenHeight * 0.03),
-
-                // Email textfield
-                MyTextfield(
-                  controller: emailController,
-                  hintText: 'Email',
-                  labeltext: "Email",
-                  obscureText: false,
-                ),
-
-                SizedBox(height: screenHeight * 0.02),
-
-                // Password textfield
-                MyTextfield(
-                  controller: passwordController,
-                  hintText: 'Password',
-                  labeltext: "Password",
-                  obscureText: true,
-                ),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    GestureDetector(
-                      onTap: () => openForgotPasswordBox(),
-                      child: Text(
-                        '  Forgot Password?',
+                  child: Column(
+                    children: [
+                      // Keep the existing logo image as requested.
+                      Image.asset(
+                        'assets/images/logowithname.png',
+                        height: 150,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Welcome Back',
                         style: TextStyle(
-                          color: colors.secondary,
-                          fontSize: screenWidth * 0.04,
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Login to continue planning your goals.',
+                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: screenHeight * 0.03),
-
-                // Login button
-                MyButton(label: 'Login', onPressed: login),
-                SizedBox(height: screenHeight * 0.04),
-
-                // Signup link
+                const SizedBox(height: 18),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(14, 16, 14, 18),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0x1F1565C0)),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x12000000),
+                        blurRadius: 18,
+                        offset: Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      MyTextfield(
+                        controller: emailController,
+                        hintText: 'you@example.com',
+                        labeltext: 'Email',
+                        obscureText: false,
+                        prefixIcon: Icons.email_rounded,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                      ),
+                      MyTextfield(
+                        controller: passwordController,
+                        hintText: 'Password',
+                        labeltext: 'Password',
+                        obscureText: true,
+                        prefixIcon: Icons.lock_rounded,
+                        textInputAction: TextInputAction.done,
+                        onEditingComplete: login,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: openForgotPasswordBox,
+                            child: Text(
+                              'Forgot Password?',
+                              style: TextStyle(color: colors.secondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      MyButton(label: 'Login', onPressed: login),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'dont have an account? ',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: screenWidth * 0.04,
-                      ),
+                    const Text(
+                      'Don\'t have an account? ',
+                      style: TextStyle(color: Colors.black54),
                     ),
                     GestureDetector(
                       onTap: widget.togglePages,
                       child: Text(
-                        "Sign Up",
+                        'Sign Up',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
                           color: colors.primary,
-                          fontSize: screenWidth * 0.04,
+                          fontWeight: FontWeight.w700,
+                          decoration: TextDecoration.underline,
+                          decorationColor: colors.primary,
                         ),
                       ),
                     ),
                   ],
                 ),
-
-                SizedBox(height: screenHeight * 0.03),
               ],
             ),
           ),

@@ -63,8 +63,10 @@ class SubjectRepository {
     final taskRepository = TaskRepository();
     final examRepository = ExamRepository();
 
-    await taskRepository.deleteTasksBySubjectId(subjectId);
-    await examRepository.deleteExamsBySubjectId(subjectId);
+    await Future.wait([
+      taskRepository.deleteTasksBySubjectId(subjectId),
+      examRepository.deleteExamsBySubjectId(subjectId),
+    ]);
 
     await _subjectsForUser(userId).doc(subjectId).delete();
   }

@@ -5,6 +5,7 @@ class Task {
   String subjectName;
   DateTime dateTime;
   bool done;
+  bool? wasLate;
 
   Task({
     required this.id,
@@ -13,6 +14,7 @@ class Task {
     required this.subjectName,
     required this.dateTime,
     this.done = false,
+    this.wasLate,
   });
 
   factory Task.fromJson(Map<String, dynamic> json) => Task(
@@ -22,6 +24,7 @@ class Task {
         subjectName: json['subjectName'] ?? '',
         dateTime: DateTime.tryParse(json['dateTime'] ?? '') ?? DateTime.now(),
         done: json['done'] ?? false,
+        wasLate: json['wasLate'] as bool?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -31,5 +34,6 @@ class Task {
         'subjectName': subjectName,
         'dateTime': dateTime.toIso8601String(),
         'done': done,
+        if (wasLate != null) 'wasLate': wasLate,
       };
 }

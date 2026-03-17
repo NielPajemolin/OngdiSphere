@@ -55,7 +55,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
   ) async {
     try {
       final examId = const Uuid().v4();
-      await examRepository.createExam(
+      final createdExam = await examRepository.createExam(
         examId,
         event.title,
         event.subjectId,
@@ -64,9 +64,15 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
         event.userId,
       );
 
-      // Reload exams after creation
+      // Fast path: update in-memory state instantly instead of refetching all exams.
+      if (state is ExamLoaded) {
+        final currentState = state as ExamLoaded;
+        emit(ExamLoaded([...currentState.exams, createdExam], currentState.userId));
+        return;
+      }
+
       final exams = await examRepository.getAllExams(event.userId);
-        emit(ExamLoaded(exams, event.userId));
+      emit(ExamLoaded(exams, event.userId));
     } catch (e) {
       emit(ExamError('Failed to create exam: $e'));
     }
@@ -96,27 +102,40 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     ToggleExamDoneEvent event,
     Emitter<ExamState> emit,
   ) async {
-    try {
-      await examRepository.toggleExamDone(event.examId);
+    if (state is! ExamLoaded) {
+      return;
+    }
 
-      // Update exam in current state
-      if (state is ExamLoaded) {
-        final currentState = state as ExamLoaded;
-        final updatedExams = currentState.exams.map((e) {
-          if (e.id == event.examId) {
-            return Exam(
-              id: e.id,
-              title: e.title,
-              subjectId: e.subjectId,
-              subjectName: e.subjectName,
-              dateTime: e.dateTime,
-              done: !e.done,
-            );
-          }
-          return e;
-        }).toList();
-          emit(ExamLoaded(updatedExams, currentState.userId));
-      }
+    final currentState = state as ExamLoaded;
+    final examIndex = currentState.exams.indexWhere((e) => e.id == event.examId);
+    if (examIndex == -1) {
+      return;
+    }
+
+    final targetExam = currentState.exams[examIndex];
+    final nextDoneValue = !targetExam.done;
+    final wasLate = nextDoneValue
+        ? targetExam.dateTime.isBefore(DateTime.now())
+        : null;
+
+    try {
+      await examRepository.setExamDone(event.examId, nextDoneValue, wasLate: wasLate);
+
+      final updatedExams = currentState.exams.map((exam) {
+        if (exam.id == event.examId) {
+          return Exam(
+            id: exam.id,
+            title: exam.title,
+            subjectId: exam.subjectId,
+            subjectName: exam.subjectName,
+            dateTime: exam.dateTime,
+            done: nextDoneValue,
+            wasLate: nextDoneValue ? wasLate : null,
+          );
+        }
+        return exam;
+      }).toList();
+      emit(ExamLoaded(updatedExams, currentState.userId));
     } catch (e) {
       emit(ExamError('Failed to toggle exam: $e'));
     }
