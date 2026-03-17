@@ -21,12 +21,13 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
     LoadSubjectsEvent event,
     Emitter<SubjectState> emit,
   ) async {
-    if (state is! SubjectLoaded) {
-      emit(const SubjectLoading());
-    }
+      final alreadyLoaded = state is SubjectLoaded && (state as SubjectLoaded).userId == event.userId;
+      if (!alreadyLoaded) {
+        emit(const SubjectLoading());
+      }
     try {
       final subjects = await subjectRepository.getAllSubjects(event.userId);
-      emit(SubjectLoaded(subjects));
+        emit(SubjectLoaded(subjects, event.userId));
     } catch (e) {
       emit(SubjectError('Failed to load subjects: $e'));
     }
@@ -46,7 +47,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
 
       // Reload subjects after creation
       final subjects = await subjectRepository.getAllSubjects(event.userId);
-      emit(SubjectLoaded(subjects));
+        emit(SubjectLoaded(subjects, event.userId));
     } catch (e) {
       emit(SubjectError('Failed to create subject: $e'));
     }
@@ -65,7 +66,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
         if (currentState.subjects.isNotEmpty) {
           // We can't easily get userId here, so we'll reload all
           final subjects = await subjectRepository.getAllSubjects(event.id);
-          emit(SubjectLoaded(subjects));
+            emit(SubjectLoaded(subjects, currentState.userId));
         }
       }
     } catch (e) {
@@ -88,7 +89,7 @@ class SubjectBloc extends Bloc<SubjectEvent, SubjectState> {
         final subjects = currentState.subjects
             .where((s) => s.id != event.id)
             .toList();
-        emit(SubjectLoaded(subjects));
+            emit(SubjectLoaded(subjects, currentState.userId));
       }
     } catch (e) {
       emit(SubjectError('Failed to delete subject: $e'));

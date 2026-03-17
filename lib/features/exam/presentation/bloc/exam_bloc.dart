@@ -21,12 +21,13 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     LoadExamsEvent event,
     Emitter<ExamState> emit,
   ) async {
-    if (state is! ExamLoaded) {
-      emit(const ExamLoading());
-    }
+      final alreadyLoaded = state is ExamLoaded && (state as ExamLoaded).userId == event.userId;
+      if (!alreadyLoaded) {
+        emit(const ExamLoading());
+      }
     try {
       final exams = await examRepository.getAllExams(event.userId);
-      emit(ExamLoaded(exams));
+        emit(ExamLoaded(exams, event.userId));
     } catch (e) {
       emit(ExamError('Failed to load exams: $e'));
     }
@@ -36,12 +37,13 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
     LoadExamsBySubjectEvent event,
     Emitter<ExamState> emit,
   ) async {
-    if (state is! ExamLoaded) {
-      emit(const ExamLoading());
-    }
+      final currentUserId = state is ExamLoaded ? (state as ExamLoaded).userId : '';
+      if (state is! ExamLoaded) {
+        emit(const ExamLoading());
+      }
     try {
       final exams = await examRepository.getExamsBySubjectId(event.subjectId);
-      emit(ExamLoaded(exams));
+        emit(ExamLoaded(exams, currentUserId));
     } catch (e) {
       emit(ExamError('Failed to load exams: $e'));
     }
@@ -64,7 +66,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
 
       // Reload exams after creation
       final exams = await examRepository.getAllExams(event.userId);
-      emit(ExamLoaded(exams));
+        emit(ExamLoaded(exams, event.userId));
     } catch (e) {
       emit(ExamError('Failed to create exam: $e'));
     }
@@ -83,7 +85,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
         final updatedExams = currentState.exams
             .map((e) => e.id == event.exam.id ? event.exam : e)
             .toList();
-        emit(ExamLoaded(updatedExams));
+            emit(ExamLoaded(updatedExams, currentState.userId));
       }
     } catch (e) {
       emit(ExamError('Failed to update exam: $e'));
@@ -113,7 +115,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
           }
           return e;
         }).toList();
-        emit(ExamLoaded(updatedExams));
+          emit(ExamLoaded(updatedExams, currentState.userId));
       }
     } catch (e) {
       emit(ExamError('Failed to toggle exam: $e'));
@@ -133,7 +135,7 @@ class ExamBloc extends Bloc<ExamEvent, ExamState> {
         final exams = currentState.exams
             .where((e) => e.id != event.examId)
             .toList();
-        emit(ExamLoaded(exams));
+            emit(ExamLoaded(exams, currentState.userId));
       }
     } catch (e) {
       emit(ExamError('Failed to delete exam: $e'));

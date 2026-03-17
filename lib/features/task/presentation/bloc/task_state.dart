@@ -18,11 +18,12 @@ class TaskLoading extends TaskState {
 
 class TaskLoaded extends TaskState {
   final List<Task> tasks;
+  final String userId;
 
-  const TaskLoaded(this.tasks);
+  const TaskLoaded(this.tasks, this.userId);
 
   @override
-  List<Object?> get props => [tasks];
+  List<Object?> get props => [tasks, userId];
 }
 
 class TaskError extends TaskState {

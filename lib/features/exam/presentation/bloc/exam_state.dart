@@ -18,11 +18,12 @@ class ExamLoading extends ExamState {
 
 class ExamLoaded extends ExamState {
   final List<Exam> exams;
+  final String userId;
 
-  const ExamLoaded(this.exams);
+  const ExamLoaded(this.exams, this.userId);
 
   @override
-  List<Object?> get props => [exams];
+  List<Object?> get props => [exams, userId];
 }
 
 class ExamError extends ExamState {

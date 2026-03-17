@@ -18,11 +18,12 @@ class SubjectLoading extends SubjectState {
 
 class SubjectLoaded extends SubjectState {
   final List<Subject> subjects;
+  final String userId;
 
-  const SubjectLoaded(this.subjects);
+  const SubjectLoaded(this.subjects, this.userId);
 
   @override
-  List<Object?> get props => [subjects];
+  List<Object?> get props => [subjects, userId];
 }
 
 class SubjectError extends SubjectState {
