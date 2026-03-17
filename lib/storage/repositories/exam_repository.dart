@@ -1,27 +1,23 @@
-import 'package:isar/isar.dart';
-import '../isar_database_service.dart';
-import '../isar_models/isar_exam.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../exam.dart';
 
 class ExamRepository {
-  final isar = IsarDatabaseService.getInstance();
+  final CollectionReference<Map<String, dynamic>> _exams = FirebaseFirestore
+      .instance
+      .collection('exams');
 
   /// Get all exams for a specific user
   Future<List<Exam>> getAllExams(String userId) async {
-    final isarExams = await isar.isarExams
-        .where()
-        .userIdEqualTo(userId)
-        .findAll();
-    return isarExams.map((e) => _isarToExam(e)).toList();
+    final snapshot = await _exams.where('userId', isEqualTo: userId).get();
+    return snapshot.docs.map(_docToExam).toList();
   }
 
   /// Get exams by subject ID
   Future<List<Exam>> getExamsBySubjectId(String subjectId) async {
-    final isarExams = await isar.isarExams
-        .where()
-        .subjectIdEqualTo(subjectId)
-        .findAll();
-    return isarExams.map((e) => _isarToExam(e)).toList();
+    final snapshot = await _exams
+        .where('subjectId', isEqualTo: subjectId)
+        .get();
+    return snapshot.docs.map(_docToExam).toList();
   }
 
   /// Create a new exam
@@ -33,17 +29,14 @@ class ExamRepository {
     DateTime dateTime,
     String userId,
   ) async {
-    final isarExam = IsarExam()
-      ..uuid = examId
-      ..userId = userId
-      ..title = title
-      ..subjectId = subjectId
-      ..subjectName = subjectName
-      ..dateTime = dateTime
-      ..done = false;
-
-    await isar.writeTxn(() async {
-      await isar.isarExams.put(isarExam);
+    await _exams.doc(examId).set({
+      'id': examId,
+      'userId': userId,
+      'title': title,
+      'subjectId': subjectId,
+      'subjectName': subjectName,
+      'dateTime': Timestamp.fromDate(dateTime),
+      'done': false,
     });
 
     return Exam(
@@ -58,74 +51,68 @@ class ExamRepository {
 
   /// Update an exam
   Future<void> updateExam(Exam exam) async {
-    final isarExam = await isar.isarExams
-        .where()
-        .uuidEqualTo(exam.id)
-        .findFirst();
-
-    if (isarExam != null) {
-      isarExam.title = exam.title;
-      isarExam.subjectId = exam.subjectId;
-      isarExam.subjectName = exam.subjectName;
-      isarExam.dateTime = exam.dateTime;
-      isarExam.done = exam.done;
-
-      await isar.writeTxn(() async {
-        await isar.isarExams.put(isarExam);
-      });
-    }
+    await _exams.doc(exam.id).update({
+      'title': exam.title,
+      'subjectId': exam.subjectId,
+      'subjectName': exam.subjectName,
+      'dateTime': Timestamp.fromDate(exam.dateTime),
+      'done': exam.done,
+    });
   }
 
   /// Toggle exam done status
   Future<void> toggleExamDone(String examId) async {
-    final isarExam = await isar.isarExams
-        .where()
-        .uuidEqualTo(examId)
-        .findFirst();
+    final examRef = _exams.doc(examId);
+    final snapshot = await examRef.get();
+    final data = snapshot.data();
 
-    if (isarExam != null) {
-      isarExam.done = !isarExam.done;
-      await isar.writeTxn(() async {
-        await isar.isarExams.put(isarExam);
-      });
+    if (data == null) {
+      return;
     }
+
+    final currentDone = (data['done'] as bool?) ?? false;
+    await examRef.update({'done': !currentDone});
   }
 
   /// Delete an exam
   Future<void> deleteExam(String examId) async {
-    final isarExam = await isar.isarExams
-        .where()
-        .uuidEqualTo(examId)
-        .findFirst();
-
-    if (isarExam != null) {
-      await isar.writeTxn(() async {
-        await isar.isarExams.delete(isarExam.id);
-      });
-    }
+    await _exams.doc(examId).delete();
   }
 
   /// Delete all exams by subject ID
   Future<void> deleteExamsBySubjectId(String subjectId) async {
-    final isarExams = await isar.isarExams
-        .where()
-        .subjectIdEqualTo(subjectId)
-        .findAll();
+    final snapshot = await _exams
+        .where('subjectId', isEqualTo: subjectId)
+        .get();
+    final batch = FirebaseFirestore.instance.batch();
 
-    await isar.writeTxn(() async {
-      await isar.isarExams.deleteAll(isarExams.map((e) => e.id).toList());
-    });
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
+    }
+
+    await batch.commit();
   }
 
-  /// Convert IsarExam to Exam
-  Exam _isarToExam(IsarExam isarExam) {
+  Exam _docToExam(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? <String, dynamic>{};
+    final dynamic dateField = data['dateTime'];
+
+    final DateTime parsedDate;
+    if (dateField is Timestamp) {
+      parsedDate = dateField.toDate();
+    } else if (dateField is String) {
+      parsedDate = DateTime.tryParse(dateField) ?? DateTime.now();
+    } else {
+      parsedDate = DateTime.now();
+    }
+
     return Exam(
-      id: isarExam.uuid,
-      title: isarExam.title,
-      subjectId: isarExam.subjectId,
-      subjectName: isarExam.subjectName,
-      dateTime: isarExam.dateTime,
-      done: isarExam.done,
+      id: (data['id'] as String?) ?? doc.id,
+      title: (data['title'] as String?) ?? '',
+      subjectId: (data['subjectId'] as String?) ?? '',
+      subjectName: (data['subjectName'] as String?) ?? '',
+      dateTime: parsedDate,
+      done: (data['done'] as bool?) ?? false,
     );
   }
 }

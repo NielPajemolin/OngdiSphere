@@ -1,0 +1,47 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isRequestOwner() {
+      return isSignedIn() && request.resource.data.userId == request.auth.uid;
+    }
+
+    function isExistingOwner() {
+      return isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    match /subjects/{subjectId} {
+      allow create: if isRequestOwner();
+      allow read, delete: if isExistingOwner();
+      allow update: if isExistingOwner() && request.resource.data.userId == resource.data.userId;
+    }
+
+    match /tasks/{taskId} {
+      allow create: if isRequestOwner();
+      allow read, delete: if isExistingOwner();
+      allow update: if isExistingOwner() && request.resource.data.userId == resource.data.userId;
+    }
+
+    match /exams/{examId} {
+      allow create: if isRequestOwner();
+      allow read, delete: if isExistingOwner();
+      allow update: if isExistingOwner() && request.resource.data.userId == resource.data.userId;
+    }
+
+    match /users/{userId} {
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == request.auth.uid;
+
+      allow read, delete: if isSignedIn() && request.auth.uid == userId;
+
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.uid == request.auth.uid;
+    }
+  }
+}

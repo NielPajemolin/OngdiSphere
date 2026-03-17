@@ -1,40 +1,38 @@
-import 'package:isar/isar.dart';
-import '../isar_database_service.dart';
-import '../isar_models/isar_subject.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../subject.dart';
 import 'task_repository.dart';
 import 'exam_repository.dart';
 
 class SubjectRepository {
-  final isar = IsarDatabaseService.getInstance();
+  final CollectionReference<Map<String, dynamic>> _subjects = FirebaseFirestore
+      .instance
+      .collection('subjects');
 
   /// Get all subjects for a specific user
   Future<List<Subject>> getAllSubjects(String userId) async {
-    final isarSubjects = await isar.isarSubjects
-        .where()
-        .userIdEqualTo(userId)
-        .findAll();
-    return isarSubjects.map((s) => _isarToSubject(s)).toList();
+    final snapshot = await _subjects.where('userId', isEqualTo: userId).get();
+    return snapshot.docs.map(_docToSubject).toList();
   }
 
   /// Get a subject by ID
   Future<Subject?> getSubjectById(String uuid) async {
-    final isarSubject = await isar.isarSubjects
-        .where()
-        .uuidEqualTo(uuid)
-        .findFirst();
-    return isarSubject != null ? _isarToSubject(isarSubject) : null;
+    final doc = await _subjects.doc(uuid).get();
+    if (!doc.exists || doc.data() == null) {
+      return null;
+    }
+    return _docToSubject(doc);
   }
 
   /// Create a new subject
-  Future<Subject> createSubject(String subjectId, String name, String userId) async {
-    final isarSubject = IsarSubject()
-      ..uuid = subjectId
-      ..userId = userId
-      ..name = name;
-
-    await isar.writeTxn(() async {
-      await isar.isarSubjects.put(isarSubject);
+  Future<Subject> createSubject(
+    String subjectId,
+    String name,
+    String userId,
+  ) async {
+    await _subjects.doc(subjectId).set({
+      'id': subjectId,
+      'name': name,
+      'userId': userId,
     });
 
     return Subject(id: subjectId, name: name);
@@ -42,46 +40,27 @@ class SubjectRepository {
 
   /// Update a subject
   Future<void> updateSubject(String subjectId, String name) async {
-    final isarSubject = await isar.isarSubjects
-        .where()
-        .uuidEqualTo(subjectId)
-        .findFirst();
-
-    if (isarSubject != null) {
-      isarSubject.name = name;
-      await isar.writeTxn(() async {
-        await isar.isarSubjects.put(isarSubject);
-      });
-    }
+    await _subjects.doc(subjectId).update({'name': name});
   }
 
   /// Delete a subject and all its associated tasks and exams
   Future<void> deleteSubject(String subjectId) async {
-    final isarSubject = await isar.isarSubjects
-        .where()
-        .uuidEqualTo(subjectId)
-        .findFirst();
+    // Delete all associated tasks and exams first.
+    final taskRepository = TaskRepository();
+    final examRepository = ExamRepository();
 
-    if (isarSubject != null) {
-      // Delete all associated tasks and exams
-      final taskRepository = TaskRepository();
-      final examRepository = ExamRepository();
-      
-      await taskRepository.deleteTasksBySubjectId(subjectId);
-      await examRepository.deleteExamsBySubjectId(subjectId);
-      
-      // Finally, delete the subject
-      await isar.writeTxn(() async {
-        await isar.isarSubjects.delete(isarSubject.id);
-      });
-    }
+    await taskRepository.deleteTasksBySubjectId(subjectId);
+    await examRepository.deleteExamsBySubjectId(subjectId);
+
+    await _subjects.doc(subjectId).delete();
   }
 
-  /// Convert IsarSubject to Subject
-  Subject _isarToSubject(IsarSubject isarSubject) {
+  Subject _docToSubject(DocumentSnapshot<Map<String, dynamic>> doc) {
+    final data = doc.data() ?? <String, dynamic>{};
+
     return Subject(
-      id: isarSubject.uuid,
-      name: isarSubject.name,
+      id: (data['id'] as String?) ?? doc.id,
+      name: (data['name'] as String?) ?? '',
       tasks: const [], // Tasks are loaded separately
     );
   }

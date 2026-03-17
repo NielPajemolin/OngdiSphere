@@ -16,20 +16,26 @@ class AuthCubit extends Cubit<AuthStates> {
   //get current user
   AppUser? get currenUser => _currentUser;
 
+  String _toDisplayMessage(Object error) {
+    final message = error.toString();
+    if (message.startsWith('Exception: ')) {
+      return message.replaceFirst('Exception: ', '');
+    }
+    return message;
+  }
+
   //check if user is authenticated
   void checkAuth() async {
     //loading..
-    emit (AuthLoading());
+    emit(AuthLoading());
 
     //get current user
     final AppUser? user = await authRepo.getCurrentUser();
 
     if (user != null) {
-
       _currentUser = user;
       emit(Autheticated(user));
-    } 
-    else {
+    } else {
       emit(Unauntenticated());
     }
   }
@@ -43,12 +49,11 @@ class AuthCubit extends Cubit<AuthStates> {
       if (user != null) {
         _currentUser = user;
         emit(Autheticated(user));
-      }
-      else {
+      } else {
         emit(Unauntenticated());
       }
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_toDisplayMessage(e)));
       emit(Unauntenticated());
     }
   }
@@ -62,25 +67,24 @@ class AuthCubit extends Cubit<AuthStates> {
       if (user != null) {
         _currentUser = user;
         emit(Autheticated(user));
-      }
-      else {
+      } else {
         emit(Unauntenticated());
       }
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_toDisplayMessage(e)));
       emit(Unauntenticated());
     }
   }
 
   //logout
   Future<void> logout() async {
-    emit (AuthLoading());
+    emit(AuthLoading());
     await authRepo.lopgout();
     emit(Unauntenticated());
   }
 
   //forgot password
-  Future<String> forgotPassword (String email) async {
+  Future<String> forgotPassword(String email) async {
     try {
       final message = await authRepo.sendPasswordResetEmail(email);
       return message;
@@ -89,14 +93,14 @@ class AuthCubit extends Cubit<AuthStates> {
     }
   }
 
-  //delete account 
-  Future<void>  deleteAccount() async {
+  //delete account
+  Future<void> deleteAccount() async {
     try {
       emit(AuthLoading());
       await authRepo.deleteAccount();
       emit(Unauntenticated());
     } catch (e) {
-      emit(AuthError(e.toString()));
+      emit(AuthError(_toDisplayMessage(e)));
       emit(Unauntenticated());
     }
   }

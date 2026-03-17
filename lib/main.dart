@@ -16,7 +16,6 @@ import 'pages/subject_page.dart';
 import 'pages/task_page.dart';
 import 'pages/exam_page.dart';
 import 'pages/done_page.dart';
-import 'storage/isar_database_service.dart';
 import 'storage/repositories/subject_repository.dart';
 import 'storage/repositories/task_repository.dart';
 import 'storage/repositories/exam_repository.dart';
@@ -24,26 +23,19 @@ import 'features/subject/presentation/bloc/subject_bloc.dart';
 import 'features/task/presentation/bloc/task_bloc.dart';
 import 'features/exam/presentation/bloc/exam_bloc.dart';
 
-
-void main() async { 
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-  );
-  
-  // Initialize Isar database
-  await IsarDatabaseService.initialize();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(MyApp());
 }
 
-
 class MyApp extends StatelessWidget {
- MyApp({super.key});
+  MyApp({super.key});
 
   //auth repo
   final firebaseAuthRepo = FirebaseAuthRepo();
-  
+
   // Repositories
   final subjectRepository = SubjectRepository();
   final taskRepository = TaskRepository();
@@ -76,8 +68,8 @@ class MyApp extends StatelessWidget {
       providers: [
         //app cubit
         BlocProvider<AuthCubit>(
-          create: (context) => AuthCubit(authRepo: firebaseAuthRepo)
-          ..checkAuth(),
+          create: (context) =>
+              AuthCubit(authRepo: firebaseAuthRepo)..checkAuth(),
         ),
         // Subject BLoC
         BlocProvider<SubjectBloc>(
@@ -88,17 +80,13 @@ class MyApp extends StatelessWidget {
         ),
         // Task BLoC
         BlocProvider<TaskBloc>(
-          create: (context) => TaskBloc(
-            taskRepository: taskRepository,
-          ),
+          create: (context) => TaskBloc(taskRepository: taskRepository),
         ),
         // Exam BLoC
         BlocProvider<ExamBloc>(
-          create: (context) => ExamBloc(
-            examRepository: examRepository,
-          ),
+          create: (context) => ExamBloc(examRepository: examRepository),
         ),
-      ], 
+      ],
       //app
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -108,10 +96,10 @@ class MyApp extends StatelessWidget {
         // This function handles navigation and applies the slide animation.
         onGenerateRoute: (settings) {
           final page = _getPage(settings.name);
-          
+
           if (page != null) {
             // Apply the custom transition for all named routes
-            return slideTransitionRoute(page); 
+            return slideTransitionRoute(page);
           }
           // Fallback route if the path is unrecognized
           return MaterialPageRoute(builder: (_) => const AuthPage());
@@ -119,29 +107,29 @@ class MyApp extends StatelessWidget {
 
         //Bloc Auth
         home: BlocConsumer<AuthCubit, AuthStates>(
-        builder: (context, state) {
-          //if unaunthenticated go to auth page(login/sign up)
-          if (state is Unauntenticated) {
-            return const AuthPage();
-          }
-          //if aunthenticated to homepage
-          if (state is Autheticated) {
-            return const HomePage();
-          }
-          //loading
-          else {
-            return const
-             LoadingScreen();
-          }
-        },
-        //listen for state change
-        listener: (context ,state) {
-          if (state is AuthError) {
-            ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(state.message)));
-          }
-        }
-      )
+          builder: (context, state) {
+            //if unaunthenticated go to auth page(login/sign up)
+            if (state is Unauntenticated) {
+              return const AuthPage();
+            }
+            //if aunthenticated to homepage
+            if (state is Autheticated) {
+              return const HomePage();
+            }
+            //loading
+            else {
+              return const LoadingScreen();
+            }
+          },
+          //listen for state change
+          listener: (context, state) {
+            if (state is AuthError) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
       ),
     );
   }
