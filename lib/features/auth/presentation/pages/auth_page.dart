@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ongdisphere/app/router/app_routes.dart';
 import 'package:ongdisphere/features/auth/presentation/pages/signup_page.dart';
 import 'login_page.dart';
 
@@ -13,7 +14,7 @@ class _AuthPageState extends State<AuthPage> {
   //show log in page
   bool showLoginPage = true;
 
-  //toggle beween app
+  //toggle between pages
   void togglePages() {
     setState(() {
       showLoginPage = !showLoginPage;
@@ -22,14 +23,14 @@ class _AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (showLoginPage) {
-      return  LoginPage(
+    return AnimatedPageSwitcher(
+      showFirstPage: showLoginPage,
+      firstPage: LoginPage(
         togglePages: togglePages,
-      );
-    } else {
-      return SignupPage(
+      ),
+      secondPage: SignupPage(
         togglePages: togglePages,
-      );
-    }
+      ),
+    );
   }
 }

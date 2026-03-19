@@ -150,6 +150,10 @@ class _TaskPageState extends State<TaskPage> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(
           'Tasks',
           style: TextStyle(

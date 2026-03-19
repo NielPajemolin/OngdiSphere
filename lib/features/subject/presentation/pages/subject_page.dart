@@ -91,6 +91,10 @@ class _SubjectPageState extends State<SubjectPage> {
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(
           'Subjects',
           style: TextStyle(

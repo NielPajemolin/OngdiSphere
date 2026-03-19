@@ -1,10 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ongdisphere/app/router/app_routes.dart';
 import 'package:ongdisphere/features/auth/auth.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
+
+  void _showLogoutConfirmation(BuildContext context) {
+    showGeneralDialog(
+      context: context,
+      barrierDismissible: true,
+      barrierLabel: 'Logout',
+      barrierColor: Colors.black54,
+      transitionDuration: const Duration(milliseconds: 400),
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return AppAnimations.buildLogoutDialog(
+          context,
+          animation,
+          () {
+            Navigator.pop(context);
+            _animateLogout(context);
+          },
+        );
+      },
+      transitionBuilder: (context, animation, secondaryAnimation, child) {
+        return FadeTransition(
+          opacity: animation,
+          child: child,
+        );
+      },
+    );
+  }
+
+  void _animateLogout(BuildContext context) {
+    final overlayEntry = AppAnimations.buildLogoutLoadingOverlay();
+    final authCubit = context.read<AuthCubit>();
+
+    Overlay.of(context).insert(overlayEntry);
+
+    Future.delayed(const Duration(milliseconds: 700), () {
+      overlayEntry.remove();
+      authCubit.logout();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +124,8 @@ class AppDrawer extends StatelessWidget {
               label: 'Logout',
               iconColor: Colors.red,
               onTap: () {
-                final authCubit = context.read<AuthCubit>();
-                authCubit.logout();
+                Navigator.pop(context);
+                _showLogoutConfirmation(context);
               },
             ),
           ),
