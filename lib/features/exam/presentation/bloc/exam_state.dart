@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../storage/exam.dart';
+import 'package:ongdisphere/data/models/models.dart';
 
 abstract class ExamState extends Equatable {
   const ExamState();

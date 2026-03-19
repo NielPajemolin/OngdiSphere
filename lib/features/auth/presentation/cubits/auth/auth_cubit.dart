@@ -3,7 +3,7 @@
 */
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ongdisphere/features/auth/domain/enteties/app_user.dart';
+import 'package:ongdisphere/features/auth/domain/entities/app_user.dart';
 import 'package:ongdisphere/features/auth/domain/repos/auth/auth_repo.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_states.dart';
 

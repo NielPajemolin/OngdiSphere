@@ -1,27 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ongdisphere/animation/app_routes.dart';
-import 'package:ongdisphere/components/loading.dart';
-import 'package:ongdisphere/features/auth/data/firebase_auth_repo.dart';
-import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.dart';
-import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_states.dart';
-import 'package:ongdisphere/pages/home_page.dart';
-import 'package:ongdisphere/pages/profile_page.dart';
+import 'package:ongdisphere/app/router/router.dart';
+import 'package:ongdisphere/core/theme/theme.dart';
+import 'package:ongdisphere/data/repositories/repositories.dart';
+import 'package:ongdisphere/features/auth/auth.dart';
+import 'package:ongdisphere/features/done/done.dart';
+import 'package:ongdisphere/features/exam/exam.dart';
+import 'package:ongdisphere/features/home/home.dart';
+import 'package:ongdisphere/features/profile/profile.dart';
+import 'package:ongdisphere/features/subject/subject.dart';
+import 'package:ongdisphere/features/task/task.dart';
+import 'package:ongdisphere/shared/widgets/widgets.dart';
 import 'firebase_options.dart';
-
-import 'features/auth/presentation/pages/auth_page.dart';
-import 'colorpalette/app_theme.dart';
-import 'pages/subject_page.dart';
-import 'pages/task_page.dart';
-import 'pages/exam_page.dart';
-import 'pages/done_page.dart';
-import 'storage/repositories/subject_repository.dart';
-import 'storage/repositories/task_repository.dart';
-import 'storage/repositories/exam_repository.dart';
-import 'features/subject/presentation/bloc/subject_bloc.dart';
-import 'features/task/presentation/bloc/task_bloc.dart';
-import 'features/exam/presentation/bloc/exam_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

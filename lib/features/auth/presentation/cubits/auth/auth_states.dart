@@ -1,4 +1,4 @@
-import 'package:ongdisphere/features/auth/domain/enteties/app_user.dart';
+import 'package:ongdisphere/features/auth/domain/entities/app_user.dart';
 
 abstract class AuthStates {}
 

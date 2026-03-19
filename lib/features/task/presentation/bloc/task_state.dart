@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../../../storage/task.dart';
+import 'package:ongdisphere/data/models/models.dart';
 
 abstract class TaskState extends Equatable {
   const TaskState();

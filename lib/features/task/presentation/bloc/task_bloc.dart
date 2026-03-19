@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../storage/repositories/task_repository.dart';
-import '../../../../storage/task.dart';
+import '../../../../data/repositories/task_repository.dart';
+import 'package:ongdisphere/data/models/models.dart';
 import 'task_event.dart';
 import 'task_state.dart';
 

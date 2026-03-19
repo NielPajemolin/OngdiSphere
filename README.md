@@ -2,22 +2,24 @@
 
 ## Project Description
 
-OngdiSphere is a dedicated mobile application designed to help students and users manage their academic and project workload efficiently. It uses a **Hybrid Storage Model** where user authentication is managed securely via **Firebase**, while core application data (subjects, tasks, and exams) is stored locally using **`shared_preferences`** for lightning-fast performance and full offline availability.
+OngdiSphere is a dedicated mobile application designed to help students and users manage their academic and project workload efficiently while staying motivated. Built with a **clean, feature-first architecture**, the app ensures maintainability and scalability for future enhancements.
 
-The app uses a strict **BLoC pattern** for state management, ensuring a clear separation of concerns, maintainability, and reliable state transitions across the application.
+### Key Characteristics
 
----
+**Storage & Authentication:**
+- **Firebase Backend:** Both user authentication and application data (subjects, tasks, and exams) are securely managed via **Firebase Authentication** and **Firestore Database**, providing real-time synchronization and cloud-based reliability.
 
-## 📸 FlutterFlow vs. NativeFlutter
+**State Management:**
+- **Strict BLoC Pattern:** Uses BLoC (`BusinessLogicComponent`) and Cubit patterns for centralized, reactive state management, ensuring clear separation of concerns and reliable state transitions across the application.
 
-The final application was built from scratch in native Flutter, mirroring the UI/UX design and navigation flows established in the initial prototype.
+**Architecture:**
+- **Feature-First Module Structure:** Codebase organized into self-contained features (`auth`, `home`, `subject`, `task`, `exam`, `profile`, `done`), shared components, and core utilities. Each feature is independent with its own data, domain, and presentation layers.
+- **Barrel Exports:** Simplified import paths through barrel files (`*.dart` re-export files), reducing import verbosity by ~60% and making the codebase more maintainable.
 
-| FlutterFlow Prototype | Final Native Flutter Application |
-| :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/04b57889-c8ae-425c-a225-765fdfa753f2" width="250" height="580" alt="Prototype Screenshot 1" /> | <img src="https://github.com/user-attachments/assets/39228156-fbc7-40db-82a1-083a9f62e4ce" width="250" height="580" alt="Final App Screenshot 1" /> |
-| <img src="https://github.com/user-attachments/assets/4e4faed8-2b2d-4ffa-a75d-aad7f21e46e1" width="250" height="580" alt="Prototype Screenshot 2" /> | <img src="https://github.com/user-attachments/assets/3e3f89b4-4b99-4d5d-85cb-c55e3b99cfa6" width="250" height="580" alt="Final App Screenshot 2" /> |
-| <img src="https://github.com/user-attachments/assets/ac8cc1e6-c873-4a21-835f-ec1a8d382636" width="250" height="580" alt="Prototype Screenshot 3" /> | <img src="https://github.com/user-attachments/assets/eed04068-0545-405d-9636-a40f5b63399f" width="250" height="580" alt="Final App Screenshot 3" /> |
-
+**User Experience:**
+- **Daily Motivation:** Rotating motivational quotes displayed on the home page, fetched from an external API with local caching for offline support.
+- **Responsive Design:** Adaptive layouts that work seamlessly across all device sizes using `MediaQuery`.
+- **Consistent Theming:** Custom `AppTheme` and `AppColors` extension for a unified visual identity.
 
 ---
 
@@ -27,8 +29,8 @@ The application provides a full suite of tools for academic management:
 
 ### Core Functionality
 * **Secure Authentication:** User registration, login, logout, and session management via **Firebase Authentication**.
-* **Modular Architecture:** Uses the **BLoC pattern (`AuthCubit`)** for centralized, reactive state management.
-* **Local Persistence:** Uses **`StorageService`** with `shared_preferences` for quick, offline CRUD operations on all core data.
+* **Cloud Database:** All data (subjects, tasks, exams) is stored in **Firestore Database** with real-time synchronization across devices.
+* **Reactive State Management:** Uses **BLoC pattern** across all features (`AuthCubit`, `SubjectBloc`, `TaskBloc`, `ExamBloc`) for centralized, reactive state management.
 
 ### Data Management
 * **Subject Management:** Create, list, and delete main subject containers. Deleting a subject **cascades** to remove all associated tasks and exams.
@@ -39,10 +41,155 @@ The application provides a full suite of tools for academic management:
 ### UI & UX
 * **Responsive Design:** Layouts adapt proportionally to various phone screen sizes using `MediaQuery`.
 * **Theming:** Consistent visual identity achieved via custom `AppTheme` and `AppColors` extension.
+* **Daily Motivation:** The home page displays rotating motivational quotes from an external API with local caching support.
 
 ---
 
-## 🏃‍♀️ How to Run the Project
+## 🗂️ Current lib Architecture
+
+```text
+lib/
+├── app/
+│   └── router/
+│       ├── app_routes.dart          # Route definitions
+│       └── router.dart              # barrel export
+│
+├── core/
+│   └── theme/
+│       ├── app_theme.dart           # Theme configuration
+│       ├── color_palette.dart       # Color definitions
+│       └── theme.dart               # barrel export
+│
+├── data/
+│   ├── local/
+│   │   └── storage_service.dart     # Firestore operations wrapper
+│   ├── models/
+│   │   ├── exam.dart                # Exam model
+│   │   ├── subject.dart             # Subject model
+│   │   ├── task.dart                # Task model
+│   │   └── models.dart              # barrel export
+│   └── repositories/
+│       ├── exam_repository.dart     # Exam CRUD operations
+│       ├── subject_repository.dart  # Subject CRUD operations
+│       ├── task_repository.dart     # Task CRUD operations
+│       └── repositories.dart        # barrel export
+│
+├── features/
+│   ├── auth/                        # Authentication feature
+│   │   ├── data/
+│   │   │   └── firebase_auth_repo.dart
+│   │   ├── domain/
+│   │   │   ├── entities/
+│   │   │   │   └── app_user.dart
+│   │   │   └── repos/
+│   │   │       └── auth_repo.dart
+│   │   ├── presentation/
+│   │   │   ├── cubits/
+│   │   │   │   ├── auth/
+│   │   │   │   │   ├── auth_cubit.dart
+│   │   │   │   │   └── auth_states.dart
+│   │   │   ├── pages/
+│   │   │   │   ├── auth_page.dart
+│   │   │   │   ├── login_page.dart
+│   │   │   │   └── signup_page.dart
+│   │   │   └── widgets/
+│   │   └── auth.dart                # barrel export
+│   │
+│   ├── done/                        # Archive/Done feature
+│   │   ├── presentation/
+│   │   │   └── pages/
+│   │   │       └── done_page.dart
+│   │   └── done.dart                # barrel export
+│   │
+│   ├── exam/                        # Exam management feature
+│   │   ├── presentation/
+│   │   │   ├── bloc/
+│   │   │   │   └── exam_bloc.dart
+│   │   │   ├── pages/
+│   │   │   │   └── exam_page.dart
+│   │   │   └── widgets/
+│   │   └── exam.dart                # barrel export
+│   │
+│   ├── home/                        # Home screen feature
+│   │   ├── presentation/
+│   │   │   ├── pages/
+│   │   │   │   └── home_page.dart
+│   │   │   └── widgets/
+│   │   └── home.dart                # barrel export
+│   │
+│   ├── profile/                     # User profile feature
+│   │   ├── presentation/
+│   │   │   └── pages/
+│   │   │       └── profile_page.dart
+│   │   └── profile.dart             # barrel export
+│   │
+│   ├── subject/                     # Subject management feature
+│   │   ├── presentation/
+│   │   │   ├── bloc/
+│   │   │   │   └── subject_bloc.dart
+│   │   │   ├── pages/
+│   │   │   │   └── subject_page.dart
+│   │   │   └── widgets/
+│   │   └── subject.dart             # barrel export
+│   │
+│   └── task/                        # Task management feature
+│       ├── presentation/
+│       │   ├── bloc/
+│       │   │   └── task_bloc.dart
+│       │   ├── pages/
+│       │   │   └── task_page.dart
+│       │   └── widgets/
+│       └── task.dart                # barrel export
+│
+├── shared/
+│   ├── motivational_quotes/         # Motivational quotes module (NEW)
+│   │   ├── motivational_quote_section.dart
+│   │   └── motivational_quotes.dart # barrel export
+│   │
+│   └── widgets/
+│       ├── add_exam_dialog.dart
+│       ├── add_subject_dialog.dart
+│       ├── add_task_dialog.dart
+│       ├── exam_card.dart
+│       ├── home_sections.dart
+│       ├── loading.dart
+│       ├── my_app_drawer.dart
+│       ├── my_button.dart
+│       ├── my_textfield.dart
+│       ├── subject_card.dart
+│       ├── subject_filter_dropdown.dart
+│       ├── summary_header_card.dart
+│       ├── task_card.dart
+│       └── widgets.dart             # barrel export
+│
+├── firebase_options.dart            # Firebase configuration
+└── main.dart                        # Application entry point
+```
+
+---
+
+
+### Available Barrel Exports
+
+| Module | Barrel File | Exports |
+| :--- | :--- | :--- |
+| Auth Feature | `features/auth/auth.dart` | Firebase repo, Auth repo, AuthCubit, auth states, auth pages |
+| Subject Feature | `features/subject/subject.dart` | SubjectBloc, subject page, subject widgets |
+| Task Feature | `features/task/task.dart` | TaskBloc, task page, task widgets |
+| Exam Feature | `features/exam/exam.dart` | ExamBloc, exam page, exam widgets |
+| Home Feature | `features/home/home.dart` | Home page, home widgets |
+| Done Feature | `features/done/done.dart` | Done page |
+| Profile Feature | `features/profile/profile.dart` | Profile page |
+| Shared Widgets | `shared/widgets/widgets.dart` | All reusable UI components (13 files) |
+| Motivational Quotes | `shared/motivational_quotes/motivational_quotes.dart` | MotivationalQuoteSection widget |
+| Data Models | `data/models/models.dart` | Exam, Subject, Task models |
+| Repositories | `data/repositories/repositories.dart` | All CRUD repositories |
+| Theme | `core/theme/theme.dart` | AppTheme configuration, AppColors |
+| Router | `app/router/router.dart` | Route definitions |
+
+---
+
+## 🚀 How to Run the Project
 
 Follow these steps to set up and launch the application on your local machine:
 
@@ -50,34 +197,48 @@ Follow these steps to set up and launch the application on your local machine:
 
 You'll need a command-line interface (CLI) to download the code.
 
-1.  Open your **Terminal** (macOS/Linux) or **Command Prompt/PowerShell** (Windows).
-2.  Navigate to the folder where you want to save the project (e.g., your desktop or a `Projects` folder) using the `cd` command.
-3.  Execute the `git clone` command, replacing the placeholder with the **Repository URL**:
+1. Open your **Terminal** (macOS/Linux) or **Command Prompt/PowerShell** (Windows).
+2. Navigate to the folder where you want to save the project (e.g., your desktop or a `Projects` folder) using the `cd` command.
+3. Execute the `git clone` command:
 
-    ```bash
-    git clone https://github.com/NielPajemolin/OngdiSphere.git
-    ```
+   ```bash
+   git clone https://github.com/NielPajemolin/OngdiSphere.git
+   ```
 
-4.  Change into the newly created project directory:
+4. Change into the newly created project directory:
 
-    ```bash
-    cd [YOUR PROJECT DIRECTORY NAME]
-    ```
+   ```bash
+   cd OngdiSphere
+   ```
 
 ### Step 2: Install Dependencies and Launch
 
-1.  **Install Dependencies:** Run the following command inside the project directory to download all necessary packages:
+1. **Install Dependencies:** Run the following command inside the project directory to download all necessary packages:
 
-    ```bash
-    flutter pub get
-    ```
+   ```bash
+   flutter pub get
+   ```
 
-2.  **Launch the App:** Connect a physical device or start an emulator, then run the application:
+2. **Launch the App:** Connect a physical device or start an emulator, then run the application:
 
-    ```bash
-    flutter run
-    ```
+   ```bash
+   flutter run
+   ```
+
 The application will launch on an available emulator or connected device.
+
+---
+
+## 📱 Technology Stack
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **State Management** | BLoC / Cubit | Reactive, centralized state management |
+| **Authentication** | Firebase Authentication | Secure user login and registration |
+| **Database** | Firestore | Cloud-based real-time data storage and synchronization |
+| **UI Framework** | Flutter | Cross-platform mobile UI |
+| **Routing** | Navigator 2.0 | Named route navigation |
+| **HTTP** | http package | API calls for motivational quotes |
 
 ---
 

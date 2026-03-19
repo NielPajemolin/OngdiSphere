@@ -1,8 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
-import '../../../../storage/repositories/subject_repository.dart';
-import '../../../../storage/repositories/exam_repository.dart';
-import '../../../../storage/subject.dart';
+import '../../../../data/repositories/subject_repository.dart';
+import '../../../../data/repositories/exam_repository.dart';
+import 'package:ongdisphere/data/models/models.dart';
 import 'subject_event.dart';
 import 'subject_state.dart';
 

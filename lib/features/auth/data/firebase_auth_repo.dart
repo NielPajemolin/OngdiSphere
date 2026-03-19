@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ongdisphere/features/auth/domain/enteties/app_user.dart';
+import 'package:ongdisphere/features/auth/domain/entities/app_user.dart';
 import 'package:ongdisphere/features/auth/domain/repos/auth/auth_repo.dart';
 
 class AppAuthException implements Exception {
