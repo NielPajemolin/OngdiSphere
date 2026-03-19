@@ -34,8 +34,6 @@ class HomeWelcomeBanner extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final stacked = constraints.maxWidth < 420;
-
           final nameSection = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -64,19 +62,12 @@ class HomeWelcomeBanner extends StatelessWidget {
 
           final tagline = Text(
             'Build momentum today.',
-            textAlign: stacked ? TextAlign.left : TextAlign.right,
+            textAlign: TextAlign.right,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.78),
               fontSize: 12,
             ),
           );
-
-          if (stacked) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [nameSection, const SizedBox(height: 10), tagline],
-            );
-          }
 
           return Row(
             children: [

@@ -21,13 +21,15 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isNarrow = screenWidth < 390;
 
     final isOverdue = task.done
         ? (task.wasLate ?? false)
         : task.dateTime.isBefore(DateTime.now());
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      margin: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 10, vertical: 6),
       color: Colors.white,
       shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.2) : colors.primary.withValues(alpha: 0.15),
       elevation: 2,
@@ -41,62 +43,56 @@ class TaskCard extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: isNarrow ? 10 : 14, vertical: isNarrow ? 10 : 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Custom Checkbox with animation
-            PressScale(
-              child: InkWell(
-                onTap: () => onDoneChanged?.call(!task.done),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: task.done
-                        ? colors.primary.withValues(alpha: 0.15)
-                        : Colors.grey.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: task.done
-                          ? colors.primary
-                          : colors.primary.withValues(alpha: 0.3),
-                      width: task.done ? 2 : 1.5,
-                    ),
-                  ),
-                  child: AnimatedScale(
-                    scale: task.done ? 1.0 : 0.8,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOutBack,
-                    child: task.done
-                        ? Icon(
-                            Icons.check_rounded,
-                            color: colors.primary,
-                            size: 24,
-                            weight: 600,
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
             // Task Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    task.title,
-                    style: TextStyle(
-                      color: colors.tertiaryText,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      decoration: task.done ? TextDecoration.lineThrough : null,
-                      decorationThickness: 2,
-                      decorationColor: colors.tertiaryText.withValues(alpha: 0.5),
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          task.title,
+                          style: TextStyle(
+                            color: colors.tertiaryText,
+                            fontWeight: FontWeight.w700,
+                            fontSize: isNarrow ? 14 : 16,
+                            decoration: task.done ? TextDecoration.lineThrough : null,
+                            decorationThickness: 2,
+                            decorationColor: colors.tertiaryText.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: isNarrow ? 6 : 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: task.done
+                              ? Colors.green.withValues(alpha: 0.12)
+                              : colors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(
+                            color: task.done
+                                ? Colors.green.withValues(alpha: 0.3)
+                                : colors.primary.withValues(alpha: 0.3),
+                            width: 0.8,
+                          ),
+                        ),
+                        child: Text(
+                          task.done ? 'Completed' : 'Pending',
+                          style: TextStyle(
+                            color: task.done ? Colors.green : colors.primary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 6),
                   Row(
@@ -162,6 +158,56 @@ class TaskCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
+            // Animated Completion Button
+            PressScale(
+              child: InkWell(
+                onTap: () => onDoneChanged?.call(!task.done),
+                borderRadius: BorderRadius.circular(8),
+                splashColor: task.done ? Colors.green.withValues(alpha: 0.1) : colors.primary.withValues(alpha: 0.1),
+                highlightColor: task.done ? Colors.green.withValues(alpha: 0.08) : colors.primary.withValues(alpha: 0.08),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 280),
+                  curve: Curves.easeOutCubic,
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: task.done
+                        ? Colors.green.withValues(alpha: 0.15)
+                        : colors.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: task.done
+                          ? Colors.green.withValues(alpha: 0.4)
+                          : colors.primary.withValues(alpha: 0.2),
+                      width: task.done ? 1.5 : 1,
+                    ),
+                    boxShadow: task.done
+                        ? [
+                            BoxShadow(
+                              color: Colors.green.withValues(alpha: 0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: AnimatedScale(
+                    scale: task.done ? 1.0 : 0.8,
+                    duration: const Duration(milliseconds: 280),
+                    curve: Curves.easeOutBack,
+                    child: AnimatedOpacity(
+                      opacity: task.done ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 240),
+                      child: Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 6),
             // Edit and Delete Buttons
             Row(
               mainAxisSize: MainAxisSize.min,

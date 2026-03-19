@@ -68,26 +68,37 @@ class _LoginPageState extends State<LoginPage> {
           textInputAction: TextInputAction.done,
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () async {
-              final message = await authCubit.forgotPassword(
-                resetpwController.text,
-              );
+          Expanded(
+            child: Row(
+              children: [
+                Flexible(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: FilledButton(
+                    onPressed: () async {
+                      final message = await authCubit.forgotPassword(
+                        resetpwController.text,
+                      );
 
-              if (message == 'Password reset email sent! Check your email.') {
-                Navigator.pop(context);
-                resetpwController.clear();
-              }
+                      if (message == 'Password reset email sent! Check your email.') {
+                        Navigator.pop(context);
+                        resetpwController.clear();
+                      }
 
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(message)));
-            },
-            child: const Text('Send Reset Email'),
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(message)));
+                    },
+                    child: const Text('Send Reset Email'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
