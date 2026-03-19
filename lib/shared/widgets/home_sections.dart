@@ -103,70 +103,51 @@ class HomeOverviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final stacked = constraints.maxWidth < 560;
+    final narrow = MediaQuery.sizeOf(context).width < 390;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 3,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1565C0),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Overview',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                ),
-              ],
+            Container(
+              width: 3,
+              height: 20,
+              decoration: BoxDecoration(
+                color: const Color(0xFF1565C0),
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-            const SizedBox(height: 10),
-            if (stacked) ...[
-              _HomeStatCard(
+            const SizedBox(width: 8),
+            const Text(
+              'Overview',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: _HomeStatCard(
                 icon: Icons.task_alt_rounded,
                 label: 'Open tasks',
                 count: taskCount,
                 color: const Color(0xFF1B5E20),
               ),
-              const SizedBox(height: 12),
-              _HomeStatCard(
+            ),
+            SizedBox(width: narrow ? 8 : 12),
+            Expanded(
+              child: _HomeStatCard(
                 icon: Icons.school_rounded,
                 label: 'Upcoming exams',
                 count: examCount,
                 color: const Color(0xFF8E24AA),
               ),
-            ] else
-              Row(
-                children: [
-                  Expanded(
-                    child: _HomeStatCard(
-                      icon: Icons.task_alt_rounded,
-                      label: 'Open tasks',
-                      count: taskCount,
-                      color: const Color(0xFF1B5E20),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _HomeStatCard(
-                      icon: Icons.school_rounded,
-                      label: 'Upcoming exams',
-                      count: examCount,
-                      color: const Color(0xFF8E24AA),
-                    ),
-                  ),
-                ],
-              ),
+            ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 }
