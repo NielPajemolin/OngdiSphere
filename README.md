@@ -51,38 +51,39 @@ The application provides a full suite of tools for academic management:
 lib/
 ├── app/
 │   └── router/
-│       ├── app_routes.dart          # Route definitions
-│       └── router.dart              # barrel export
+│       ├── app_routes.dart
+│       └── router.dart
 │
 ├── core/
 │   └── theme/
-│       ├── app_theme.dart           # Theme configuration
-│       ├── color_palette.dart       # Color definitions
-│       └── theme.dart               # barrel export
+│       ├── app_theme.dart
+│       ├── color_palette.dart
+│       └── theme.dart
 │
 ├── data/
 │   ├── local/
-│   │   └── storage_service.dart     # Firestore operations wrapper
+│   │   └── storage_service.dart
 │   ├── models/
-│   │   ├── exam.dart                # Exam model
-│   │   ├── subject.dart             # Subject model
-│   │   ├── task.dart                # Task model
-│   │   └── models.dart              # barrel export
+│   │   ├── exam.dart
+│   │   ├── models.dart
+│   │   ├── subject.dart
+│   │   └── task.dart
 │   └── repositories/
-│       ├── exam_repository.dart     # Exam CRUD operations
-│       ├── subject_repository.dart  # Subject CRUD operations
-│       ├── task_repository.dart     # Task CRUD operations
-│       └── repositories.dart        # barrel export
+│       ├── exam_repository.dart
+│       ├── repositories.dart
+│       ├── subject_repository.dart
+│       └── task_repository.dart
 │
 ├── features/
-│   ├── auth/                        # Authentication feature
+│   ├── auth/
 │   │   ├── data/
 │   │   │   └── firebase_auth_repo.dart
 │   │   ├── domain/
 │   │   │   ├── entities/
 │   │   │   │   └── app_user.dart
 │   │   │   └── repos/
-│   │   │       └── auth_repo.dart
+│   │   │       └── auth/
+│   │   │           └── auth_repo.dart
 │   │   ├── presentation/
 │   │   │   ├── cubits/
 │   │   │   │   ├── auth/
@@ -92,64 +93,66 @@ lib/
 │   │   │   │   ├── auth_page.dart
 │   │   │   │   ├── login_page.dart
 │   │   │   │   └── signup_page.dart
-│   │   │   └── widgets/
-│   │   └── auth.dart                # barrel export
+│   │   └── auth.dart
 │   │
-│   ├── done/                        # Archive/Done feature
+│   ├── done/
 │   │   ├── presentation/
 │   │   │   └── pages/
 │   │   │       └── done_page.dart
-│   │   └── done.dart                # barrel export
+│   │   └── done.dart
 │   │
-│   ├── exam/                        # Exam management feature
+│   ├── exam/
 │   │   ├── presentation/
 │   │   │   ├── bloc/
-│   │   │   │   └── exam_bloc.dart
+│   │   │   │   ├── exam_bloc.dart
+│   │   │   │   ├── exam_event.dart
+│   │   │   │   └── exam_state.dart
 │   │   │   ├── pages/
 │   │   │   │   └── exam_page.dart
-│   │   │   └── widgets/
-│   │   └── exam.dart                # barrel export
+│   │   └── exam.dart
 │   │
-│   ├── home/                        # Home screen feature
+│   ├── home/
 │   │   ├── presentation/
 │   │   │   ├── pages/
 │   │   │   │   └── home_page.dart
-│   │   │   └── widgets/
-│   │   └── home.dart                # barrel export
+│   │   └── home.dart
 │   │
-│   ├── profile/                     # User profile feature
+│   ├── profile/
 │   │   ├── presentation/
 │   │   │   └── pages/
 │   │   │       └── profile_page.dart
-│   │   └── profile.dart             # barrel export
+│   │   └── profile.dart
 │   │
-│   ├── subject/                     # Subject management feature
+│   ├── subject/
 │   │   ├── presentation/
 │   │   │   ├── bloc/
-│   │   │   │   └── subject_bloc.dart
+│   │   │   │   ├── subject_bloc.dart
+│   │   │   │   ├── subject_event.dart
+│   │   │   │   └── subject_state.dart
 │   │   │   ├── pages/
 │   │   │   │   └── subject_page.dart
-│   │   │   └── widgets/
-│   │   └── subject.dart             # barrel export
+│   │   └── subject.dart
 │   │
-│   └── task/                        # Task management feature
+│   └── task/
 │       ├── presentation/
 │       │   ├── bloc/
-│       │   │   └── task_bloc.dart
+│       │   │   ├── task_bloc.dart
+│       │   │   ├── task_event.dart
+│       │   │   └── task_state.dart
 │       │   ├── pages/
 │       │   │   └── task_page.dart
-│       │   └── widgets/
-│       └── task.dart                # barrel export
+│       └── task.dart
 │
 ├── shared/
-│   ├── motivational_quotes/         # Motivational quotes module (NEW)
+│   ├── motivational_quotes/
 │   │   ├── motivational_quote_section.dart
-│   │   └── motivational_quotes.dart # barrel export
-│   │
+│   │   └── motivational_quotes.dart
 │   └── widgets/
 │       ├── add_exam_dialog.dart
 │       ├── add_subject_dialog.dart
 │       ├── add_task_dialog.dart
+│       ├── animated_form_dialog.dart
+│       ├── delete_confirmation_dialog.dart
 │       ├── exam_card.dart
 │       ├── home_sections.dart
 │       ├── loading.dart
@@ -160,10 +163,10 @@ lib/
 │       ├── subject_filter_dropdown.dart
 │       ├── summary_header_card.dart
 │       ├── task_card.dart
-│       └── widgets.dart             # barrel export
+│       └── widgets.dart
 │
-├── firebase_options.dart            # Firebase configuration
-└── main.dart                        # Application entry point
+├── firebase_options.dart
+└── main.dart
 ```
 
 ---
@@ -180,7 +183,7 @@ lib/
 | Home Feature | `features/home/home.dart` | Home page, home widgets |
 | Done Feature | `features/done/done.dart` | Done page |
 | Profile Feature | `features/profile/profile.dart` | Profile page |
-| Shared Widgets | `shared/widgets/widgets.dart` | All reusable UI components (13 files) |
+| Shared Widgets | `shared/widgets/widgets.dart` | All reusable UI components (15 files) |
 | Motivational Quotes | `shared/motivational_quotes/motivational_quotes.dart` | MotivationalQuoteSection widget |
 | Data Models | `data/models/models.dart` | Exam, Subject, Task models |
 | Repositories | `data/repositories/repositories.dart` | All CRUD repositories |
