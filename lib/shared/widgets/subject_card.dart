@@ -62,10 +62,29 @@ class SubjectCard extends StatelessWidget {
                 ],
               ),
             ),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              icon: const Icon(Icons.delete_outline_rounded, color: Colors.red),
-              onPressed: onDelete,
+            Material(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                onTap: onDelete,
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.red.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.delete_rounded,
+                    color: Colors.red,
+                    size: 18,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

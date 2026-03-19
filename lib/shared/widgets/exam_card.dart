@@ -28,22 +28,58 @@ class ExamCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       color: Colors.white,
-      shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.1),
-      elevation: 1,
+      shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.2) : colors.primary.withValues(alpha: 0.15),
+      elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         side: BorderSide(
           color: isOverdue
-              ? Colors.red.withValues(alpha: 0.45)
-              : colors.primary.withValues(alpha: 0.15),
-          width: isOverdue ? 1.4 : 1.0,
+              ? Colors.red.withValues(alpha: 0.5)
+              : colors.primary.withValues(alpha: 0.2),
+          width: isOverdue ? 1.5 : 1.2,
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Custom Checkbox with animation
+            InkWell(
+              onTap: () => onDoneChanged?.call(!exam.done),
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: exam.done
+                      ? colors.primary.withValues(alpha: 0.15)
+                      : Colors.grey.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: exam.done
+                        ? colors.primary
+                        : colors.primary.withValues(alpha: 0.3),
+                    width: exam.done ? 2 : 1.5,
+                  ),
+                ),
+                child: AnimatedScale(
+                  scale: exam.done ? 1.0 : 0.8,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOutBack,
+                  child: exam.done
+                      ? Icon(
+                          Icons.check_rounded,
+                          color: colors.primary,
+                          size: 24,
+                          weight: 600,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Exam Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,17 +90,24 @@ class ExamCard extends StatelessWidget {
                       color: colors.tertiaryText,
                       fontWeight: FontWeight.w700,
                       fontSize: 16,
+                      decoration: exam.done ? TextDecoration.lineThrough : null,
+                      decorationThickness: 2,
+                      decorationColor: colors.tertiaryText.withValues(alpha: 0.5),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.menu_book_rounded, size: 13, color: Colors.black45),
+                      Icon(Icons.menu_book_rounded, size: 13, color: colors.primary.withValues(alpha: 0.7)),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           exam.subjectName,
-                          style: const TextStyle(color: Colors.black54, fontSize: 13),
+                          style: TextStyle(
+                            color: colors.primary.withValues(alpha: 0.7),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -84,17 +127,21 @@ class ExamCard extends StatelessWidget {
                           DateFormat.yMd().add_jm().format(exam.dateTime.toLocal()),
                           style: TextStyle(
                             color: isOverdue ? Colors.red : Colors.black54,
-                            fontSize: 13,
+                            fontSize: 12,
                             fontWeight: isOverdue ? FontWeight.w600 : FontWeight.w400,
                           ),
                         ),
                       ),
                       if (isOverdue)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.red.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.red.withValues(alpha: 0.3),
+                              width: 0.8,
+                            ),
                           ),
                           child: const Text(
                             'Late',
@@ -111,39 +158,60 @@ class ExamCard extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 6),
-            Column(
+            const SizedBox(width: 8),
+            // Edit and Delete Buttons
+            Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Checkbox(
-                  value: exam.done,
-                  onChanged: onDoneChanged,
-                  fillColor: WidgetStateProperty.resolveWith(
-                    (states) => colors.primary,
-                  ),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (onEdit != null)
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        icon: Icon(
+                if (onEdit != null)
+                  Material(
+                    color: Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                    child: InkWell(
+                      onTap: onEdit,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: colors.primary.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
                           Icons.edit_rounded,
                           color: colors.primary,
-                          size: 20,
+                          size: 18,
                         ),
-                        onPressed: onEdit,
                       ),
-                    IconButton(
-                      visualDensity: VisualDensity.compact,
-                      icon: const Icon(
-                        Icons.delete_outline_rounded,
-                        color: Colors.red,
-                        size: 20,
-                      ),
-                      onPressed: onDelete,
                     ),
-                  ],
+                  ),
+                const SizedBox(width: 6),
+                Material(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  child: InkWell(
+                    onTap: onDelete,
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.red.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.delete_rounded,
+                        color: Colors.red,
+                        size: 18,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

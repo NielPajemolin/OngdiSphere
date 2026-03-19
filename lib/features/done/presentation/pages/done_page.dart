@@ -29,85 +29,27 @@ class _DonePageState extends State<DonePage> {
   }
 
   /// Shows a confirmation dialog and deletes a task using BLoC
-  void deleteTask(Task task) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-    showDialog(
+  Future<void> deleteTask(Task task) async {
+    final confirm = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20),
-            ),
-            const SizedBox(width: 10),
-            const Text('Delete Task', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          ],
-        ),
-        content: Text('Are you sure you want to delete "${task.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
-              Navigator.of(context).pop();
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Task',
+      message: 'Remove "${task.title}" permanently?',
     );
+
+    if (!mounted || !confirm) return;
+    context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
   }
 
   /// Shows a confirmation dialog and deletes an exam using BLoC
-  void deleteExam(Exam exam) {
-    final colors = Theme.of(context).extension<AppColors>()!;
-    showDialog(
+  Future<void> deleteExam(Exam exam) async {
+    final confirm = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Icon(Icons.delete_outline_rounded, color: Colors.red, size: 20),
-            ),
-            const SizedBox(width: 10),
-            const Text('Delete Exam', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-          ],
-        ),
-        content: Text('Are you sure you want to delete "${exam.title}"?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              context.read<ExamBloc>().add(DeleteExamEvent(exam.id));
-              Navigator.of(context).pop();
-            },
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Exam',
+      message: 'Remove "${exam.title}" permanently?',
     );
+
+    if (!mounted || !confirm) return;
+    context.read<ExamBloc>().add(DeleteExamEvent(exam.id));
   }
 
   @override

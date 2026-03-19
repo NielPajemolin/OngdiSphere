@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
+import 'package:ongdisphere/shared/widgets/animated_form_dialog.dart';
 
 class AddSubjectDialog extends StatefulWidget {
   const AddSubjectDialog({super.key});
@@ -38,80 +39,119 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
 
-    return AlertDialog(
-      backgroundColor: colors.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      title: Row(
+    return AnimatedFormDialog(
+      title: 'Add Subject',
+      icon: Icons.menu_book_rounded,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
+          Text(
+            'Subject Name',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: colors.tertiaryText.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
             ),
-            child: Icon(Icons.menu_book_rounded, color: colors.primary, size: 20),
           ),
-          const SizedBox(width: 10),
-          const Text(
-            'Add Subject',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          const SizedBox(height: 8),
+          TextField(
+            controller: subjectController,
+            autofocus: true,
+            style: TextStyle(
+              color: colors.tertiaryText,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+            onSubmitted: (_) => submit(),
+            decoration: InputDecoration(
+              hintText: 'Enter subject name',
+              hintStyle: TextStyle(
+                color: colors.tertiaryText.withValues(alpha: 0.4),
+              ),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.97),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: colors.primary, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.edit_note_rounded,
+                color: colors.primary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(height: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(null),
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              FilledButton(
+                onPressed: submit,
+                style: FilledButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 4,
+                ),
+                child: const Text(
+                  'Add',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      content: SizedBox(
-        width: 340,
-        child: TextField(
-          controller: subjectController,
-          autofocus: true,
-          style: TextStyle(
-            color: colors.tertiaryText,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-          ),
-          onSubmitted: (_) => submit(),
-          decoration: InputDecoration(
-            labelText: 'Subject Name',
-            labelStyle: TextStyle(
-              color: colors.tertiaryText.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w600,
-            ),
-            filled: true,
-            fillColor: Colors.white.withValues(alpha: 0.95),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 12,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: colors.primary.withValues(alpha: 0.2),
-              ),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(
-                color: colors.primary.withValues(alpha: 0.2),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(14),
-              borderSide: BorderSide(color: colors.primary, width: 1.4),
-            ),
-            prefixIcon: Icon(
-              Icons.edit_note_rounded,
-              color: colors.primary,
-              size: 20,
-            ),
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(null),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(onPressed: submit, child: const Text('Add')),
-      ],
     );
   }
 }

@@ -1,6 +1,8 @@
 export 'add_exam_dialog.dart';
 export 'add_subject_dialog.dart';
 export 'add_task_dialog.dart';
+export 'animated_form_dialog.dart';
+export 'delete_confirmation_dialog.dart';
 export 'exam_card.dart';
 export 'home_sections.dart';
 export 'loading.dart';

@@ -55,33 +55,16 @@ class _SubjectPageState extends State<SubjectPage> {
 
   // Delete a subject with confirmation dialog
   Future<void> deleteSubject(Subject subject) async {
-    // Show confirmation dialog
-    final confirm = await showDialog<bool>(
+    final confirm = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Subject'),
-        content: const Text('Are you sure you want to delete this subject?'),
-        actions: [
-          TextButton(
-            onPressed: () =>
-                Navigator.of(context).pop(false), // Cancel deletion
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () =>
-                Navigator.of(context).pop(true), // Confirm deletion
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Subject',
+      message: 'Remove "${subject.name}" permanently?',
     );
 
-    if (confirm != true) return; // Exit if deletion not confirmed
+    if (!mounted || !confirm) return;
 
     // Delete subject via BLoC
-    if (mounted) {
-      context.read<SubjectBloc>().add(DeleteSubjectEvent(subject.id));
-    }
+    context.read<SubjectBloc>().add(DeleteSubjectEvent(subject.id));
   }
 
   @override
@@ -191,19 +174,36 @@ class _SubjectPageState extends State<SubjectPage> {
                             ),
                           )
                         else
-                          ...subjects.map((subject) {
+                          ...subjects.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final subject = entry.value;
                             final taskCount = tasks
                                 .where((task) => task.subjectId == subject.id)
                                 .length;
                             final examCount = exams
                                 .where((exam) => exam.subjectId == subject.id)
                                 .length;
+                            final staggerIndex = index > 8 ? 8 : index;
 
-                            return SubjectCard(
-                              subject: subject,
-                              taskCount: taskCount,
-                              examCount: examCount,
-                              onDelete: () => deleteSubject(subject),
+                            return TweenAnimationBuilder<double>(
+                              key: ValueKey('subject-${subject.id}'),
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              duration: Duration(
+                                milliseconds: 240 + (staggerIndex * 45),
+                              ),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, (1 - value) * 14),
+                                  child: Opacity(opacity: value, child: child),
+                                );
+                              },
+                              child: SubjectCard(
+                                subject: subject,
+                                taskCount: taskCount,
+                                examCount: examCount,
+                                onDelete: () => deleteSubject(subject),
+                              ),
                             );
                           }),
                       ],

@@ -95,30 +95,16 @@ class _ExamPageState extends State<ExamPage> {
 
   /// Deletes an exam after user confirmation
   Future<void> deleteExam(Exam exam) async {
-    final confirm = await showDialog<bool>(
+    final confirm = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Exam'),
-        content: const Text('Are you sure you want to delete this exam?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Exam',
+      message: 'Remove "${exam.title}" permanently?',
     );
 
-    if (confirm != true) return;
+    if (!mounted || !confirm) return;
 
     // Delete exam via BLoC
-    if (mounted) {
-      context.read<ExamBloc>().add(DeleteExamEvent(exam.id));
-    }
+    context.read<ExamBloc>().add(DeleteExamEvent(exam.id));
   }
 
   @override

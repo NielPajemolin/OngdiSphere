@@ -117,30 +117,16 @@ class _TaskPageState extends State<TaskPage> {
 
   /// Deletes a task after confirming with the user
   Future<void> deleteTask(Task task) async {
-    final confirm = await showDialog<bool>(
+    final confirm = await showDeleteConfirmationDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Task'),
-        content: const Text('Are you sure you want to delete this task?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete Task',
+      message: 'Remove "${task.title}" permanently?',
     );
 
-    if (confirm != true) return;
+    if (!mounted || !confirm) return;
 
     // Delete task via BLoC
-    if (mounted) {
-      context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
-    }
+    context.read<TaskBloc>().add(DeleteTaskEvent(task.id));
   }
 
   @override
