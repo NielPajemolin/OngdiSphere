@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="150dp"
+    android:insetRight="150dp"
+    android:insetTop="200dp"
+    android:insetBottom="200dp">
+    <bitmap android:gravity="center" android:src="@drawable/android12splash" />
+</inset>
