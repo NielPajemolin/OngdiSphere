@@ -10,6 +10,15 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalPadding = screenWidth >= 1024
+        ? 26.0
+        : screenWidth >= 768
+        ? 22.0
+        : 18.0;
+    final maxContentWidth = screenWidth >= 1280 ? 900.0 : 760.0;
+    final useMaxWidth = screenWidth >= 900;
+    final headerPadding = screenWidth >= 768 ? 20.0 : 18.0;
     Widget animatedSection({
       required Widget child,
       required int milliseconds,
@@ -65,185 +74,197 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
-            children: [
-              animatedSection(
-                milliseconds: 260,
-                child: Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
+              ),
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  12,
+                  horizontalPadding,
+                  24,
+                ),
+                children: [
+                  animatedSection(
+                    milliseconds: 260,
+                    child: Container(
+                      padding: EdgeInsets.all(headerPadding),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x301565C0),
+                            blurRadius: 24,
+                            offset: Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 34,
+                            backgroundColor: Colors.white.withValues(alpha: 0.25),
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.white,
+                              child: Text(
+                                userInitial,
+                                style: const TextStyle(
+                                  color: Color(0xFF0D47A1),
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  userName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  userEmail,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x301565C0),
-                        blurRadius: 24,
-                        offset: Offset(0, 12),
-                      ),
-                    ],
                   ),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 34,
-                        backgroundColor: Colors.white.withValues(alpha: 0.25),
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.white,
-                          child: Text(
-                            userInitial,
-                            style: const TextStyle(
-                              color: Color(0xFF0D47A1),
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              userName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              userEmail,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              animatedSection(
-                milliseconds: 340,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0x1F1565C0)),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x12000000),
-                        blurRadius: 20,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 3,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1565C0),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Account Information',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: colors.tertiaryText,
-                            ),
+                  const SizedBox(height: 16),
+                  animatedSection(
+                    milliseconds: 340,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0x1F1565C0)),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x12000000),
+                            blurRadius: 20,
+                            offset: Offset(0, 8),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 14),
-                      _ProfileInfoTile(
-                        icon: Icons.person_rounded,
-                        label: 'Name',
-                        value: userName,
-                      ),
-                      const SizedBox(height: 12),
-                      _ProfileInfoTile(
-                        icon: Icons.email_rounded,
-                        label: 'Email',
-                        value: userEmail,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              animatedSection(
-                milliseconds: 420,
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0x1F1565C0)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 3,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF1565C0),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+                          Row(
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1565C0),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Account Information',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.tertiaryText,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Settings',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                              color: colors.tertiaryText,
-                            ),
+                          const SizedBox(height: 14),
+                          _ProfileInfoTile(
+                            icon: Icons.person_rounded,
+                            label: 'Name',
+                            value: userName,
+                          ),
+                          const SizedBox(height: 12),
+                          _ProfileInfoTile(
+                            icon: Icons.email_rounded,
+                            label: 'Email',
+                            value: userEmail,
                           ),
                         ],
                       ),
-                      const SizedBox(height: 14),
-                      MyButton(
-                        label: 'Edit Profile',
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Profile editing is coming soon.'),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 24),
+                  animatedSection(
+                    milliseconds: 420,
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0x1F1565C0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 3,
+                                height: 20,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF1565C0),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Settings',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.tertiaryText,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 14),
+                          MyButton(
+                            label: 'Edit Profile',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Profile editing is coming soon.'),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

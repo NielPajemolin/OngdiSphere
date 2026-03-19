@@ -55,6 +55,14 @@ class _DonePageState extends State<DonePage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalPadding = screenWidth >= 1024
+        ? 26.0
+        : screenWidth >= 768
+        ? 22.0
+        : 18.0;
+    final maxContentWidth = screenWidth >= 1280 ? 1040.0 : 920.0;
+    final useMaxWidth = screenWidth >= 900;
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -113,128 +121,146 @@ class _DonePageState extends State<DonePage> {
 
                 final totalDone = doneTasks.length + doneExams.length;
 
-                return ListView(
-                  padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
-                  children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 260),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Transform.translate(
-                          offset: Offset(0, (1 - value) * 10),
-                          child: Opacity(opacity: value, child: child),
-                        );
-                      },
-                      child: SummaryHeaderCard(
-                        icon: Icons.verified_rounded,
-                        iconColor: const Color(0xFF1B5E20),
-                        iconBackgroundColor: const Color(0x1A1B5E20),
-                        title: 'Completed Archive',
-                        subtitle: '$totalDone total completed item(s)',
-                        titleColor: colors.tertiaryText,
-                        showShadow: true,
-                      ),
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
                     ),
-                    const SizedBox(height: 14),
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 320),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Transform.translate(
-                          offset: Offset(0, (1 - value) * 12),
-                          child: Opacity(opacity: value, child: child),
-                        );
-                      },
-                      child: _DoneSection(
-                        title: 'Completed Tasks',
-                        count: doneTasks.length,
-                        icon: Icons.task_alt_rounded,
-                        emptyMessage: 'No completed tasks yet',
-                        child: doneTasks.isEmpty
-                            ? null
-                            : ListView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: doneTasks.length,
-                                itemBuilder: (context, index) {
-                                  final task = doneTasks[index];
-                                  final staggerIndex = index > 8 ? 8 : index;
-                                  return TweenAnimationBuilder<double>(
-                                    key: ValueKey('done-task-${task.id}'),
-                                    tween: Tween(begin: 0.0, end: 1.0),
-                                    duration: Duration(
-                                      milliseconds: 220 + (staggerIndex * 40),
-                                    ),
-                                    curve: Curves.easeOutCubic,
-                                    builder: (context, value, child) {
-                                      return Transform.translate(
-                                        offset: Offset(0, (1 - value) * 10),
-                                        child: Opacity(opacity: value, child: child),
+                    child: ListView(
+                      padding: EdgeInsets.fromLTRB(
+                        horizontalPadding,
+                        10,
+                        horizontalPadding,
+                        24,
+                      ),
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 260),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, child) {
+                            return Transform.translate(
+                              offset: Offset(0, (1 - value) * 10),
+                              child: Opacity(opacity: value, child: child),
+                            );
+                          },
+                          child: SummaryHeaderCard(
+                            icon: Icons.verified_rounded,
+                            iconColor: const Color(0xFF1B5E20),
+                            iconBackgroundColor: const Color(0x1A1B5E20),
+                            title: 'Completed Archive',
+                            subtitle: '$totalDone total completed item(s)',
+                            titleColor: colors.tertiaryText,
+                            showShadow: true,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 320),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, child) {
+                            return Transform.translate(
+                              offset: Offset(0, (1 - value) * 12),
+                              child: Opacity(opacity: value, child: child),
+                            );
+                          },
+                          child: _DoneSection(
+                            title: 'Completed Tasks',
+                            count: doneTasks.length,
+                            icon: Icons.task_alt_rounded,
+                            emptyMessage: 'No completed tasks yet',
+                            child: doneTasks.isEmpty
+                                ? null
+                                : ListView.builder(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: doneTasks.length,
+                                    itemBuilder: (context, index) {
+                                      final task = doneTasks[index];
+                                      final staggerIndex = index > 8 ? 8 : index;
+                                      return TweenAnimationBuilder<double>(
+                                        key: ValueKey('done-task-${task.id}'),
+                                        tween: Tween(begin: 0.0, end: 1.0),
+                                        duration: Duration(
+                                          milliseconds: 220 + (staggerIndex * 40),
+                                        ),
+                                        curve: Curves.easeOutCubic,
+                                        builder: (context, value, child) {
+                                          return Transform.translate(
+                                            offset: Offset(0, (1 - value) * 10),
+                                            child: Opacity(
+                                              opacity: value,
+                                              child: child,
+                                            ),
+                                          );
+                                        },
+                                        child: TaskCard(
+                                          task: task,
+                                          onDelete: () => deleteTask(task),
+                                          onDoneChanged: null,
+                                          onEdit: null,
+                                        ),
                                       );
                                     },
-                                    child: TaskCard(
-                                      task: task,
-                                      onDelete: () => deleteTask(task),
-                                      onDoneChanged: null,
-                                      onEdit: null,
-                                    ),
-                                  );
-                                },
-                              ),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 380),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Transform.translate(
-                          offset: Offset(0, (1 - value) * 12),
-                          child: Opacity(opacity: value, child: child),
-                        );
-                      },
-                      child: _DoneSection(
-                        title: 'Completed Exams',
-                        count: doneExams.length,
-                        icon: Icons.school_rounded,
-                        emptyMessage: 'No completed exams yet',
-                        child: doneExams.isEmpty
-                            ? null
-                            : ListView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: doneExams.length,
-                                itemBuilder: (context, index) {
-                                  final exam = doneExams[index];
-                                  final staggerIndex = index > 8 ? 8 : index;
-                                  return TweenAnimationBuilder<double>(
-                                    key: ValueKey('done-exam-${exam.id}'),
-                                    tween: Tween(begin: 0.0, end: 1.0),
-                                    duration: Duration(
-                                      milliseconds: 220 + (staggerIndex * 40),
-                                    ),
-                                    curve: Curves.easeOutCubic,
-                                    builder: (context, value, child) {
-                                      return Transform.translate(
-                                        offset: Offset(0, (1 - value) * 10),
-                                        child: Opacity(opacity: value, child: child),
+                                  ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 380),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, child) {
+                            return Transform.translate(
+                              offset: Offset(0, (1 - value) * 12),
+                              child: Opacity(opacity: value, child: child),
+                            );
+                          },
+                          child: _DoneSection(
+                            title: 'Completed Exams',
+                            count: doneExams.length,
+                            icon: Icons.school_rounded,
+                            emptyMessage: 'No completed exams yet',
+                            child: doneExams.isEmpty
+                                ? null
+                                : ListView.builder(
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    shrinkWrap: true,
+                                    itemCount: doneExams.length,
+                                    itemBuilder: (context, index) {
+                                      final exam = doneExams[index];
+                                      final staggerIndex = index > 8 ? 8 : index;
+                                      return TweenAnimationBuilder<double>(
+                                        key: ValueKey('done-exam-${exam.id}'),
+                                        tween: Tween(begin: 0.0, end: 1.0),
+                                        duration: Duration(
+                                          milliseconds: 220 + (staggerIndex * 40),
+                                        ),
+                                        curve: Curves.easeOutCubic,
+                                        builder: (context, value, child) {
+                                          return Transform.translate(
+                                            offset: Offset(0, (1 - value) * 10),
+                                            child: Opacity(
+                                              opacity: value,
+                                              child: child,
+                                            ),
+                                          );
+                                        },
+                                        child: ExamCard(
+                                          exam: exam,
+                                          onDelete: () => deleteExam(exam),
+                                          onDoneChanged: null,
+                                          onEdit: null,
+                                        ),
                                       );
                                     },
-                                    child: ExamCard(
-                                      exam: exam,
-                                      onDelete: () => deleteExam(exam),
-                                      onDoneChanged: null,
-                                      onEdit: null,
-                                    ),
-                                  );
-                                },
-                              ),
-                      ),
+                                  ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             );

@@ -18,7 +18,7 @@ OngdiSphere is a dedicated mobile application designed to help students and user
 
 **User Experience:**
 - **Daily Motivation:** Rotating motivational quotes displayed on the home page, fetched from an external API with local caching for offline support.
-- **Responsive Design:** Adaptive layouts that work seamlessly across all device sizes using `MediaQuery`.
+- **Responsive Design:** Key pages use `MediaQuery`-based breakpoints and constrained layouts for better spacing on phones, tablets, and larger screens (Home, Subjects, Tasks, Exams, Login, Sign Up, Profile, Done).
 - **Consistent Theming:** Custom `AppTheme` and `AppColors` extension for a unified visual identity.
 
 ---
@@ -39,7 +39,8 @@ The application provides a full suite of tools for academic management:
 * **Central Archive:** The dedicated **Done Page** lists all completed tasks and exams, allowing users to permanently clear archived records.
 
 ### UI & UX
-* **Responsive Design:** Layouts adapt proportionally to various phone screen sizes using `MediaQuery`.
+* **Responsive Design:** MediaQuery breakpoints are implemented on key pages (Home, Subjects, Tasks, Exams, Login, Sign Up, Profile, Done), with centered max-width content on wider displays.
+* **Adaptive Home Widgets:** Home banner and overview cards switch to stacked layouts on narrower screens for better readability.
 * **Theming:** Consistent visual identity achieved via custom `AppTheme` and `AppColors` extension.
 * **Daily Motivation:** The home page displays rotating motivational quotes from an external API with local caching support.
 

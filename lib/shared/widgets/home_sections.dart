@@ -9,9 +9,14 @@ class HomeWelcomeBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final compact = screenWidth < 430;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 14 : 16,
+        vertical: compact ? 10 : 12,
+      ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
@@ -27,44 +32,60 @@ class HomeWelcomeBanner extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Welcome back,',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.84),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final stacked = constraints.maxWidth < 420;
+
+          final nameSection = Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Welcome back,',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.84),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  userName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.2,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                userName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: compact ? 20 : 22,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
                 ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
+              ),
+            ],
+          );
+
+          final tagline = Text(
             'Build momentum today.',
+            textAlign: stacked ? TextAlign.left : TextAlign.right,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.78),
               fontSize: 12,
             ),
-          ),
-        ],
+          );
+
+          if (stacked) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [nameSection, const SizedBox(height: 10), tagline],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: nameSection),
+              const SizedBox(width: 10),
+              Flexible(child: tagline),
+            ],
+          );
+        },
       ),
     );
   }
@@ -82,49 +103,70 @@ class HomeOverviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked = constraints.maxWidth < 560;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: 3,
-              height: 20,
-              decoration: BoxDecoration(
-                color: const Color(0xFF1565C0),
-                borderRadius: BorderRadius.circular(2),
-              ),
+            Row(
+              children: [
+                Container(
+                  width: 3,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1565C0),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'Overview',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            const Text(
-              'Overview',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: [
-            Expanded(
-              child: _HomeStatCard(
+            const SizedBox(height: 10),
+            if (stacked) ...[
+              _HomeStatCard(
                 icon: Icons.task_alt_rounded,
                 label: 'Open tasks',
                 count: taskCount,
                 color: const Color(0xFF1B5E20),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _HomeStatCard(
+              const SizedBox(height: 12),
+              _HomeStatCard(
                 icon: Icons.school_rounded,
                 label: 'Upcoming exams',
                 count: examCount,
                 color: const Color(0xFF8E24AA),
               ),
-            ),
+            ] else
+              Row(
+                children: [
+                  Expanded(
+                    child: _HomeStatCard(
+                      icon: Icons.task_alt_rounded,
+                      label: 'Open tasks',
+                      count: taskCount,
+                      color: const Color(0xFF1B5E20),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _HomeStatCard(
+                      icon: Icons.school_rounded,
+                      label: 'Upcoming exams',
+                      count: examCount,
+                      color: const Color(0xFF8E24AA),
+                    ),
+                  ),
+                ],
+              ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 }
@@ -144,8 +186,10 @@ class _HomeStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 390;
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(compact ? 12 : 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -170,7 +214,7 @@ class _HomeStatCard extends StatelessWidget {
           Text(
             '$count',
             style: TextStyle(
-              fontSize: 26,
+              fontSize: compact ? 22 : 26,
               fontWeight: FontWeight.w700,
               color: color,
             ),

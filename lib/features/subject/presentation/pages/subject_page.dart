@@ -70,6 +70,14 @@ class _SubjectPageState extends State<SubjectPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalPadding = screenWidth >= 1024
+        ? 26.0
+        : screenWidth >= 768
+        ? 22.0
+        : 18.0;
+    final maxContentWidth = screenWidth >= 1280 ? 1040.0 : 920.0;
+    final useMaxWidth = screenWidth >= 900;
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -130,96 +138,108 @@ class _SubjectPageState extends State<SubjectPage> {
                       return Center(child: Text(subjectState.message));
                     }
 
-                    return ListView(
-                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 120),
-                      children: [
-                        SummaryHeaderCard(
-                          icon: Icons.menu_book_rounded,
-                          iconColor: const Color(0xFF0D47A1),
-                          iconBackgroundColor: const Color(0x1A1565C0),
-                          title: 'Learning Spaces',
-                          subtitle: '${subjects.length} subject(s) organized',
-                          titleColor: colors.tertiaryText,
-                          showShadow: true,
+                    return Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
                         ),
-                        const SizedBox(height: 14),
-                        if (subjects.isEmpty)
-                          TweenAnimationBuilder<double>(
-                            key: ValueKey('subject-empty-${subjects.length}'),
-                            tween: Tween(begin: 0.0, end: 1.0),
-                            duration: const Duration(milliseconds: 280),
-                            curve: Curves.easeOutCubic,
-                            builder: (context, value, child) {
-                              return Transform.translate(
-                                offset: Offset(0, (1 - value) * 12),
-                                child: Opacity(opacity: value, child: child),
-                              );
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(22),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(18),
-                              ),
-                              child: const Column(
-                                children: [
-                                  Icon(
-                                    Icons.library_add_rounded,
-                                    size: 36,
-                                    color: Color(0xFF1565C0),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'No subjects yet',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    'Tap the + button to create your first subject.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.black54),
-                                  ),
-                                ],
-                              ),
+                        child: ListView(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            10,
+                            horizontalPadding,
+                            120,
+                          ),
+                          children: [
+                            SummaryHeaderCard(
+                              icon: Icons.menu_book_rounded,
+                              iconColor: const Color(0xFF0D47A1),
+                              iconBackgroundColor: const Color(0x1A1565C0),
+                              title: 'Learning Spaces',
+                              subtitle: '${subjects.length} subject(s) organized',
+                              titleColor: colors.tertiaryText,
+                              showShadow: true,
                             ),
-                          )
-                        else
-                          ...subjects.asMap().entries.map((entry) {
-                            final index = entry.key;
-                            final subject = entry.value;
-                            final taskCount = tasks
-                                .where((task) => task.subjectId == subject.id)
-                                .length;
-                            final examCount = exams
-                                .where((exam) => exam.subjectId == subject.id)
-                                .length;
-                            final staggerIndex = index > 8 ? 8 : index;
+                            const SizedBox(height: 14),
+                            if (subjects.isEmpty)
+                              TweenAnimationBuilder<double>(
+                                key: ValueKey('subject-empty-${subjects.length}'),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 280),
+                                curve: Curves.easeOutCubic,
+                                builder: (context, value, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, (1 - value) * 12),
+                                    child: Opacity(opacity: value, child: child),
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(22),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: const Column(
+                                    children: [
+                                      Icon(
+                                        Icons.library_add_rounded,
+                                        size: 36,
+                                        color: Color(0xFF1565C0),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'No subjects yet',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Tap the + button to create your first subject.',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.black54),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else
+                              ...subjects.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final subject = entry.value;
+                                final taskCount = tasks
+                                    .where((task) => task.subjectId == subject.id)
+                                    .length;
+                                final examCount = exams
+                                    .where((exam) => exam.subjectId == subject.id)
+                                    .length;
+                                final staggerIndex = index > 8 ? 8 : index;
 
-                            return TweenAnimationBuilder<double>(
-                              key: ValueKey('subject-${subject.id}'),
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              duration: Duration(
-                                milliseconds: 240 + (staggerIndex * 45),
-                              ),
-                              curve: Curves.easeOutCubic,
-                              builder: (context, value, child) {
-                                return Transform.translate(
-                                  offset: Offset(0, (1 - value) * 14),
-                                  child: Opacity(opacity: value, child: child),
+                                return TweenAnimationBuilder<double>(
+                                  key: ValueKey('subject-${subject.id}'),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  duration: Duration(
+                                    milliseconds: 240 + (staggerIndex * 45),
+                                  ),
+                                  curve: Curves.easeOutCubic,
+                                  builder: (context, value, child) {
+                                    return Transform.translate(
+                                      offset: Offset(0, (1 - value) * 14),
+                                      child: Opacity(opacity: value, child: child),
+                                    );
+                                  },
+                                  child: SubjectCard(
+                                    subject: subject,
+                                    taskCount: taskCount,
+                                    examCount: examCount,
+                                    onDelete: () => deleteSubject(subject),
+                                  ),
                                 );
-                              },
-                              child: SubjectCard(
-                                subject: subject,
-                                taskCount: taskCount,
-                                examCount: examCount,
-                                onDelete: () => deleteSubject(subject),
-                              ),
-                            );
-                          }),
-                      ],
+                              }),
+                          ],
+                        ),
+                      ),
                     );
                   },
                 );

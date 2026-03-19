@@ -94,6 +94,15 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalPadding = screenWidth >= 1024
+        ? 26.0
+        : screenWidth >= 768
+        ? 22.0
+        : 18.0;
+    final sectionSpacing = screenWidth >= 768 ? 18.0 : 16.0;
+    final maxContentWidth = screenWidth >= 1280 ? 1040.0 : 920.0;
+    final useMaxWidth = screenWidth >= 900;
 
     final authCubit = context.read<AuthCubit>();
     final userName = authCubit.currenUser?.name ?? 'User';
@@ -134,75 +143,87 @@ class _HomePageState extends State<HomePage>
           ),
         ),
         child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 8, 18, 22),
-            children: [
-              _buildAnimatedSection(
-                begin: 0,
-                end: 0.45,
-                child: HomeWelcomeBanner(userName: userName),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
               ),
-              const SizedBox(height: 16),
-              _buildAnimatedSection(
-                begin: 0.15,
-                end: 0.62,
-                child: BlocBuilder<TaskBloc, TaskState>(
-                  builder: (context, taskState) {
-                    return BlocBuilder<ExamBloc, ExamState>(
-                      builder: (context, examState) {
-                        int taskCount = 0;
-                        int examCount = 0;
+              child: ListView(
+                padding: EdgeInsets.fromLTRB(
+                  horizontalPadding,
+                  8,
+                  horizontalPadding,
+                  22,
+                ),
+                children: [
+                  _buildAnimatedSection(
+                    begin: 0,
+                    end: 0.45,
+                    child: HomeWelcomeBanner(userName: userName),
+                  ),
+                  SizedBox(height: sectionSpacing),
+                  _buildAnimatedSection(
+                    begin: 0.15,
+                    end: 0.62,
+                    child: BlocBuilder<TaskBloc, TaskState>(
+                      builder: (context, taskState) {
+                        return BlocBuilder<ExamBloc, ExamState>(
+                          builder: (context, examState) {
+                            int taskCount = 0;
+                            int examCount = 0;
 
-                        if (taskState is TaskLoaded) {
-                          taskCount = taskState.tasks
-                              .where((task) => !task.done)
-                              .length;
-                        }
+                            if (taskState is TaskLoaded) {
+                              taskCount = taskState.tasks
+                                  .where((task) => !task.done)
+                                  .length;
+                            }
 
-                        if (examState is ExamLoaded) {
-                          examCount = examState.exams
-                              .where((exam) => !exam.done)
-                              .length;
-                        }
+                            if (examState is ExamLoaded) {
+                              examCount = examState.exams
+                                  .where((exam) => !exam.done)
+                                  .length;
+                            }
 
-                        return HomeOverviewSection(
-                          taskCount: taskCount,
-                          examCount: examCount,
+                            return HomeOverviewSection(
+                              taskCount: taskCount,
+                              examCount: examCount,
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildAnimatedSection(
-                begin: 0.28,
-                end: 0.8,
-                child: const MotivationalQuoteSection(),
-              ),
-              const SizedBox(height: 16),
-              _buildAnimatedSection(
-                begin: 0.4,
-                end: 1,
-                child: HomeActionsSection(
-                  onSubjectsTap: () => _navigateAndReload(
-                    route: '/subjects',
-                    refreshTasks: true,
-                    refreshExams: true,
+                    ),
                   ),
-                  onTasksTap: () => _navigateAndReload(
-                    route: '/tasks',
-                    refreshTasks: true,
-                    refreshExams: false,
+                  SizedBox(height: sectionSpacing),
+                  _buildAnimatedSection(
+                    begin: 0.28,
+                    end: 0.8,
+                    child: const MotivationalQuoteSection(),
                   ),
-                  onExamsTap: () => _navigateAndReload(
-                    route: '/exams',
-                    refreshTasks: false,
-                    refreshExams: true,
+                  SizedBox(height: sectionSpacing),
+                  _buildAnimatedSection(
+                    begin: 0.4,
+                    end: 1,
+                    child: HomeActionsSection(
+                      onSubjectsTap: () => _navigateAndReload(
+                        route: '/subjects',
+                        refreshTasks: true,
+                        refreshExams: true,
+                      ),
+                      onTasksTap: () => _navigateAndReload(
+                        route: '/tasks',
+                        refreshTasks: true,
+                        refreshExams: false,
+                      ),
+                      onExamsTap: () => _navigateAndReload(
+                        route: '/exams',
+                        refreshTasks: false,
+                        refreshExams: true,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

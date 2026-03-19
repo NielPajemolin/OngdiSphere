@@ -110,6 +110,15 @@ class _ExamPageState extends State<ExamPage> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final horizontalPadding = screenWidth >= 1024
+        ? 26.0
+        : screenWidth >= 768
+        ? 22.0
+        : 18.0;
+    final listHorizontalPadding = screenWidth >= 768 ? 16.0 : 12.0;
+    final maxContentWidth = screenWidth >= 1280 ? 1040.0 : 920.0;
+    final useMaxWidth = screenWidth >= 900;
 
     return Scaffold(
       backgroundColor: colors.surface,
@@ -180,124 +189,147 @@ class _ExamPageState extends State<ExamPage> {
                           )
                           .toList();
 
-                return Column(
-                  children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 260),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Transform.translate(
-                          offset: Offset(0, (1 - value) * 10),
-                          child: Opacity(opacity: value, child: child),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
-                        child: SummaryHeaderCard(
-                          icon: Icons.description_rounded,
-                          iconColor: const Color(0xFF6A1B9A),
-                          iconBackgroundColor: const Color(0x1A8E24AA),
-                          title: 'Upcoming Exams',
-                          subtitle: '${filteredExams.length} pending exam(s)',
-                          titleColor: colors.tertiaryText,
-                        ),
-                      ),
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
                     ),
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 320),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return Transform.translate(
-                          offset: Offset(0, (1 - value) * 12),
-                          child: Opacity(opacity: value, child: child),
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
-                        child: SubjectFilterDropdown(
-                          value: selectedSubjectId,
-                          subjects: subjects,
-                          onChanged: (value) => setState(() {
-                            selectedSubjectId = value;
-                          }),
+                    child: Column(
+                      children: [
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 260),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, child) {
+                            return Transform.translate(
+                              offset: Offset(0, (1 - value) * 10),
+                              child: Opacity(opacity: value, child: child),
+                            );
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              10,
+                              horizontalPadding,
+                              8,
+                            ),
+                            child: SummaryHeaderCard(
+                              icon: Icons.description_rounded,
+                              iconColor: const Color(0xFF6A1B9A),
+                              iconBackgroundColor: const Color(0x1A8E24AA),
+                              title: 'Upcoming Exams',
+                              subtitle: '${filteredExams.length} pending exam(s)',
+                              titleColor: colors.tertiaryText,
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      child: filteredExams.isEmpty
-                          ? Center(
-                              child: TweenAnimationBuilder<double>(
-                                key: ValueKey(
-                                  'exam-empty-$selectedSubjectId-${filteredExams.length}',
-                                ),
-                                tween: Tween(begin: 0.0, end: 1.0),
-                                duration: const Duration(milliseconds: 280),
-                                curve: Curves.easeOutCubic,
-                                builder: (context, value, child) {
-                                  return Transform.translate(
-                                    offset: Offset(0, (1 - value) * 12),
-                                    child: Opacity(opacity: value, child: child),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: const [
-                                    Icon(
-                                      Icons.event_note_rounded,
-                                      size: 38,
-                                      color: Color(0x666A1B9A),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: 1.0),
+                          duration: const Duration(milliseconds: 320),
+                          curve: Curves.easeOutCubic,
+                          builder: (context, value, child) {
+                            return Transform.translate(
+                              offset: Offset(0, (1 - value) * 12),
+                              child: Opacity(opacity: value, child: child),
+                            );
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              0,
+                              horizontalPadding,
+                              10,
+                            ),
+                            child: SubjectFilterDropdown(
+                              value: selectedSubjectId,
+                              subjects: subjects,
+                              onChanged: (value) => setState(() {
+                                selectedSubjectId = value;
+                              }),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: filteredExams.isEmpty
+                              ? Center(
+                                  child: TweenAnimationBuilder<double>(
+                                    key: ValueKey(
+                                      'exam-empty-$selectedSubjectId-${filteredExams.length}',
                                     ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'No pending exams',
-                                      style: TextStyle(color: Colors.black54),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              padding: const EdgeInsets.fromLTRB(
-                                12,
-                                0,
-                                12,
-                                120,
-                              ),
-                              itemCount: filteredExams.length,
-                              itemBuilder: (context, index) {
-                                final exam = filteredExams[index];
-                                final staggerIndex = index > 10 ? 10 : index;
-
-                                return TweenAnimationBuilder<double>(
-                                  key: ValueKey('exam-${exam.id}'),
-                                  tween: Tween(begin: 0.0, end: 1.0),
-                                  duration: Duration(
-                                    milliseconds: 220 + (staggerIndex * 40),
-                                  ),
-                                  curve: Curves.easeOutCubic,
-                                  builder: (context, value, child) {
-                                    return Transform.translate(
-                                      offset: Offset(0, (1 - value) * 12),
-                                      child: Opacity(opacity: value, child: child),
-                                    );
-                                  },
-                                  child: ExamCard(
-                                    exam: exam,
-                                    onDoneChanged: (value) {
-                                      context.read<ExamBloc>().add(
-                                        ToggleExamDoneEvent(exam.id),
+                                    tween: Tween(begin: 0.0, end: 1.0),
+                                    duration: const Duration(milliseconds: 280),
+                                    curve: Curves.easeOutCubic,
+                                    builder: (context, value, child) {
+                                      return Transform.translate(
+                                        offset: Offset(0, (1 - value) * 12),
+                                        child: Opacity(
+                                          opacity: value,
+                                          child: child,
+                                        ),
                                       );
                                     },
-                                    onEdit: () => editExam(subjects, exam),
-                                    onDelete: () => deleteExam(exam),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: const [
+                                        Icon(
+                                          Icons.event_note_rounded,
+                                          size: 38,
+                                          color: Color(0x666A1B9A),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          'No pending exams',
+                                          style: TextStyle(color: Colors.black54),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                );
-                              },
-                            ),
+                                )
+                              : ListView.builder(
+                                  padding: EdgeInsets.fromLTRB(
+                                    listHorizontalPadding,
+                                    0,
+                                    listHorizontalPadding,
+                                    120,
+                                  ),
+                                  itemCount: filteredExams.length,
+                                  itemBuilder: (context, index) {
+                                    final exam = filteredExams[index];
+                                    final staggerIndex = index > 10 ? 10 : index;
+
+                                    return TweenAnimationBuilder<double>(
+                                      key: ValueKey('exam-${exam.id}'),
+                                      tween: Tween(begin: 0.0, end: 1.0),
+                                      duration: Duration(
+                                        milliseconds: 220 + (staggerIndex * 40),
+                                      ),
+                                      curve: Curves.easeOutCubic,
+                                      builder: (context, value, child) {
+                                        return Transform.translate(
+                                          offset: Offset(0, (1 - value) * 12),
+                                          child: Opacity(
+                                            opacity: value,
+                                            child: child,
+                                          ),
+                                        );
+                                      },
+                                      child: ExamCard(
+                                        exam: exam,
+                                        onDoneChanged: (value) {
+                                          context.read<ExamBloc>().add(
+                                            ToggleExamDoneEvent(exam.id),
+                                          );
+                                        },
+                                        onEdit: () => editExam(subjects, exam),
+                                        onDelete: () => deleteExam(exam),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 );
               },
             );
