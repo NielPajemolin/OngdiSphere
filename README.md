@@ -49,11 +49,6 @@ The application provides a full suite of tools for academic management:
 
 ```text
 lib/
-├── app/
-│   └── router/
-│       ├── app_routes.dart
-│       └── router.dart
-│
 ├── core/
 │   └── theme/
 │       ├── app_theme.dart
@@ -144,15 +139,21 @@ lib/
 │       └── task.dart
 │
 ├── shared/
+│   ├── animations/
+│   │   ├── animated_form_dialog.dart
+│   │   ├── app_routes.dart
+│   │   ├── delete_confirmation_dialog.dart
+│   │   ├── press_animated_fab.dart
+│   │   └── press_scale.dart
+│   │
 │   ├── motivational_quotes/
 │   │   ├── motivational_quote_section.dart
 │   │   └── motivational_quotes.dart
+│   │
 │   └── widgets/
 │       ├── add_exam_dialog.dart
 │       ├── add_subject_dialog.dart
 │       ├── add_task_dialog.dart
-│       ├── animated_form_dialog.dart
-│       ├── delete_confirmation_dialog.dart
 │       ├── exam_card.dart
 │       ├── home_sections.dart
 │       ├── loading.dart
@@ -183,12 +184,12 @@ lib/
 | Home Feature | `features/home/home.dart` | Home page, home widgets |
 | Done Feature | `features/done/done.dart` | Done page |
 | Profile Feature | `features/profile/profile.dart` | Profile page |
-| Shared Widgets | `shared/widgets/widgets.dart` | All reusable UI components (15 files) |
+| Shared Widgets | `shared/widgets/widgets.dart` | All reusable UI components, dialog/widgets, and shared animation exports |
 | Motivational Quotes | `shared/motivational_quotes/motivational_quotes.dart` | MotivationalQuoteSection widget |
 | Data Models | `data/models/models.dart` | Exam, Subject, Task models |
 | Repositories | `data/repositories/repositories.dart` | All CRUD repositories |
 | Theme | `core/theme/theme.dart` | AppTheme configuration, AppColors |
-| Router | `app/router/router.dart` | Route definitions |
+| Shared Animations | `shared/animations/app_routes.dart` | Route transitions and animation helpers |
 
 ---
 
