@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 
-class MyTextfield extends StatelessWidget {
+class MyTextfield extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final String labeltext;
@@ -24,17 +24,30 @@ class MyTextfield extends StatelessWidget {
   });
 
   @override
+  State<MyTextfield> createState() => _MyTextfieldState();
+}
+
+class _MyTextfieldState extends State<MyTextfield> {
+  late bool _isPasswordVisible;
+
+  @override
+  void initState() {
+    super.initState();
+    _isPasswordVisible = !widget.obscureText;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
       child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        onEditingComplete: onEditingComplete,
+        controller: widget.controller,
+        obscureText: widget.obscureText && !_isPasswordVisible,
+        keyboardType: widget.keyboardType,
+        textInputAction: widget.textInputAction,
+        onEditingComplete: widget.onEditingComplete,
         style: const TextStyle(fontSize: 15.5),
         decoration: InputDecoration(
           contentPadding: const EdgeInsets.symmetric(
@@ -55,11 +68,27 @@ class MyTextfield extends StatelessWidget {
           ),
           filled: true,
           fillColor: Colors.white,
-          labelText: labeltext,
-          hintText: hintText,
+          labelText: widget.labeltext,
+          hintText: widget.hintText,
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 14.5),
-          prefixIcon: prefixIcon != null
-              ? Icon(prefixIcon, color: colors.primary, size: 20)
+          prefixIcon: widget.prefixIcon != null
+              ? Icon(widget.prefixIcon, color: colors.primary, size: 20)
+              : null,
+          suffixIcon: widget.obscureText
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                  child: Icon(
+                    _isPasswordVisible
+                        ? Icons.visibility_rounded
+                        : Icons.visibility_off_rounded,
+                    color: colors.primary,
+                    size: 20,
+                  ),
+                )
               : null,
         ),
       ),
