@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ongdisphere/app/router/router.dart';
+import 'package:ongdisphere/shared/animations/app_routes.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/repositories/repositories.dart';
 import 'package:ongdisphere/features/auth/auth.dart';

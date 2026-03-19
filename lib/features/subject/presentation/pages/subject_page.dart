@@ -87,8 +87,9 @@ class _SubjectPageState extends State<SubjectPage> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: PressAnimatedFab(
         onPressed: addSubject, // Open dialog to add new subject
+        tooltip: 'Add subject',
         child: const Icon(Icons.add_rounded),
       ),
       body: Container(
@@ -143,34 +144,46 @@ class _SubjectPageState extends State<SubjectPage> {
                         ),
                         const SizedBox(height: 14),
                         if (subjects.isEmpty)
-                          Container(
-                            padding: const EdgeInsets.all(22),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: const Column(
-                              children: [
-                                Icon(
-                                  Icons.library_add_rounded,
-                                  size: 36,
-                                  color: Color(0xFF1565C0),
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'No subjects yet',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
+                          TweenAnimationBuilder<double>(
+                            key: ValueKey('subject-empty-${subjects.length}'),
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            duration: const Duration(milliseconds: 280),
+                            curve: Curves.easeOutCubic,
+                            builder: (context, value, child) {
+                              return Transform.translate(
+                                offset: Offset(0, (1 - value) * 12),
+                                child: Opacity(opacity: value, child: child),
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(22),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(18),
+                              ),
+                              child: const Column(
+                                children: [
+                                  Icon(
+                                    Icons.library_add_rounded,
+                                    size: 36,
+                                    color: Color(0xFF1565C0),
                                   ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Tap the + button to create your first subject.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.black54),
-                                ),
-                              ],
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'No subjects yet',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Tap the + button to create your first subject.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.black54),
+                                  ),
+                                ],
+                              ),
                             ),
                           )
                         else

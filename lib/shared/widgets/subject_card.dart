@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
+import 'package:ongdisphere/shared/animations/press_scale.dart';
 
 class SubjectCard extends StatelessWidget {
   final Subject subject;
@@ -62,26 +63,28 @@ class SubjectCard extends StatelessWidget {
                 ],
               ),
             ),
-            Material(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-              child: InkWell(
-                onTap: onDelete,
+            PressScale(
+              child: Material(
+                color: Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.2),
-                      width: 1,
+                child: InkWell(
+                  onTap: onDelete,
+                  borderRadius: BorderRadius.circular(10),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.red.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  child: const Icon(
-                    Icons.delete_rounded,
-                    color: Colors.red,
-                    size: 18,
+                    child: const Icon(
+                      Icons.delete_rounded,
+                      color: Colors.red,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),

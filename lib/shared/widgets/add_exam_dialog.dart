@@ -3,7 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
-import 'package:ongdisphere/shared/widgets/animated_form_dialog.dart';
+import 'package:ongdisphere/shared/animations/animated_form_dialog.dart';
+import 'package:ongdisphere/shared/animations/press_scale.dart';
 
 Future<Map<String, dynamic>?> showAddExamDialog({
   required BuildContext context,
@@ -255,68 +256,72 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          TextButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
+                          PressScale(
+                            child: TextButton(
+                              onPressed: () => Navigator.of(dialogContext).pop(),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.3,
+                              child: const Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: 0.3,
+                                ),
                               ),
                             ),
                           ),
                           const SizedBox(width: 10),
-                          FilledButton(
-                            onPressed: () {
-                              if (examController.text.isEmpty ||
-                                  selectedSubject == null ||
-                                  selectedDateTime == null) {
+                          PressScale(
+                            child: FilledButton(
+                              onPressed: () {
+                                if (examController.text.isEmpty ||
+                                    selectedSubject == null ||
+                                    selectedDateTime == null) {
+                                  Navigator.of(
+                                    dialogContext,
+                                  ).pop({'error': 'fields-missing'});
+                                  return;
+                                }
+
+                                final newExam = Exam(
+                                  id: exam?.id ?? const Uuid().v4(),
+                                  title: examController.text,
+                                  subjectId: selectedSubject!.id,
+                                  subjectName: selectedSubject!.name,
+                                  dateTime: selectedDateTime!,
+                                  done: exam?.done ?? false,
+                                );
+
                                 Navigator.of(
                                   dialogContext,
-                                ).pop({'error': 'fields-missing'});
-                                return;
-                              }
-
-                              final newExam = Exam(
-                                id: exam?.id ?? const Uuid().v4(),
-                                title: examController.text,
-                                subjectId: selectedSubject!.id,
-                                subjectName: selectedSubject!.name,
-                                dateTime: selectedDateTime!,
-                                done: exam?.done ?? false,
-                              );
-
-                              Navigator.of(
-                                dialogContext,
-                              ).pop({'exam': newExam, 'subject': selectedSubject});
-                            },
-                            style: FilledButton.styleFrom(
-                              backgroundColor: colors.primary,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
+                                ).pop({'exam': newExam, 'subject': selectedSubject});
+                              },
+                              style: FilledButton.styleFrom(
+                                backgroundColor: colors.primary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 4,
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 4,
-                            ),
-                            child: Text(
-                              exam == null ? 'Add' : 'Update',
-                              style: const TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.3,
+                              child: Text(
+                                exam == null ? 'Add' : 'Update',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.3,
+                                ),
                               ),
                             ),
                           ),

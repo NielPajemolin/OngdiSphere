@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
+import 'package:ongdisphere/shared/animations/press_scale.dart';
 
 Future<bool> showDeleteConfirmationDialog({
   required BuildContext context,
@@ -65,18 +66,22 @@ Future<bool> showDeleteConfirmationDialog({
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                    child: Text(cancelLabel),
+                  PressScale(
+                    child: TextButton(
+                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                      child: Text(cancelLabel),
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  FilledButton(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+                  PressScale(
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                      child: Text(deleteLabel),
                     ),
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(deleteLabel),
                   ),
                 ],
               ),

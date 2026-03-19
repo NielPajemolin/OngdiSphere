@@ -133,8 +133,9 @@ class _ExamPageState extends State<ExamPage> {
           if (state is SubjectLoaded) {
             subjects = state.subjects;
           }
-          return FloatingActionButton(
+          return PressAnimatedFab(
             onPressed: () => addExam(subjects),
+            tooltip: 'Add exam',
             child: const Icon(Icons.add_rounded),
           );
         },
@@ -181,33 +182,80 @@ class _ExamPageState extends State<ExamPage> {
 
                 return Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
-                      child: SummaryHeaderCard(
-                        icon: Icons.description_rounded,
-                        iconColor: const Color(0xFF6A1B9A),
-                        iconBackgroundColor: const Color(0x1A8E24AA),
-                        title: 'Upcoming Exams',
-                        subtitle: '${filteredExams.length} pending exam(s)',
-                        titleColor: colors.tertiaryText,
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 260),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(0, (1 - value) * 10),
+                          child: Opacity(opacity: value, child: child),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
+                        child: SummaryHeaderCard(
+                          icon: Icons.description_rounded,
+                          iconColor: const Color(0xFF6A1B9A),
+                          iconBackgroundColor: const Color(0x1A8E24AA),
+                          title: 'Upcoming Exams',
+                          subtitle: '${filteredExams.length} pending exam(s)',
+                          titleColor: colors.tertiaryText,
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
-                      child: SubjectFilterDropdown(
-                        value: selectedSubjectId,
-                        subjects: subjects,
-                        onChanged: (value) => setState(() {
-                          selectedSubjectId = value;
-                        }),
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 320),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(0, (1 - value) * 12),
+                          child: Opacity(opacity: value, child: child),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+                        child: SubjectFilterDropdown(
+                          value: selectedSubjectId,
+                          subjects: subjects,
+                          onChanged: (value) => setState(() {
+                            selectedSubjectId = value;
+                          }),
+                        ),
                       ),
                     ),
                     Expanded(
                       child: filteredExams.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No pending exams',
-                                style: TextStyle(color: Colors.black54),
+                          ? Center(
+                              child: TweenAnimationBuilder<double>(
+                                key: ValueKey(
+                                  'exam-empty-$selectedSubjectId-${filteredExams.length}',
+                                ),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 280),
+                                curve: Curves.easeOutCubic,
+                                builder: (context, value, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, (1 - value) * 12),
+                                    child: Opacity(opacity: value, child: child),
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(
+                                      Icons.event_note_rounded,
+                                      size: 38,
+                                      color: Color(0x666A1B9A),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'No pending exams',
+                                      style: TextStyle(color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
                               ),
                             )
                           : ListView.builder(
@@ -220,15 +268,31 @@ class _ExamPageState extends State<ExamPage> {
                               itemCount: filteredExams.length,
                               itemBuilder: (context, index) {
                                 final exam = filteredExams[index];
-                                return ExamCard(
-                                  exam: exam,
-                                  onDoneChanged: (value) {
-                                    context.read<ExamBloc>().add(
-                                      ToggleExamDoneEvent(exam.id),
+                                final staggerIndex = index > 10 ? 10 : index;
+
+                                return TweenAnimationBuilder<double>(
+                                  key: ValueKey('exam-${exam.id}'),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  duration: Duration(
+                                    milliseconds: 220 + (staggerIndex * 40),
+                                  ),
+                                  curve: Curves.easeOutCubic,
+                                  builder: (context, value, child) {
+                                    return Transform.translate(
+                                      offset: Offset(0, (1 - value) * 12),
+                                      child: Opacity(opacity: value, child: child),
                                     );
                                   },
-                                  onEdit: () => editExam(subjects, exam),
-                                  onDelete: () => deleteExam(exam),
+                                  child: ExamCard(
+                                    exam: exam,
+                                    onDoneChanged: (value) {
+                                      context.read<ExamBloc>().add(
+                                        ToggleExamDoneEvent(exam.id),
+                                      );
+                                    },
+                                    onEdit: () => editExam(subjects, exam),
+                                    onDelete: () => deleteExam(exam),
+                                  ),
                                 );
                               },
                             ),

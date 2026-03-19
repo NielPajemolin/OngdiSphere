@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:ongdisphere/app/router/app_routes.dart';
+import 'package:ongdisphere/shared/animations/app_routes.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_cubit.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_states.dart';
 import 'package:ongdisphere/core/theme/theme.dart';

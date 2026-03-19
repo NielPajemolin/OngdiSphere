@@ -155,8 +155,9 @@ class _TaskPageState extends State<TaskPage> {
           if (state is SubjectLoaded) {
             subjects = state.subjects;
           }
-          return FloatingActionButton(
-            onPressed: () => addTask(subjects), // Add a new task
+          return PressAnimatedFab(
+            onPressed: () => addTask(subjects),
+            tooltip: 'Add task',
             child: const Icon(Icons.add_rounded),
           );
         },
@@ -203,33 +204,80 @@ class _TaskPageState extends State<TaskPage> {
 
                 return Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
-                      child: SummaryHeaderCard(
-                        icon: Icons.checklist_rounded,
-                        iconColor: const Color(0xFF0D47A1),
-                        iconBackgroundColor: const Color(0x1A1565C0),
-                        title: 'Active Tasks',
-                        subtitle: '${filteredTasks.length} pending item(s)',
-                        titleColor: colors.tertiaryText,
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 260),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(0, (1 - value) * 10),
+                          child: Opacity(opacity: value, child: child),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 10, 18, 8),
+                        child: SummaryHeaderCard(
+                          icon: Icons.checklist_rounded,
+                          iconColor: const Color(0xFF0D47A1),
+                          iconBackgroundColor: const Color(0x1A1565C0),
+                          title: 'Active Tasks',
+                          subtitle: '${filteredTasks.length} pending item(s)',
+                          titleColor: colors.tertiaryText,
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
-                      child: SubjectFilterDropdown(
-                        value: selectedSubjectId,
-                        subjects: subjects,
-                        onChanged: (value) => setState(() {
-                          selectedSubjectId = value;
-                        }),
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 320),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, child) {
+                        return Transform.translate(
+                          offset: Offset(0, (1 - value) * 12),
+                          child: Opacity(opacity: value, child: child),
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+                        child: SubjectFilterDropdown(
+                          value: selectedSubjectId,
+                          subjects: subjects,
+                          onChanged: (value) => setState(() {
+                            selectedSubjectId = value;
+                          }),
+                        ),
                       ),
                     ),
                     Expanded(
                       child: filteredTasks.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No active tasks found',
-                                style: TextStyle(color: Colors.black54),
+                          ? Center(
+                              child: TweenAnimationBuilder<double>(
+                                key: ValueKey(
+                                  'task-empty-$selectedSubjectId-${filteredTasks.length}',
+                                ),
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 280),
+                                curve: Curves.easeOutCubic,
+                                builder: (context, value, child) {
+                                  return Transform.translate(
+                                    offset: Offset(0, (1 - value) * 12),
+                                    child: Opacity(opacity: value, child: child),
+                                  );
+                                },
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: const [
+                                    Icon(
+                                      Icons.task_alt_rounded,
+                                      size: 38,
+                                      color: Color(0x661565C0),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'No active tasks found',
+                                      style: TextStyle(color: Colors.black54),
+                                    ),
+                                  ],
+                                ),
                               ),
                             )
                           : ListView.builder(
@@ -242,15 +290,31 @@ class _TaskPageState extends State<TaskPage> {
                               itemCount: filteredTasks.length,
                               itemBuilder: (context, index) {
                                 final task = filteredTasks[index];
-                                return TaskCard(
-                                  task: task,
-                                  onDoneChanged: (value) {
-                                    context.read<TaskBloc>().add(
-                                      ToggleTaskDoneEvent(task.id),
+                                final staggerIndex = index > 10 ? 10 : index;
+
+                                return TweenAnimationBuilder<double>(
+                                  key: ValueKey('task-${task.id}'),
+                                  tween: Tween(begin: 0.0, end: 1.0),
+                                  duration: Duration(
+                                    milliseconds: 220 + (staggerIndex * 40),
+                                  ),
+                                  curve: Curves.easeOutCubic,
+                                  builder: (context, value, child) {
+                                    return Transform.translate(
+                                      offset: Offset(0, (1 - value) * 12),
+                                      child: Opacity(opacity: value, child: child),
                                     );
                                   },
-                                  onEdit: () => editTask(subjects, task),
-                                  onDelete: () => deleteTask(task),
+                                  child: TaskCard(
+                                    task: task,
+                                    onDoneChanged: (value) {
+                                      context.read<TaskBloc>().add(
+                                        ToggleTaskDoneEvent(task.id),
+                                      );
+                                    },
+                                    onEdit: () => editTask(subjects, task),
+                                    onDelete: () => deleteTask(task),
+                                  ),
                                 );
                               },
                             ),

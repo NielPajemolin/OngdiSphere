@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ongdisphere/app/router/app_routes.dart';
+import 'package:ongdisphere/shared/animations/app_routes.dart';
 import 'package:ongdisphere/features/auth/presentation/pages/signup_page.dart';
 import 'login_page.dart';
 

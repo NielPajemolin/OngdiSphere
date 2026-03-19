@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
+import 'package:ongdisphere/shared/animations/press_scale.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
@@ -45,36 +46,38 @@ class TaskCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Custom Checkbox with animation
-            InkWell(
-              onTap: () => onDoneChanged?.call(!task.done),
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: task.done
-                      ? colors.primary.withValues(alpha: 0.15)
-                      : Colors.grey.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
+            PressScale(
+              child: InkWell(
+                onTap: () => onDoneChanged?.call(!task.done),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
                     color: task.done
-                        ? colors.primary
-                        : colors.primary.withValues(alpha: 0.3),
-                    width: task.done ? 2 : 1.5,
+                        ? colors.primary.withValues(alpha: 0.15)
+                        : Colors.grey.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: task.done
+                          ? colors.primary
+                          : colors.primary.withValues(alpha: 0.3),
+                      width: task.done ? 2 : 1.5,
+                    ),
                   ),
-                ),
-                child: AnimatedScale(
-                  scale: task.done ? 1.0 : 0.8,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutBack,
-                  child: task.done
-                      ? Icon(
-                          Icons.check_rounded,
-                          color: colors.primary,
-                          size: 24,
-                          weight: 600,
-                        )
-                      : const SizedBox.shrink(),
+                  child: AnimatedScale(
+                    scale: task.done ? 1.0 : 0.8,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutBack,
+                    child: task.done
+                        ? Icon(
+                            Icons.check_rounded,
+                            color: colors.primary,
+                            size: 24,
+                            weight: 600,
+                          )
+                        : const SizedBox.shrink(),
+                  ),
                 ),
               ),
             ),
@@ -164,51 +167,55 @@ class TaskCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (onEdit != null)
-                  Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                    child: InkWell(
-                      onTap: onEdit,
+                  PressScale(
+                    child: Material(
+                      color: Colors.transparent,
                       borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: colors.primary.withValues(alpha: 0.2),
-                            width: 1,
+                      child: InkWell(
+                        onTap: onEdit,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: colors.primary.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
                           ),
-                        ),
-                        child: Icon(
-                          Icons.edit_rounded,
-                          color: colors.primary,
-                          size: 18,
+                          child: Icon(
+                            Icons.edit_rounded,
+                            color: colors.primary,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
                   ),
                 const SizedBox(width: 6),
-                Material(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                  child: InkWell(
-                    onTap: onDelete,
+                PressScale(
+                  child: Material(
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.red.withValues(alpha: 0.2),
-                          width: 1,
+                    child: InkWell(
+                      onTap: onDelete,
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
                         ),
-                      ),
-                      child: const Icon(
-                        Icons.delete_rounded,
-                        color: Colors.red,
-                        size: 18,
+                        child: const Icon(
+                          Icons.delete_rounded,
+                          color: Colors.red,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
