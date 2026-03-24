@@ -38,7 +38,7 @@ class _MyTextfieldState extends State<MyTextfield> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
@@ -67,7 +67,7 @@ class _MyTextfieldState extends State<MyTextfield> {
             borderSide: BorderSide(color: colors.primary, width: 1.6),
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: colors.surface.withValues(alpha: 0.85),
           labelText: widget.labeltext,
           hintText: widget.hintText,
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 14.5),

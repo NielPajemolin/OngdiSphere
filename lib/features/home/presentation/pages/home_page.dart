@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 1024
         ? 26.0
@@ -130,18 +130,11 @@ class _HomePageState extends State<HomePage>
         ),
       ),
       drawer: const AppDrawer(), // Custom navigation drawer
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              colors.surface,
-              colors.surface.withValues(alpha: 0.96),
-              const Color(0xFFE2EEFF),
-            ],
-          ),
-        ),
+      body: KuromiPageBackground(
+        topColor: colors.surface,
+        bottomColor: const Color(0xFFF3E4EF),
+        preset: KuromiBackgroundPreset.orchid,
+        animate: true,
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(

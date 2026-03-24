@@ -47,7 +47,7 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
 
     return Drawer(
       backgroundColor: colors.surface,
@@ -150,13 +150,25 @@ class _DrawerActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
 
     return Material(
       color: Colors.transparent,
       child: ListTile(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        leading: Icon(icon, color: iconColor ?? colors.tertiaryText),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: colors.secondary.withValues(alpha: 0.16)),
+        ),
+        tileColor: Colors.white.withValues(alpha: 0.55),
+        leading: Container(
+          width: 30,
+          height: 30,
+          decoration: BoxDecoration(
+            color: colors.secondary.withValues(alpha: 0.18),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: iconColor ?? colors.tertiaryText, size: 18),
+        ),
         title: Text(
           label,
           style: TextStyle(

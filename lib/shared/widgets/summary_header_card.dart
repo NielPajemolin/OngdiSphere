@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
 
 class SummaryHeaderCard extends StatelessWidget {
   const SummaryHeaderCard({
@@ -22,7 +23,8 @@ class SummaryHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return KuromiDecoratedContainer(
+      borderRadius: BorderRadius.circular(20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -37,6 +39,8 @@ class SummaryHeaderCard extends StatelessWidget {
               ]
             : null,
       ),
+      patternColor: iconColor,
+      patternOpacity: 0.1,
       child: Row(
         children: [
           CircleAvatar(
@@ -57,7 +61,13 @@ class SummaryHeaderCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: iconColor.withValues(alpha: 0.18),
+                ),
+                const SizedBox(height: 5),
                 Text(
                   subtitle,
                   style: const TextStyle(

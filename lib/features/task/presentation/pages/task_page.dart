@@ -131,7 +131,7 @@ class _TaskPageState extends State<TaskPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 1024
         ? 26.0
@@ -171,14 +171,10 @@ class _TaskPageState extends State<TaskPage> {
           );
         },
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [colors.surface, const Color(0xFFE6F2FF)],
-          ),
-        ),
+      body: KuromiPageBackground(
+        topColor: colors.surface,
+        bottomColor: const Color(0xFFF8EAF5),
+        preset: KuromiBackgroundPreset.candy,
         child: BlocBuilder<SubjectBloc, SubjectState>(
           builder: (context, subjectState) {
             List<Subject> subjects = [];

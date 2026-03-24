@@ -109,7 +109,7 @@ class _ExamPageState extends State<ExamPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 1024
         ? 26.0
@@ -149,14 +149,10 @@ class _ExamPageState extends State<ExamPage> {
           );
         },
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [colors.surface, const Color(0xFFE9EEFF)],
-          ),
-        ),
+      body: KuromiPageBackground(
+        topColor: colors.surface,
+        bottomColor: const Color(0xFFF5E9F8),
+        preset: KuromiBackgroundPreset.twilight,
         child: BlocBuilder<SubjectBloc, SubjectState>(
           builder: (context, subjectState) {
             List<Subject> subjects = [];

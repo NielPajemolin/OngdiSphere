@@ -9,7 +9,7 @@ class MyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
 
     return SizedBox(
       width: double.infinity,
@@ -18,9 +18,12 @@ class MyButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
+          foregroundColor: colors.primaryText,
           elevation: 0,
+          shadowColor: colors.secondary.withValues(alpha: 0.28),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: colors.secondary.withValues(alpha: 0.4)),
           ),
         ),
         child: Text(

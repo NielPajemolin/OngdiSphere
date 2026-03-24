@@ -69,7 +69,7 @@ class _SubjectPageState extends State<SubjectPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 1024
         ? 26.0
@@ -100,14 +100,10 @@ class _SubjectPageState extends State<SubjectPage> {
         tooltip: 'Add subject',
         child: const Icon(Icons.add_rounded),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [colors.surface, const Color(0xFFE6F1FF)],
-          ),
-        ),
+      body: KuromiPageBackground(
+        topColor: colors.surface,
+        bottomColor: const Color(0xFFF8EAF4),
+        preset: KuromiBackgroundPreset.blush,
         child: BlocBuilder<SubjectBloc, SubjectState>(
           builder: (context, subjectState) {
             return BlocBuilder<ExamBloc, ExamState>(
@@ -173,12 +169,15 @@ class _SubjectPageState extends State<SubjectPage> {
                                     child: Opacity(opacity: value, child: child),
                                   );
                                 },
-                                child: Container(
+                                child: KuromiDecoratedContainer(
+                                  borderRadius: BorderRadius.circular(18),
                                   padding: const EdgeInsets.all(22),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(18),
                                   ),
+                                  patternColor: colors.secondary,
+                                  patternOpacity: 0.08,
                                   child: const Column(
                                     children: [
                                       Icon(

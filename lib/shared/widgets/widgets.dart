@@ -5,6 +5,8 @@ export '../animations/animated_form_dialog.dart';
 export '../animations/delete_confirmation_dialog.dart';
 export 'exam_card.dart';
 export 'home_sections.dart';
+export 'kuromi_accents.dart';
+export 'kuromi_page_background.dart';
 export 'loading.dart';
 export '../motivational_quotes/motivational_quotes.dart';
 export 'my_app_drawer.dart';

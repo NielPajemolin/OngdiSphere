@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
 import 'package:ongdisphere/shared/animations/press_scale.dart';
+import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
 
 class SubjectCard extends StatelessWidget {
   final Subject subject;
@@ -19,7 +20,7 @@ class SubjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -29,8 +30,15 @@ class SubjectCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(color: colors.primary.withValues(alpha: 0.15)),
       ),
-      child: Padding(
+      child: KuromiDecoratedContainer(
+        borderRadius: BorderRadius.circular(18),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        patternColor: colors.secondary,
+        patternOpacity: 0.08,
         child: Row(
           children: [
             const CircleAvatar(

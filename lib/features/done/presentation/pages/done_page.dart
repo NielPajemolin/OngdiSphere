@@ -54,7 +54,7 @@ class _DonePageState extends State<DonePage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 1024
         ? 26.0
@@ -80,14 +80,10 @@ class _DonePageState extends State<DonePage> {
           ),
         ),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [colors.surface, const Color(0xFFEAF3FF)],
-          ),
-        ),
+      body: KuromiPageBackground(
+        topColor: colors.surface,
+        bottomColor: const Color(0xFFF8EAF4),
+        preset: KuromiBackgroundPreset.mist,
         child: BlocBuilder<TaskBloc, TaskState>(
           builder: (context, taskState) {
             return BlocBuilder<ExamBloc, ExamState>(
@@ -288,7 +284,10 @@ class _DoneSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final colors = AppTheme.colorsOf(context);
+
+    return KuromiDecoratedContainer(
+      borderRadius: BorderRadius.circular(18),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -302,6 +301,8 @@ class _DoneSection extends StatelessWidget {
           ),
         ],
       ),
+      patternColor: colors.secondary,
+      patternOpacity: 0.06,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -327,17 +328,26 @@ class _DoneSection extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: const Color(0xFFF48FB1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFFF48FB1).withValues(alpha: 0.25),
+                  ),
                 ),
                 child: Text(
                   '$count',
                   style: const TextStyle(
-                    color: Color(0xFFF48FB1),
+                    color: Color(0xFF211724),
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: colors.secondary.withValues(alpha: 0.2),
           ),
           const SizedBox(height: 10),
           child ??

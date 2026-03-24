@@ -3,6 +3,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:ongdisphere/core/theme/theme.dart';
+import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MotivationalQuoteSection extends StatefulWidget {
@@ -39,7 +41,6 @@ class _MotivationalQuoteSectionState extends State<MotivationalQuoteSection> {
       if (!mounted || _loadedQuotes.isEmpty) return;
       final nextIndex = _quoteIndex + 1;
       if (nextIndex >= _loadedQuotes.length) {
-        // All quotes shown — fetch a fresh batch.
         _autoTimer?.cancel();
         setState(() {
           _quoteIndex = 0;
@@ -102,78 +103,49 @@ class _MotivationalQuoteSectionState extends State<MotivationalQuoteSection> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final colors = AppTheme.colorsOf(context);
+
+    return KuromiDecoratedContainer(
+      borderRadius: BorderRadius.circular(22),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        color: const Color(0xFF0F172A),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1D1321), Color(0xFF8F6EA8)],
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: colors.secondary.withValues(alpha: 0.24),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
+      patternColor: Colors.white,
+      patternOpacity: 0.16,
       child: FutureBuilder<List<_MotivationalQuote>>(
         future: _quotesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SizedBox(
+            return SizedBox(
               height: 120,
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(
+                child: CircularProgressIndicator(color: colors.secondary),
+              ),
             );
           }
 
           if (snapshot.hasError) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Motivation',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Could not load quotes. Tap below to retry.',
-                  style: TextStyle(color: Colors.white70),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.tonal(
-                  onPressed: () {
-                    _autoTimer?.cancel();
-                    setState(() {
-                      _quoteIndex = 0;
-                      _loadedQuotes = [];
-                      _quotesFuture = _fetchQuotes();
-                    });
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
-            );
+            return _buildErrorState(colors);
           }
 
           final quotes = snapshot.data ?? const [];
           if (quotes.isEmpty) {
-            return const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Motivation',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'No quote found right now.',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ],
-            );
+            return _buildEmptyState();
           }
 
-          // Start the timer once quotes are resolved.
           if (_loadedQuotes.isEmpty) {
             _loadedQuotes = quotes;
             WidgetsBinding.instance.addPostFrameCallback((_) => _startTimer());
@@ -203,14 +175,26 @@ class _MotivationalQuoteSectionState extends State<MotivationalQuoteSection> {
               key: ValueKey<String>('${quote.text}-${quote.author}'),
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Daily Motivation',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
+                const Row(
+                  children: [
+                    Icon(
+                      Icons.auto_awesome_rounded,
+                      color: Color(0xFFFFC9DD),
+                      size: 18,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Daily Motivation',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 8),
+                const Divider(color: Color(0x45FFFFFF), thickness: 1, height: 1),
                 const SizedBox(height: 10),
                 Text(
                   '"${quote.text}"',
@@ -218,14 +202,25 @@ class _MotivationalQuoteSectionState extends State<MotivationalQuoteSection> {
                     color: Colors.white,
                     height: 1.45,
                     fontSize: 15,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 12),
-                Text(
-                  '- ${quote.author}',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontWeight: FontWeight.w600,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: const Color(0x33FFC9DD),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0x55FFC9DD)),
+                  ),
+                  child: Text(
+                    '- ${quote.author}',
+                    style: const TextStyle(
+                      color: Color(0xFFFFEAF3),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -238,7 +233,9 @@ class _MotivationalQuoteSectionState extends State<MotivationalQuoteSection> {
                       width: isActive ? 18 : 6,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: isActive ? Colors.white : Colors.white30,
+                        color: isActive
+                            ? const Color(0xFFFFC9DD)
+                            : Colors.white.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     );
@@ -249,6 +246,80 @@ class _MotivationalQuoteSectionState extends State<MotivationalQuoteSection> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildErrorState(AppColors colors) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.auto_awesome_rounded, color: Color(0xFFFFC9DD), size: 18),
+            SizedBox(width: 8),
+            Text(
+              'Daily Motivation',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        const Divider(color: Color(0x45FFFFFF), thickness: 1, height: 1),
+        const SizedBox(height: 8),
+        const Text(
+          'Could not load quotes. Tap below to retry.',
+          style: TextStyle(color: Colors.white70),
+        ),
+        const SizedBox(height: 12),
+        FilledButton.tonal(
+          style: FilledButton.styleFrom(
+            foregroundColor: const Color(0xFF211724),
+            backgroundColor: const Color(0xFFFFC9DD),
+          ),
+          onPressed: () {
+            _autoTimer?.cancel();
+            setState(() {
+              _quoteIndex = 0;
+              _loadedQuotes = [];
+              _quotesFuture = _fetchQuotes();
+            });
+          },
+          child: const Text('Retry'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.auto_awesome_rounded, color: Color(0xFFFFC9DD), size: 18),
+            SizedBox(width: 8),
+            Text(
+              'Daily Motivation',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 8),
+        Divider(color: Color(0x45FFFFFF), thickness: 1, height: 1),
+        SizedBox(height: 8),
+        Text(
+          'No quote found right now.',
+          style: TextStyle(color: Colors.white70),
+        ),
+      ],
     );
   }
 }

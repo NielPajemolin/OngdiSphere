@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
 import 'package:ongdisphere/shared/animations/press_scale.dart';
+import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
@@ -20,7 +21,7 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isNarrow = screenWidth < 390;
 
@@ -42,8 +43,18 @@ class TaskCard extends StatelessWidget {
           width: isOverdue ? 1.5 : 1.2,
         ),
       ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: isNarrow ? 10 : 14, vertical: isNarrow ? 10 : 12),
+      child: KuromiDecoratedContainer(
+        borderRadius: BorderRadius.circular(20),
+        padding: EdgeInsets.symmetric(
+          horizontal: isNarrow ? 10 : 14,
+          vertical: isNarrow ? 10 : 12,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        patternColor: colors.secondary,
+        patternOpacity: 0.06,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -73,19 +84,19 @@ class TaskCard extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: task.done
                               ? Colors.green.withValues(alpha: 0.12)
-                              : colors.primary.withValues(alpha: 0.12),
+                              : colors.secondary.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(6),
                           border: Border.all(
                             color: task.done
                                 ? Colors.green.withValues(alpha: 0.3)
-                                : colors.primary.withValues(alpha: 0.3),
+                                : colors.secondary.withValues(alpha: 0.35),
                             width: 0.8,
                           ),
                         ),
                         child: Text(
                           task.done ? 'Completed' : 'Pending',
                           style: TextStyle(
-                            color: task.done ? Colors.green : colors.primary,
+                            color: task.done ? Colors.green : colors.tertiaryText,
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                             letterSpacing: 0.3,

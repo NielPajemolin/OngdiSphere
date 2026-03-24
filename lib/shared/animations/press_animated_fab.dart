@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ongdisphere/core/theme/theme.dart';
 
 class PressAnimatedFab extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -28,6 +29,8 @@ class _PressAnimatedFabState extends State<PressAnimatedFab> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.colorsOf(context);
+
     return Listener(
       onPointerDown: (_) => _setPressed(true),
       onPointerUp: (_) => _setPressed(false),
@@ -36,11 +39,34 @@ class _PressAnimatedFabState extends State<PressAnimatedFab> {
         scale: _pressed ? 0.92 : 1.0,
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOutCubic,
-        child: FloatingActionButton(
-          heroTag: widget.heroTag,
-          tooltip: widget.tooltip,
-          onPressed: widget.onPressed,
-          child: widget.child,
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFFF48FB1), Color(0xFF8F6EA8)],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: colors.secondary.withValues(alpha: 0.35),
+                blurRadius: 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: FloatingActionButton(
+            heroTag: widget.heroTag,
+            tooltip: widget.tooltip,
+            onPressed: widget.onPressed,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            highlightElevation: 0,
+            focusElevation: 0,
+            hoverElevation: 0,
+            foregroundColor: const Color(0xFF211724),
+            child: widget.child,
+          ),
         ),
       ),
     );

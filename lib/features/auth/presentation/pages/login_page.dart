@@ -38,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void openForgotPasswordBox() {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -170,7 +170,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 1024
         ? 26.0
@@ -194,14 +194,11 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           Scaffold(
             backgroundColor: colors.surface,
-            body: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [colors.surface, const Color(0xFFE7F2FF)],
-                ),
-              ),
+            body: KuromiPageBackground(
+              topColor: colors.surface,
+              bottomColor: const Color(0xFFF7EAF4),
+              preset: KuromiBackgroundPreset.ink,
+              animate: true,
               child: SafeArea(
                 child: Center(
                   child: ConstrainedBox(
@@ -217,8 +214,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       child: Column(
                         children: [
-                          Container(
-                            width: double.infinity,
+                          KuromiDecoratedContainer(
+                            borderRadius: BorderRadius.circular(24),
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
@@ -235,6 +232,8 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ],
                             ),
+                            patternColor: Colors.white,
+                            patternOpacity: 0.18,
                             child: Column(
                               children: [
                                 // Keep the existing logo image as requested.
@@ -264,8 +263,8 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           const SizedBox(height: 18),
-                          Container(
-                            width: double.infinity,
+                          KuromiDecoratedContainer(
+                            borderRadius: BorderRadius.circular(20),
                             padding: const EdgeInsets.fromLTRB(14, 16, 14, 18),
                             decoration: BoxDecoration(
                               color: Colors.white,
@@ -279,6 +278,8 @@ class _LoginPageState extends State<LoginPage> {
                                 ),
                               ],
                             ),
+                            patternColor: colors.secondary,
+                            patternOpacity: 0.06,
                             child: Column(
                               children: [
                                 MyTextfield(

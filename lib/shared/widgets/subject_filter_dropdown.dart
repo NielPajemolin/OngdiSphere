@@ -16,7 +16,7 @@ class SubjectFilterDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
@@ -47,6 +47,12 @@ class SubjectFilterDropdown extends StatelessWidget {
               fontWeight: FontWeight.w700,
               letterSpacing: 0.2,
             ),
+          ),
+          const SizedBox(height: 6),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: colors.secondary.withValues(alpha: 0.22),
           ),
           const SizedBox(height: 8),
           DropdownButtonFormField<String?>(

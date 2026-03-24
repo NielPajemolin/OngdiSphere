@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
+import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
 
 class HomeWelcomeBanner extends StatelessWidget {
   const HomeWelcomeBanner({super.key, required this.userName});
@@ -8,11 +9,12 @@ class HomeWelcomeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).extension<AppColors>()!;
+    final colors = AppTheme.colorsOf(context);
     final screenWidth = MediaQuery.sizeOf(context).width;
     final compact = screenWidth < 430;
 
-    return Container(
+    return KuromiDecoratedContainer(
+      borderRadius: BorderRadius.circular(20),
       padding: EdgeInsets.symmetric(
         horizontal: compact ? 14 : 16,
         vertical: compact ? 10 : 12,
@@ -32,6 +34,8 @@ class HomeWelcomeBanner extends StatelessWidget {
           ),
         ],
       ),
+      patternColor: Colors.white,
+      patternOpacity: 0.2,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final nameSection = Column(
@@ -160,7 +164,8 @@ class _HomeStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final compact = MediaQuery.sizeOf(context).width < 390;
 
-    return Container(
+    return KuromiDecoratedContainer(
+      borderRadius: BorderRadius.circular(18),
       padding: EdgeInsets.all(compact ? 12 : 14),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -174,6 +179,8 @@ class _HomeStatCard extends StatelessWidget {
           ),
         ],
       ),
+      patternColor: color,
+      patternOpacity: 0.09,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -276,51 +283,61 @@ class _HomeActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0x1FF48FB1)),
-      ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 22,
-                backgroundColor: const Color(
-                  0xFFF48FB1,
-                ).withValues(alpha: 0.13),
-                child: Icon(icon, color: const Color(0xFF131015)),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(18),
+      child: Material(
+        color: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: const BorderSide(color: Color(0x1FF48FB1)),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onTap,
+          child: KuromiDecoratedContainer(
+            borderRadius: BorderRadius.circular(18),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            patternColor: const Color(0xFFF48FB1),
+            patternOpacity: 0.08,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 22,
+                  backgroundColor: const Color(
+                    0xFFF48FB1,
+                  ).withValues(alpha: 0.13),
+                  child: Icon(icon, color: const Color(0xFF131015)),
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right_rounded),
+              ],
+            ),
           ),
         ),
       ),
