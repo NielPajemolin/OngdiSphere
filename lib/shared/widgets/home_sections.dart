@@ -22,7 +22,7 @@ class HomeWelcomeBanner extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+          colors: [Color(0xFF131015), Color(0xFF8F6EA8)],
         ),
         boxShadow: [
           BoxShadow(
@@ -105,7 +105,7 @@ class HomeOverviewSection extends StatelessWidget {
               width: 3,
               height: 20,
               decoration: BoxDecoration(
-                color: const Color(0xFF1565C0),
+                color: const Color(0xFFF48FB1),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -224,7 +224,7 @@ class HomeActionsSection extends StatelessWidget {
               width: 3,
               height: 20,
               decoration: BoxDecoration(
-                color: const Color(0xFF1565C0),
+                color: const Color(0xFFF48FB1),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -280,7 +280,7 @@ class _HomeActionTile extends StatelessWidget {
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
-        side: const BorderSide(color: Color(0x1F1565C0)),
+        side: const BorderSide(color: Color(0x1FF48FB1)),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
@@ -292,9 +292,9 @@ class _HomeActionTile extends StatelessWidget {
               CircleAvatar(
                 radius: 22,
                 backgroundColor: const Color(
-                  0xFF1565C0,
+                  0xFFF48FB1,
                 ).withValues(alpha: 0.13),
-                child: Icon(icon, color: const Color(0xFF0D47A1)),
+                child: Icon(icon, color: const Color(0xFF131015)),
               ),
               const SizedBox(width: 12),
               Expanded(

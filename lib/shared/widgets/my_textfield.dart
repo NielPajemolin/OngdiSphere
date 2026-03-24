@@ -56,11 +56,11 @@ class _MyTextfieldState extends State<MyTextfield> {
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFFD7E4FA)),
+            borderSide: const BorderSide(color: Color(0xFFF4C7DC)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),
-            borderSide: const BorderSide(color: Color(0xFFD7E4FA)),
+            borderSide: const BorderSide(color: Color(0xFFF4C7DC)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(14),

@@ -35,8 +35,8 @@ class SubjectCard extends StatelessWidget {
           children: [
             const CircleAvatar(
               radius: 20,
-              backgroundColor: Color(0x1A1565C0),
-              child: Icon(Icons.menu_book_rounded, color: Color(0xFF0D47A1)),
+              backgroundColor: Color(0x1AF48FB1),
+              child: Icon(Icons.menu_book_rounded, color: Color(0xFF131015)),
             ),
             const SizedBox(width: 12),
             Expanded(

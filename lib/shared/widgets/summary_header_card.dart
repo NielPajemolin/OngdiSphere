@@ -52,7 +52,7 @@ class SummaryHeaderCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: titleColor ?? const Color(0xFF10213B),
+                    color: titleColor ?? const Color(0xFF211724),
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),

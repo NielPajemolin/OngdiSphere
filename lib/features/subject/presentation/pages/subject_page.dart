@@ -153,8 +153,8 @@ class _SubjectPageState extends State<SubjectPage> {
                           children: [
                             SummaryHeaderCard(
                               icon: Icons.menu_book_rounded,
-                              iconColor: const Color(0xFF0D47A1),
-                              iconBackgroundColor: const Color(0x1A1565C0),
+                              iconColor: const Color(0xFF131015),
+                              iconBackgroundColor: const Color(0x1AF48FB1),
                               title: 'Learning Spaces',
                               subtitle: '${subjects.length} subject(s) organized',
                               titleColor: colors.tertiaryText,
@@ -184,7 +184,7 @@ class _SubjectPageState extends State<SubjectPage> {
                                       Icon(
                                         Icons.library_add_rounded,
                                         size: 36,
-                                        color: Color(0xFF1565C0),
+                                        color: Color(0xFFF48FB1),
                                       ),
                                       SizedBox(height: 8),
                                       Text(

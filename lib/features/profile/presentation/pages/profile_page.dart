@@ -96,11 +96,11 @@ class ProfilePage extends StatelessWidget {
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                          colors: [Color(0xFF131015), Color(0xFF8F6EA8)],
                         ),
                         boxShadow: const [
                           BoxShadow(
-                            color: Color(0x301565C0),
+                            color: Color(0x30F48FB1),
                             blurRadius: 24,
                             offset: Offset(0, 12),
                           ),
@@ -117,7 +117,7 @@ class ProfilePage extends StatelessWidget {
                               child: Text(
                                 userInitial,
                                 style: const TextStyle(
-                                  color: Color(0xFF0D47A1),
+                                  color: Color(0xFF131015),
                                   fontSize: 28,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -164,7 +164,7 @@ class ProfilePage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0x1F1565C0)),
+                        border: Border.all(color: const Color(0x1FF48FB1)),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x12000000),
@@ -182,7 +182,7 @@ class ProfilePage extends StatelessWidget {
                                 width: 3,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1565C0),
+                                  color: const Color(0xFFF48FB1),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -221,7 +221,7 @@ class ProfilePage extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0x1F1565C0)),
+                        border: Border.all(color: const Color(0x1FF48FB1)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,7 +232,7 @@ class ProfilePage extends StatelessWidget {
                                 width: 3,
                                 height: 20,
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1565C0),
+                                  color: const Color(0xFFF48FB1),
                                   borderRadius: BorderRadius.circular(2),
                                 ),
                               ),
@@ -288,13 +288,13 @@ class _ProfileInfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF4F8FF),
+        color: const Color(0xFFFFF6FB),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF0D47A1)),
+          Icon(icon, color: const Color(0xFF131015)),
           const SizedBox(width: 10),
           Expanded(
             child: Column(

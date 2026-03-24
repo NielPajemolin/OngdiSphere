@@ -237,8 +237,8 @@ class _TaskPageState extends State<TaskPage> {
                             ),
                             child: SummaryHeaderCard(
                               icon: Icons.checklist_rounded,
-                              iconColor: const Color(0xFF0D47A1),
-                              iconBackgroundColor: const Color(0x1A1565C0),
+                              iconColor: const Color(0xFF131015),
+                              iconBackgroundColor: const Color(0x1AF48FB1),
                               title: 'Active Tasks',
                               subtitle: '${filteredTasks.length} pending item(s)',
                               titleColor: colors.tertiaryText,
@@ -296,7 +296,7 @@ class _TaskPageState extends State<TaskPage> {
                                         Icon(
                                           Icons.task_alt_rounded,
                                           size: 38,
-                                          color: Color(0x661565C0),
+                                          color: Color(0x66F48FB1),
                                         ),
                                         SizedBox(height: 8),
                                         Text(

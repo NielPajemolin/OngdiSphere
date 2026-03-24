@@ -293,7 +293,7 @@ class _DoneSection extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0x1F1565C0)),
+        border: Border.all(color: const Color(0x1FF48FB1)),
         boxShadow: const [
           BoxShadow(
             color: Color(0x10000000),
@@ -309,8 +309,8 @@ class _DoneSection extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0x1A1565C0),
-                child: Icon(icon, size: 18, color: const Color(0xFF0D47A1)),
+                backgroundColor: const Color(0x1AF48FB1),
+                child: Icon(icon, size: 18, color: const Color(0xFF131015)),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -325,13 +325,13 @@ class _DoneSection extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1565C0).withValues(alpha: 0.1),
+                  color: const Color(0xFFF48FB1).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '$count',
                   style: const TextStyle(
-                    color: Color(0xFF1565C0),
+                    color: Color(0xFFF48FB1),
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),

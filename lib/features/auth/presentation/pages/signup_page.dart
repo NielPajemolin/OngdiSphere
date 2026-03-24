@@ -121,11 +121,11 @@ class _SignupPageState extends State<SignupPage> {
                               gradient: const LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [Color(0xFF0D47A1), Color(0xFF1976D2)],
+                                colors: [Color(0xFF131015), Color(0xFF8F6EA8)],
                               ),
                               boxShadow: const [
                                 BoxShadow(
-                                  color: Color(0x301565C0),
+                                  color: Color(0x30F48FB1),
                                   blurRadius: 24,
                                   offset: Offset(0, 12),
                                 ),
@@ -166,7 +166,7 @@ class _SignupPageState extends State<SignupPage> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: const Color(0x1F1565C0)),
+                              border: Border.all(color: const Color(0x1FF48FB1)),
                               boxShadow: const [
                                 BoxShadow(
                                   color: Color(0x12000000),
