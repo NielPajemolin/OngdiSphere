@@ -25,6 +25,13 @@ OngdiSphere is a dedicated mobile application designed to help students and user
 
 ## ✨ Implemented Features
 
+## 🌐 External APIs Used
+
+**Motivational Quotes API:**
+- The app fetches daily motivational quotes from the [ZenQuotes API](https://zenquotes.io/) to power the rotating quote feature on the Home page.
+- Quotes are cached locally for offline support and to reduce API calls.
+
+
 The application provides a full suite of tools for academic management:
 
 ### Core Functionality
