@@ -12,6 +12,8 @@ class LocalNotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const int defaultReminderMinutes = 10;
+  static const int _maxReminderMinutes = 10;
+  static const int _notificationBlockSize = 32;
 
     static const String _kNotificationsEnabled = 'notifications_enabled';
     static const String _kReminderEnabled = 'notifications_reminder_enabled';
@@ -209,11 +211,30 @@ class LocalNotificationService {
     return hash & 0x7fffffff;
   }
 
-  int _taskNotificationId(String taskId) =>
-      _stablePositiveId(taskId, salt: 0x11);
+  int _notificationBlockBase(String raw, {required int salt}) {
+    final seed = _stablePositiveId(raw, salt: salt) & 0x03ffffff;
+    return seed * _notificationBlockSize;
+  }
 
-  int _examNotificationId(String examId) =>
-      _stablePositiveId(examId, salt: 0x33);
+  int _taskReminderNotificationId(String taskId, int minutesLeft) {
+    final base = _notificationBlockBase('task:$taskId', salt: 0x11);
+    return base + minutesLeft;
+  }
+
+  int _taskDeadlineNotificationId(String taskId) {
+    final base = _notificationBlockBase('task:$taskId', salt: 0x11);
+    return base + (_notificationBlockSize - 1);
+  }
+
+  int _examReminderNotificationId(String examId, int minutesLeft) {
+    final base = _notificationBlockBase('exam:$examId', salt: 0x33);
+    return base + minutesLeft;
+  }
+
+  int _examDeadlineNotificationId(String examId) {
+    final base = _notificationBlockBase('exam:$examId', salt: 0x33);
+    return base + (_notificationBlockSize - 1);
+  }
 
   String _formatMinutes(int minutes) {
     return minutes == 1 ? '1 minute' : '$minutes minutes';
@@ -322,32 +343,50 @@ class LocalNotificationService {
       return;
     }
 
-    final baseId = _taskNotificationId(taskId);
-    final reminderAt = deadline
-      .subtract(Duration(minutes: reminderMinutes))
-      .subtract(Duration(seconds: _leadCompensationSeconds));
+    final reminderWindow = reminderMinutes.clamp(1, _maxReminderMinutes);
+    var scheduledAnyFutureReminder = false;
+
     if (_reminderEnabled) {
-      if (reminderAt.isBefore(now)) {
-        await _showImmediate(
-          id: baseId,
-          title: 'Task Reminder',
-          body: _taskLateReminderBody(title, deadline.difference(now)),
-        );
-      } else {
+      for (var minutesLeft = reminderWindow; minutesLeft >= 1; minutesLeft--) {
+        final reminderId = _taskReminderNotificationId(taskId, minutesLeft);
+        final reminderAt = deadline
+            .subtract(Duration(minutes: minutesLeft))
+            .subtract(Duration(seconds: _leadCompensationSeconds));
+
+        if (reminderAt.isBefore(now)) {
+          await _plugin.cancel(reminderId);
+          continue;
+        }
+
+        scheduledAnyFutureReminder = true;
         await _scheduleAt(
-          id: baseId,
+          id: reminderId,
           title: 'Task Reminder',
-          futureBody: _taskReminderBody(title, reminderMinutes),
-          immediateBody: _taskLateReminderBody(title, deadline.difference(DateTime.now())),
+          futureBody: _taskReminderBody(title, minutesLeft),
+          immediateBody: _taskLateReminderBody(
+            title,
+            deadline.difference(DateTime.now()),
+          ),
           scheduledAt: reminderAt,
         );
       }
+
+      if (!scheduledAnyFutureReminder && now.isBefore(deadline)) {
+        await _showImmediate(
+          id: _taskReminderNotificationId(taskId, 0),
+          title: 'Task Reminder',
+          body: _taskLateReminderBody(title, deadline.difference(now)),
+        );
+      }
     } else {
-      await _plugin.cancel(baseId);
+      for (var minutesLeft = 0; minutesLeft <= _maxReminderMinutes; minutesLeft++) {
+        await _plugin.cancel(_taskReminderNotificationId(taskId, minutesLeft));
+      }
     }
+
     if (_deadlineEnabled) {
       _lastTaskDeadlineOutcome = await _scheduleAt(
-        id: baseId + 1,
+        id: _taskDeadlineNotificationId(taskId),
         title: 'Task Deadline',
         futureBody: 'Task "$title" is due now.',
         immediateBody: 'Task "$title" is due now.',
@@ -357,7 +396,7 @@ class LocalNotificationService {
       );
     } else {
       _lastTaskDeadlineOutcome = 'disabled_in_app';
-      await _plugin.cancel(baseId + 1);
+      await _plugin.cancel(_taskDeadlineNotificationId(taskId));
     }
   }
 
@@ -384,32 +423,50 @@ class LocalNotificationService {
       return;
     }
 
-    final baseId = _examNotificationId(examId);
-    final reminderAt = deadline
-      .subtract(Duration(minutes: reminderMinutes))
-      .subtract(Duration(seconds: _leadCompensationSeconds));
+    final reminderWindow = reminderMinutes.clamp(1, _maxReminderMinutes);
+    var scheduledAnyFutureReminder = false;
+
     if (_reminderEnabled) {
-      if (reminderAt.isBefore(now)) {
-        await _showImmediate(
-          id: baseId,
-          title: 'Exam Reminder',
-          body: _examLateReminderBody(title, deadline.difference(now)),
-        );
-      } else {
+      for (var minutesLeft = reminderWindow; minutesLeft >= 1; minutesLeft--) {
+        final reminderId = _examReminderNotificationId(examId, minutesLeft);
+        final reminderAt = deadline
+            .subtract(Duration(minutes: minutesLeft))
+            .subtract(Duration(seconds: _leadCompensationSeconds));
+
+        if (reminderAt.isBefore(now)) {
+          await _plugin.cancel(reminderId);
+          continue;
+        }
+
+        scheduledAnyFutureReminder = true;
         await _scheduleAt(
-          id: baseId,
+          id: reminderId,
           title: 'Exam Reminder',
-          futureBody: _examReminderBody(title, reminderMinutes),
-          immediateBody: _examLateReminderBody(title, deadline.difference(DateTime.now())),
+          futureBody: _examReminderBody(title, minutesLeft),
+          immediateBody: _examLateReminderBody(
+            title,
+            deadline.difference(DateTime.now()),
+          ),
           scheduledAt: reminderAt,
         );
       }
+
+      if (!scheduledAnyFutureReminder && now.isBefore(deadline)) {
+        await _showImmediate(
+          id: _examReminderNotificationId(examId, 0),
+          title: 'Exam Reminder',
+          body: _examLateReminderBody(title, deadline.difference(now)),
+        );
+      }
     } else {
-      await _plugin.cancel(baseId);
+      for (var minutesLeft = 0; minutesLeft <= _maxReminderMinutes; minutesLeft++) {
+        await _plugin.cancel(_examReminderNotificationId(examId, minutesLeft));
+      }
     }
+
     if (_deadlineEnabled) {
       _lastExamDeadlineOutcome = await _scheduleAt(
-        id: baseId + 1,
+        id: _examDeadlineNotificationId(examId),
         title: 'Exam Deadline',
         futureBody: 'Exam "$title" starts now.',
         immediateBody: 'Exam "$title" starts now.',
@@ -419,7 +476,7 @@ class LocalNotificationService {
       );
     } else {
       _lastExamDeadlineOutcome = 'disabled_in_app';
-      await _plugin.cancel(baseId + 1);
+      await _plugin.cancel(_examDeadlineNotificationId(examId));
     }
   }
 
@@ -498,9 +555,10 @@ class LocalNotificationService {
       await init();
     }
 
-    final baseId = _taskNotificationId(taskId);
-    await _plugin.cancel(baseId);
-    await _plugin.cancel(baseId + 1);
+    for (var minutesLeft = 0; minutesLeft <= _maxReminderMinutes; minutesLeft++) {
+      await _plugin.cancel(_taskReminderNotificationId(taskId, minutesLeft));
+    }
+    await _plugin.cancel(_taskDeadlineNotificationId(taskId));
   }
 
   Future<void> cancelExamReminder(String examId) async {
@@ -508,8 +566,9 @@ class LocalNotificationService {
       await init();
     }
 
-    final baseId = _examNotificationId(examId);
-    await _plugin.cancel(baseId);
-    await _plugin.cancel(baseId + 1);
+    for (var minutesLeft = 0; minutesLeft <= _maxReminderMinutes; minutesLeft++) {
+      await _plugin.cancel(_examReminderNotificationId(examId, minutesLeft));
+    }
+    await _plugin.cancel(_examDeadlineNotificationId(examId));
   }
 }
