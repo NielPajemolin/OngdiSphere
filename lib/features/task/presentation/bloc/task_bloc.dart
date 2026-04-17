@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import '../../../../data/repositories/task_repository.dart';
+import 'package:ongdisphere/core/services/local_notification_service.dart';
 import 'package:ongdisphere/data/models/models.dart';
 import 'task_event.dart';
 import 'task_state.dart';
@@ -27,6 +28,20 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
       }
     try {
       final tasks = await taskRepository.getAllTasks(event.userId);
+      for (final task in tasks) {
+        if (task.done) {
+          await LocalNotificationService.instance.cancelTaskReminder(task.id);
+          continue;
+        }
+        await LocalNotificationService.instance.scheduleTaskReminder(
+          taskId: task.id,
+          title: task.title,
+          deadline: task.dateTime,
+          reminderMinutes:
+              task.reminderMinutes ??
+              LocalNotificationService.defaultReminderMinutes,
+        );
+      }
         emit(TaskLoaded(tasks, event.userId));
     } catch (e) {
       emit(TaskError('Failed to load tasks: $e'));
@@ -61,7 +76,17 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
         event.subjectId,
         event.subjectName,
         event.dateTime,
+        event.reminderMinutes,
         event.userId,
+      );
+
+      await LocalNotificationService.instance.scheduleTaskReminder(
+        taskId: createdTask.id,
+        title: createdTask.title,
+        deadline: createdTask.dateTime,
+        reminderMinutes:
+            createdTask.reminderMinutes ??
+            LocalNotificationService.defaultReminderMinutes,
       );
 
       // Fast path: update in-memory state instantly instead of refetching all tasks.
@@ -84,6 +109,19 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     try {
       await taskRepository.updateTask(event.task);
+
+      if (event.task.done) {
+        await LocalNotificationService.instance.cancelTaskReminder(event.task.id);
+      } else {
+        await LocalNotificationService.instance.scheduleTaskReminder(
+          taskId: event.task.id,
+          title: event.task.title,
+          deadline: event.task.dateTime,
+          reminderMinutes:
+              event.task.reminderMinutes ??
+              LocalNotificationService.defaultReminderMinutes,
+        );
+      }
 
       // Update task in current state with new list instance
       if (state is TaskLoaded) {
@@ -121,6 +159,19 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
     try {
       await taskRepository.setTaskDone(event.taskId, nextDoneValue, wasLate: wasLate);
 
+      if (nextDoneValue) {
+        await LocalNotificationService.instance.cancelTaskReminder(event.taskId);
+      } else {
+        await LocalNotificationService.instance.scheduleTaskReminder(
+          taskId: targetTask.id,
+          title: targetTask.title,
+          deadline: targetTask.dateTime,
+          reminderMinutes:
+              targetTask.reminderMinutes ??
+              LocalNotificationService.defaultReminderMinutes,
+        );
+      }
+
       final updatedTasks = currentState.tasks.map((task) {
         if (task.id == event.taskId) {
           return Task(
@@ -129,6 +180,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
             subjectId: task.subjectId,
             subjectName: task.subjectName,
             dateTime: task.dateTime,
+            reminderMinutes: task.reminderMinutes,
             done: nextDoneValue,
             wasLate: nextDoneValue ? wasLate : null,
           );
@@ -147,6 +199,7 @@ class TaskBloc extends Bloc<TaskEvent, TaskState> {
   ) async {
     try {
       await taskRepository.deleteTask(event.taskId);
+      await LocalNotificationService.instance.cancelTaskReminder(event.taskId);
 
       // Remove task from current state
       if (state is TaskLoaded) {

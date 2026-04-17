@@ -69,6 +69,7 @@ class _TaskPageState extends State<TaskPage> {
           selectedSubject.id,
           selectedSubject.name,
           newTask.dateTime,
+          newTask.reminderMinutes ?? 10,
           userId,
         ),
       );
@@ -107,6 +108,7 @@ class _TaskPageState extends State<TaskPage> {
       subjectId: selectedSubject.id,
       subjectName: selectedSubject.name,
       dateTime: updatedTask.dateTime,
+      reminderMinutes: updatedTask.reminderMinutes,
       done: task.done,
     );
 

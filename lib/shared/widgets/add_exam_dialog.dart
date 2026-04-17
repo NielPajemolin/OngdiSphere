@@ -21,6 +21,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
         )
       : null;
   DateTime? selectedDateTime = exam?.dateTime;
+  int selectedReminderMinutes = exam?.reminderMinutes ?? 10;
 
   Future<DateTime?> pickDateTime(BuildContext dialogContext) async {
     final date = await showDatePicker(
@@ -251,6 +252,65 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                           ),
                         ),
                       ),
+                      const SizedBox(height: 18),
+                      Text(
+                        'Reminder',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: colors.tertiaryText.withValues(alpha: 0.8),
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        initialValue: selectedReminderMinutes,
+                        borderRadius: BorderRadius.circular(16),
+                        style: TextStyle(
+                          color: colors.tertiaryText,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.97),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 14,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: colors.primary.withValues(alpha: 0.15),
+                              width: 1.5,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(
+                              color: colors.primary.withValues(alpha: 0.15),
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            borderSide: BorderSide(color: colors.primary, width: 2),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.notifications_active_rounded,
+                            color: colors.primary.withValues(alpha: 0.7),
+                            size: 20,
+                          ),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 5, child: Text('5 minutes before')),
+                          DropdownMenuItem(value: 10, child: Text('10 minutes before')),
+                        ],
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setStateDialog(() => selectedReminderMinutes = value);
+                        },
+                      ),
                       const SizedBox(height: 28),
                       // Action Buttons
                       Row(
@@ -297,6 +357,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                                   subjectId: selectedSubject!.id,
                                   subjectName: selectedSubject!.name,
                                   dateTime: selectedDateTime!,
+                                  reminderMinutes: selectedReminderMinutes,
                                   done: exam?.done ?? false,
                                 );
 

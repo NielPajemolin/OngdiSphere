@@ -38,6 +38,7 @@ class TaskRepository {
     String subjectId,
     String subjectName,
     DateTime dateTime,
+    int reminderMinutes,
     String userId,
   ) async {
     await _tasksForUser(userId).doc(taskId).set({
@@ -46,6 +47,7 @@ class TaskRepository {
       'subjectId': subjectId,
       'subjectName': subjectName,
       'dateTime': Timestamp.fromDate(dateTime),
+      'reminderMinutes': reminderMinutes,
       'done': false,
     });
 
@@ -55,6 +57,7 @@ class TaskRepository {
       subjectId: subjectId,
       subjectName: subjectName,
       dateTime: dateTime,
+      reminderMinutes: reminderMinutes,
       done: false,
     );
   }
@@ -71,6 +74,7 @@ class TaskRepository {
       'subjectId': task.subjectId,
       'subjectName': task.subjectName,
       'dateTime': Timestamp.fromDate(task.dateTime),
+      'reminderMinutes': task.reminderMinutes,
       'done': task.done,
     });
   }
@@ -139,6 +143,7 @@ class TaskRepository {
       subjectId: (data['subjectId'] as String?) ?? '',
       subjectName: (data['subjectName'] as String?) ?? '',
       dateTime: parsedDate,
+      reminderMinutes: (data['reminderMinutes'] as num?)?.toInt(),
       done: (data['done'] as bool?) ?? false,
       wasLate: data['wasLate'] as bool?,
     );

@@ -58,6 +58,7 @@ class _ExamPageState extends State<ExamPage> {
           newExam.subjectId,
           newExam.subjectName,
           newExam.dateTime,
+          newExam.reminderMinutes ?? 10,
           userId,
         ),
       );
@@ -85,6 +86,7 @@ class _ExamPageState extends State<ExamPage> {
       subjectId: updatedExam.subjectId,
       subjectName: updatedExam.subjectName,
       dateTime: updatedExam.dateTime,
+      reminderMinutes: updatedExam.reminderMinutes,
       done: exam.done,
     );
 

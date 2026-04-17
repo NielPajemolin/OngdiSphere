@@ -20,6 +20,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   final TextEditingController taskController = TextEditingController();
   Subject? selectedSubject;
   DateTime? selectedDate;
+  int selectedReminderMinutes = 10;
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         orElse: () => widget.subjects.first,
       );
       selectedDate = widget.task!.dateTime;
+      selectedReminderMinutes = widget.task!.reminderMinutes ?? 10;
     }
   }
 
@@ -80,6 +82,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       subjectId: selectedSubject!.id,
       subjectName: selectedSubject!.name,
       dateTime: selectedDate!,
+      reminderMinutes: selectedReminderMinutes,
       done: widget.task?.done ?? false,
     );
 
@@ -286,6 +289,65 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'Reminder',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: colors.tertiaryText.withValues(alpha: 0.8),
+                    letterSpacing: 0.3,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<int>(
+                  initialValue: selectedReminderMinutes,
+                  borderRadius: BorderRadius.circular(16),
+                  style: TextStyle(
+                    color: colors.tertiaryText,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.97),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: colors.primary.withValues(alpha: 0.15),
+                        width: 1.5,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: colors.primary.withValues(alpha: 0.15),
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(color: colors.primary, width: 2),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.notifications_active_rounded,
+                      color: colors.primary.withValues(alpha: 0.7),
+                      size: 20,
+                    ),
+                  ),
+                  items: const [
+                    DropdownMenuItem(value: 5, child: Text('5 minutes before')),
+                    DropdownMenuItem(value: 10, child: Text('10 minutes before')),
+                  ],
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => selectedReminderMinutes = value);
+                  },
                 ),
                 const SizedBox(height: 28),
                 // Action Buttons

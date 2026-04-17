@@ -12,11 +12,13 @@ import 'package:ongdisphere/features/profile/profile.dart';
 import 'package:ongdisphere/features/subject/subject.dart';
 import 'package:ongdisphere/features/task/task.dart';
 import 'package:ongdisphere/shared/widgets/widgets.dart';
+import 'package:ongdisphere/core/services/local_notification_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await LocalNotificationService.instance.init();
 
   runApp(MyApp());
 }

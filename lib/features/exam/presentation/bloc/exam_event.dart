@@ -31,6 +31,7 @@ class CreateExamEvent extends ExamEvent {
   final String subjectId;
   final String subjectName;
   final DateTime dateTime;
+  final int reminderMinutes;
   final String userId;
 
   const CreateExamEvent(
@@ -38,11 +39,19 @@ class CreateExamEvent extends ExamEvent {
     this.subjectId,
     this.subjectName,
     this.dateTime,
+    this.reminderMinutes,
     this.userId,
   );
 
   @override
-  List<Object?> get props => [title, subjectId, subjectName, dateTime, userId];
+  List<Object?> get props => [
+    title,
+    subjectId,
+    subjectName,
+    dateTime,
+    reminderMinutes,
+    userId,
+  ];
 }
 
 class UpdateExamEvent extends ExamEvent {

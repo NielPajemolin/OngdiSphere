@@ -4,6 +4,7 @@ class Task {
   String subjectId;
   String subjectName;
   DateTime dateTime;
+  int? reminderMinutes;
   bool done;
   bool? wasLate;
 
@@ -13,6 +14,7 @@ class Task {
     required this.subjectId,
     required this.subjectName,
     required this.dateTime,
+    this.reminderMinutes,
     this.done = false,
     this.wasLate,
   });
@@ -23,6 +25,7 @@ class Task {
         subjectId: json['subjectId'] ?? '',
         subjectName: json['subjectName'] ?? '',
         dateTime: DateTime.tryParse(json['dateTime'] ?? '') ?? DateTime.now(),
+        reminderMinutes: (json['reminderMinutes'] as num?)?.toInt(),
         done: json['done'] ?? false,
         wasLate: json['wasLate'] as bool?,
       );
@@ -33,6 +36,7 @@ class Task {
         'subjectId': subjectId,
         'subjectName': subjectName,
         'dateTime': dateTime.toIso8601String(),
+        if (reminderMinutes != null) 'reminderMinutes': reminderMinutes,
         'done': done,
         if (wasLate != null) 'wasLate': wasLate,
       };
