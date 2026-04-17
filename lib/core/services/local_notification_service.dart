@@ -18,6 +18,8 @@ class LocalNotificationService {
     static const String _kDeadlineEnabled = 'notifications_deadline_enabled';
     static const String _kLeadCompensationSeconds =
       'notifications_lead_compensation_seconds';
+      static const String _kLastImmediateShownAtPrefix =
+        'notifications_last_immediate_shown_at_';
 
     bool _notificationsEnabled = true;
     bool _reminderEnabled = true;
@@ -127,6 +129,10 @@ class LocalNotificationService {
   }
 
   Future<void> showTestNotification() async {
+    if (!_isInitialized) {
+      await init();
+    }
+
     const androidDetails = AndroidNotificationDetails(
       'deadline_reminders',
       'Deadline Reminders',
@@ -146,6 +152,10 @@ class LocalNotificationService {
   }
 
   Future<Map<String, String>> getDiagnostics() async {
+    if (!_isInitialized) {
+      await init();
+    }
+
     final result = <String, String>{
       'timezone': tz.local.name,
       'initialized': _isInitialized.toString(),
@@ -190,8 +200,13 @@ class LocalNotificationService {
   }
 
   int _stablePositiveId(String raw, {required int salt}) {
-    final id = Object.hash(raw, salt);
-    return id & 0x7fffffff;
+    // Deterministic FNV-1a 32-bit hash to keep IDs stable across app restarts.
+    var hash = 0x811c9dc5 ^ salt;
+    for (final codeUnit in raw.codeUnits) {
+      hash ^= codeUnit;
+      hash = (hash * 0x01000193) & 0xffffffff;
+    }
+    return hash & 0x7fffffff;
   }
 
   int _taskNotificationId(String taskId) =>
@@ -204,12 +219,20 @@ class LocalNotificationService {
     return minutes == 1 ? '1 minute' : '$minutes minutes';
   }
 
+  int _remainingMinutesRoundedUp(Duration remaining) {
+    final seconds = remaining.inSeconds;
+    if (seconds <= 0) {
+      return 0;
+    }
+    return ((seconds + 59) ~/ 60);
+  }
+
   String _taskReminderBody(String title, int minutes) {
     return 'Task "$title" is due in ${_formatMinutes(minutes)}.';
   }
 
   String _taskLateReminderBody(String title, Duration remaining) {
-    final minutes = remaining.inMinutes;
+    final minutes = _remainingMinutesRoundedUp(remaining);
     if (minutes <= 0) {
       return 'Task "$title" is due now.';
     }
@@ -221,18 +244,43 @@ class LocalNotificationService {
   }
 
   String _examLateReminderBody(String title, Duration remaining) {
-    final minutes = remaining.inMinutes;
+    final minutes = _remainingMinutesRoundedUp(remaining);
     if (minutes <= 0) {
       return 'Exam "$title" starts now.';
     }
     return 'Only ${_formatMinutes(minutes)} left until exam "$title".';
   }
 
+  Future<bool> _shouldThrottleImmediate(
+    int id, {
+    int throttleSeconds = 35,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = '$_kLastImmediateShownAtPrefix$id';
+    final lastShownMillis = prefs.getInt(key);
+    final nowMillis = DateTime.now().millisecondsSinceEpoch;
+
+    // Prevent repeated alerts for the same notification id in quick succession
+    // when BLoCs reload and reschedule near deadline.
+    if (lastShownMillis != null &&
+        nowMillis - lastShownMillis < throttleSeconds * 1000) {
+      return true;
+    }
+
+    await prefs.setInt(key, nowMillis);
+    return false;
+  }
+
   Future<void> _showImmediate({
     required int id,
     required String title,
     required String body,
+    int throttleSeconds = 35,
   }) async {
+    if (await _shouldThrottleImmediate(id, throttleSeconds: throttleSeconds)) {
+      return;
+    }
+
     const androidDetails = AndroidNotificationDetails(
       'deadline_reminders',
       'Deadline Reminders',
@@ -257,6 +305,10 @@ class LocalNotificationService {
     required DateTime deadline,
     int reminderMinutes = defaultReminderMinutes,
   }) async {
+    if (!_isInitialized) {
+      await init();
+    }
+
     if (!_notificationsEnabled) {
       _lastTaskDeadlineOutcome = 'disabled_in_app';
       await cancelTaskReminder(taskId);
@@ -299,8 +351,9 @@ class LocalNotificationService {
         title: 'Task Deadline',
         futureBody: 'Task "$title" is due now.',
         immediateBody: 'Task "$title" is due now.',
-        scheduledAt: deadline.subtract(Duration(seconds: _leadCompensationSeconds)),
+        scheduledAt: deadline,
         showImmediatelyIfPast: true,
+        immediateThrottleSeconds: 300,
       );
     } else {
       _lastTaskDeadlineOutcome = 'disabled_in_app';
@@ -314,6 +367,10 @@ class LocalNotificationService {
     required DateTime deadline,
     int reminderMinutes = defaultReminderMinutes,
   }) async {
+    if (!_isInitialized) {
+      await init();
+    }
+
     if (!_notificationsEnabled) {
       _lastExamDeadlineOutcome = 'disabled_in_app';
       await cancelExamReminder(examId);
@@ -356,8 +413,9 @@ class LocalNotificationService {
         title: 'Exam Deadline',
         futureBody: 'Exam "$title" starts now.',
         immediateBody: 'Exam "$title" starts now.',
-        scheduledAt: deadline.subtract(Duration(seconds: _leadCompensationSeconds)),
+        scheduledAt: deadline,
         showImmediatelyIfPast: true,
+        immediateThrottleSeconds: 300,
       );
     } else {
       _lastExamDeadlineOutcome = 'disabled_in_app';
@@ -372,6 +430,7 @@ class LocalNotificationService {
     required String immediateBody,
     required DateTime scheduledAt,
     bool showImmediatelyIfPast = false,
+    int immediateThrottleSeconds = 35,
   }) async {
     // Keep scheduling idempotent: refresh existing schedule for this id.
     await _plugin.cancel(id);
@@ -392,14 +451,23 @@ class LocalNotificationService {
           AndroidFlutterLocalNotificationsPlugin
         >();
     final canScheduleExact =
-        await androidImplementation?.canScheduleExactNotifications() ?? false;
+      await androidImplementation?.canScheduleExactNotifications();
     final scheduleMode = canScheduleExact
+      // Null can happen on older Android versions where exact alarms are allowed
+      // without the Android 12+ special app access; prefer exact in that case.
+      ?? true
         ? AndroidScheduleMode.exactAllowWhileIdle
         : AndroidScheduleMode.inexactAllowWhileIdle;
 
     // If the target time is already behind us, either show now or drop it depending on the use case.
-    if (scheduledAt.isBefore(now) ||
-        !scheduledAt.isAfter(now.add(const Duration(seconds: 15)))) {
+    // Keep near-future alerts scheduled by the OS to avoid firing early.
+    if (scheduledAt.isBefore(now)) {
+      if (await _shouldThrottleImmediate(
+        id,
+        throttleSeconds: immediateThrottleSeconds,
+      )) {
+        return 'throttled_duplicate_immediate';
+      }
       if (scheduledAt.isBefore(now) && !showImmediatelyIfPast) {
         return 'skipped_stale';
       }
@@ -426,12 +494,20 @@ class LocalNotificationService {
   }
 
   Future<void> cancelTaskReminder(String taskId) async {
+    if (!_isInitialized) {
+      await init();
+    }
+
     final baseId = _taskNotificationId(taskId);
     await _plugin.cancel(baseId);
     await _plugin.cancel(baseId + 1);
   }
 
   Future<void> cancelExamReminder(String examId) async {
+    if (!_isInitialized) {
+      await init();
+    }
+
     final baseId = _examNotificationId(examId);
     await _plugin.cancel(baseId);
     await _plugin.cancel(baseId + 1);

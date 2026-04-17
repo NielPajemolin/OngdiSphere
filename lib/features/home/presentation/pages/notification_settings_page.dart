@@ -15,10 +15,12 @@ class NotificationSettingsPage extends StatefulWidget {
 
 class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   bool _loading = true;
+  bool _diagnosticsLoading = true;
   bool _notificationsEnabled = true;
   bool _reminderEnabled = true;
   bool _deadlineEnabled = true;
   int _leadCompensationSeconds = 15;
+  Map<String, String> _diagnostics = const {};
 
   @override
   void initState() {
@@ -29,14 +31,49 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
   Future<void> _load() async {
     final settings = await LocalNotificationService.instance
         .getAppNotificationSettings();
+    final diagnostics = await LocalNotificationService.instance.getDiagnostics();
     if (!mounted) return;
     setState(() {
       _notificationsEnabled = settings['notificationsEnabled'] as bool;
       _reminderEnabled = settings['reminderEnabled'] as bool;
       _deadlineEnabled = settings['deadlineEnabled'] as bool;
       _leadCompensationSeconds = settings['leadCompensationSeconds'] as int;
+      _diagnostics = diagnostics;
       _loading = false;
+      _diagnosticsLoading = false;
     });
+  }
+
+  Future<void> _refreshBackgroundCheck() async {
+    setState(() => _diagnosticsLoading = true);
+    final diagnostics = await LocalNotificationService.instance.getDiagnostics();
+    if (!mounted) return;
+    setState(() {
+      _diagnostics = diagnostics;
+      _diagnosticsLoading = false;
+    });
+  }
+
+  String _statusFromBoolString(String key) {
+    final value = _diagnostics[key] ?? 'false';
+    return value == 'true' ? 'Enabled' : 'Disabled';
+  }
+
+  Widget _statusRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          Text(value),
+        ],
+      ),
+    );
   }
 
   Future<void> _save({
@@ -166,6 +203,65 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       : null,
                   icon: const Icon(Icons.notifications_active_rounded),
                   label: const Text('Send Test Notification'),
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _diagnosticsLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const Expanded(
+                                    child: Text(
+                                      'Background Notification Check',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    tooltip: 'Refresh check',
+                                    onPressed: _refreshBackgroundCheck,
+                                    icon: const Icon(Icons.refresh_rounded),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              _statusRow(
+                                'Notification Permission',
+                                _statusFromBoolString(
+                                  'android_notifications_enabled',
+                                ),
+                              ),
+                              _statusRow(
+                                'Exact Alarm Permission',
+                                _statusFromBoolString(
+                                  'android_exact_alarms_allowed',
+                                ),
+                              ),
+                              _statusRow(
+                                'Pending Scheduled Notifications',
+                                _diagnostics['pending_notifications'] ?? '0',
+                              ),
+                              _statusRow(
+                                'Timezone',
+                                _diagnostics['timezone'] ?? 'Unknown',
+                              ),
+                              _statusRow(
+                                'Service Initialized',
+                                _statusFromBoolString('initialized'),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Tip: if checks are enabled but reminders still fail while the app is closed, set battery mode to unrestricted for this app.',
+                              ),
+                            ],
+                          ),
+                  ),
                 ),
               ],
             ),
