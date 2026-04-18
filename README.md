@@ -20,6 +20,7 @@ OngdiSphere is a dedicated mobile application designed to help students and user
 - **Daily Motivation:** Rotating motivational quotes displayed on the home page, fetched from an external API with local caching for offline support.
 - **Responsive Design:** Key pages use `MediaQuery`-based breakpoints and constrained layouts for better spacing on phones, tablets, and larger screens (Home, Subjects, Tasks, Exams, Login, Sign Up, Profile, Done).
 - **Consistent Theming:** Custom `AppTheme` and `AppColors` extension for a unified visual identity.
+- **Dark Mode:** App-wide dark mode with persisted preference via `ThemeCubit` and `SharedPreferences`, plus contrast updates across pages/dialogs.
 
 ---
 
@@ -28,9 +29,8 @@ OngdiSphere is a dedicated mobile application designed to help students and user
 ## 🌐 External APIs Used
 
 **Motivational Quotes API:**
-- The app fetches daily motivational quotes from the [ZenQuotes API](https://zenquotes.io/) to power the rotating quote feature on the Home page.
+- The app fetches daily motivational quotes from the [Motivational Spark API](https://motivational-spark-api.vercel.app/api/quotes/random/10) to power the rotating quote feature on the Home page.
 - Quotes are cached locally for offline support and to reduce API calls.
-
 
 The application provides a full suite of tools for academic management:
 
@@ -50,6 +50,12 @@ The application provides a full suite of tools for academic management:
 * **Adaptive Home Widgets:** Home banner and overview cards switch to stacked layouts on narrower screens for better readability.
 * **Theming:** Consistent visual identity achieved via custom `AppTheme` and `AppColors` extension.
 * **Daily Motivation:** The home page displays rotating motivational quotes from an external API with local caching support.
+* **Profile Editing Flow:** Users can edit profile info, update/remove profile photos, and capture a photo via the in-app camera page.
+
+### Notifications & Alerts
+* **Configurable Notifications:** Users can toggle app notifications, reminder alerts, deadline alerts, and lead-time compensation in Notification Settings.
+* **Task/Exam Scheduling:** Task and exam reminders are scheduled through `LocalNotificationService` with deadline and reminder behavior controls.
+* **Diagnostics Support:** Notification diagnostics expose timezone, permission, and pending notification status for troubleshooting.
 
 ---
 
@@ -61,9 +67,11 @@ The application provides a full suite of tools for academic management:
 lib/
 ├── core/                           # Core application configuration and utilities
 │   ├── services/                   # Core services (e.g., local notifications)
+│   │   └── local_notification_service.dart # App notification scheduling, settings, and diagnostics
 │   └── theme/                      # Application-wide theming
 │       ├── app_theme.dart          # Main theme configuration
 │       ├── color_palette.dart      # Color constants and theme colors
+│       ├── theme_cubit.dart        # Persisted light/dark ThemeMode state management
 │       └── theme.dart              # Barrel export for theme module
 │
 ├── data/                           # Data layer - repositories and models
@@ -132,7 +140,8 @@ lib/
 │   │   │   ├── pages/
 │   │   │   │   └── profile_page.dart    # User profile display and editing
 │   │   │   └── widgets/
-│   │   │       └── edit_profile_dialog.dart # Profile edit dialog with image upload
+│   │   │       ├── edit_profile_dialog.dart # Profile edit dialog with image upload
+│   │   │       └── profile_camera_capture_page.dart # In-app camera capture flow for profile photo updates
 │   │   └── profile.dart            # Barrel export
 │   │
 │   ├── subject/                    # Subject management feature
@@ -222,12 +231,12 @@ lib/
 | Motivational Quotes | `shared/motivational_quotes/motivational_quotes.dart` | MotivationalQuoteSection widget |
 | Data Models | `data/models/models.dart` | Exam, Subject, Task models |
 | Repositories | `data/repositories/repositories.dart` | All CRUD repositories |
-| Theme | `core/theme/theme.dart` | AppTheme configuration, AppColors |
+| Theme | `core/theme/theme.dart` | AppTheme configuration, AppColors, ThemeCubit |
 | Shared Animations | `shared/animations/app_routes.dart` | Route transitions and animation helpers |
 
 ---
 
-## � Packages & Plugins Used
+## Packages & Plugins Used
 
 ### Core & State Management
 | Package | Version | Purpose |
@@ -252,7 +261,7 @@ lib/
 | :--- | :--- | :--- |
 | **uuid** | ^3.0.7 | Generate unique IDs for subjects, tasks, and exams |
 | **intl** | ^0.19.0 | Internationalization and date/time formatting |
-| **http** | ^1.6.0 | HTTP requests for fetching motivational quotes from ZenQuotes API |
+| **http** | ^1.6.0 | HTTP requests for fetching motivational quotes from Motivational Spark API |
 
 ### UI & Notifications
 | Package | Version | Purpose |
@@ -261,6 +270,8 @@ lib/
 | **flutter_native_splash** | ^2.4.7 | Native splash screens on app launch |
 | **flutter_launcher_icons** | ^0.14.4 | App icon generation for Android and iOS |
 | **flutter_local_notifications** | ^19.4.1 | Local push notifications for task and exam reminders |
+| **camera** | ^0.10.5 | In-app camera preview and image capture for profile photo updates |
+| **camera_android_camerax** | ^0.7.1+2 | CameraX implementation for Android camera integration |
 
 ### Date/Time & Timezone
 | Package | Version | Purpose |
@@ -272,6 +283,7 @@ lib/
 | Package | Version | Purpose |
 | :--- | :--- | :--- |
 | **image_picker** | ^1.1.2 | Pick images from camera or gallery for profile pictures |
+| **image** | ^4.5.4 | Post-processing of captured images (e.g., front-camera normalization) |
 
 ### Development Tools
 | Package | Version | Purpose |
