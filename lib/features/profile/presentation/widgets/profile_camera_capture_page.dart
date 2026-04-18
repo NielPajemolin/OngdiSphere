@@ -422,8 +422,18 @@ class _ProfileCameraCapturePageState extends State<ProfileCameraCapturePage> {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isTablet = screenWidth >= 700;
+    final chipBackgroundColor = isDark
+      ? Theme.of(context).cardColor.withValues(alpha: 0.94)
+      : const Color(0xFFFDF8FC);
+    final chipBorderColor = isDark
+      ? Theme.of(context).dividerColor.withValues(alpha: 0.68)
+      : colors.secondary.withValues(alpha: 0.16);
+    final panelGradientColors = isDark
+      ? const [Color(0xFF241D2A), Color(0xFF17121B)]
+      : const [Color(0xFFFFFBFD), Color(0xFFF8F1F7)];
 
     return Scaffold(
       backgroundColor: colors.primary,
@@ -493,10 +503,10 @@ class _ProfileCameraCapturePageState extends State<ProfileCameraCapturePage> {
                     icon: Icons.arrow_back_rounded,
                     label: 'Back',
                     onTap: () => Navigator.of(context).pop(),
-                    backgroundColor: const Color(0xFFFDF8FC),
+                    backgroundColor: chipBackgroundColor,
                     iconColor: colors.tertiaryText,
                     textColor: colors.tertiaryText,
-                    borderColor: colors.secondary.withValues(alpha: 0.16),
+                    borderColor: chipBorderColor,
                   ),
                   Row(
                     children: [
@@ -504,10 +514,10 @@ class _ProfileCameraCapturePageState extends State<ProfileCameraCapturePage> {
                         icon: _flashIconForMode(_flashMode),
                         label: _flashLabelForMode(_flashMode),
                         onTap: _capturedImage == null ? _toggleFlashMode : null,
-                        backgroundColor: const Color(0xFFFDF8FC),
+                        backgroundColor: chipBackgroundColor,
                         iconColor: colors.tertiaryText,
                         textColor: colors.tertiaryText,
-                        borderColor: colors.secondary.withValues(alpha: 0.16),
+                        borderColor: chipBorderColor,
                       ),
                       const SizedBox(width: 8),
                       _CameraActionChip(
@@ -516,10 +526,10 @@ class _ProfileCameraCapturePageState extends State<ProfileCameraCapturePage> {
                         onTap: widget.cameras.length > 1 && !_isSwitchingCamera && _capturedImage == null
                             ? _switchCamera
                             : null,
-                        backgroundColor: const Color(0xFFFDF8FC),
+                        backgroundColor: chipBackgroundColor,
                         iconColor: colors.tertiaryText,
                         textColor: colors.tertiaryText,
-                        borderColor: colors.secondary.withValues(alpha: 0.16),
+                        borderColor: chipBorderColor,
                       ),
                     ],
                   ),
@@ -544,16 +554,18 @@ class _ProfileCameraCapturePageState extends State<ProfileCameraCapturePage> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: const [Color(0xFFFFFBFD), Color(0xFFF8F1F7)],
+                    colors: panelGradientColors,
                   ),
                   border: Border.all(
-                    color: colors.secondary.withValues(alpha: 0.12),
+                    color: isDark
+                        ? Theme.of(context).dividerColor.withValues(alpha: 0.6)
+                        : colors.secondary.withValues(alpha: 0.12),
                   ),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x0E000000),
+                      color: isDark ? const Color(0x30000000) : const Color(0x0E000000),
                       blurRadius: 22,
-                      offset: Offset(0, -8),
+                      offset: const Offset(0, -8),
                     ),
                   ],
                 ),
@@ -647,7 +659,7 @@ class _ProfileCameraCapturePageState extends State<ProfileCameraCapturePage> {
                               Text(
                                 'Pinch to zoom  •  Tap to focus',
                                 style: TextStyle(
-                                  color: colors.tertiaryText.withValues(alpha: 0.62),
+                                  color: colors.tertiaryText.withValues(alpha: isDark ? 0.78 : 0.62),
                                   fontSize: 11.3,
                                 ),
                               ),
