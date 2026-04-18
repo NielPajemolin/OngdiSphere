@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ongdisphere/features/auth/auth.dart';
+import 'package:ongdisphere/features/profile/presentation/widgets/profile_camera_capture_page.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/shared/widgets/widgets.dart';
 
@@ -34,10 +36,10 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
     super.dispose();
   }
 
-  Future<void> _pickImage(ImageSource source) async {
+  Future<void> _pickImageFromGallery() async {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
-        source: source,
+        source: ImageSource.gallery,
         imageQuality: 35,
         maxWidth: 512,
         maxHeight: 512,
@@ -54,6 +56,46 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
           SnackBar(content: Text('Error picking image: $e')),
         );
       }
+    }
+  }
+
+  Future<void> _captureWithCamera() async {
+    try {
+      final cameras = await availableCameras();
+      if (!mounted) {
+        return;
+      }
+
+      if (cameras.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No camera available on this device')),
+        );
+        return;
+      }
+
+      final File? capturedImage = await Navigator.of(context).push<File>(
+        MaterialPageRoute(
+          builder: (_) => ProfileCameraCapturePage(cameras: cameras),
+        ),
+      );
+
+      if (!mounted || capturedImage == null) {
+        return;
+      }
+
+      setState(() {
+        _selectedImage = capturedImage;
+        _removePhotoRequested = false;
+      });
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to open in-app camera on this device.'),
+        ),
+      );
     }
   }
 
@@ -120,7 +162,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       subtitle: 'Take a new photo',
                       onTap: () {
                         Navigator.pop(sheetContext);
-                        _pickImage(ImageSource.camera);
+                        _captureWithCamera();
                       },
                     ),
                   ),
@@ -132,7 +174,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       subtitle: 'Pick from photos',
                       onTap: () {
                         Navigator.pop(sheetContext);
-                        _pickImage(ImageSource.gallery);
+                        _pickImageFromGallery();
                       },
                     ),
                   ),
