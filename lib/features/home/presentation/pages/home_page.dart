@@ -125,12 +125,29 @@ class _HomePageState extends State<HomePage>
         ),
         leading: Builder(
           builder: (context) => IconButton(
+            tooltip: 'Open menu',
             icon: Icon(Icons.menu_rounded, color: colors.tertiaryText),
-            onPressed: () =>
-                Scaffold.of(context).openDrawer(), // Open the drawer
+            onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
-        actions: [],
+        actions: [
+          BlocBuilder<ThemeCubit, ThemeMode>(
+            builder: (context, themeMode) {
+              final isDark = themeMode == ThemeMode.dark;
+
+              return IconButton(
+                tooltip: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+                icon: Icon(
+                  isDark ? Icons.dark_mode_rounded : Icons.light_mode_rounded,
+                  color: colors.tertiaryText,
+                ),
+                onPressed: () {
+                  context.read<ThemeCubit>().toggleDarkMode(!isDark);
+                },
+              );
+            },
+          ),
+        ],
       ),
       drawer: const AppDrawer(), // Custom navigation drawer
       body: KuromiPageBackground(

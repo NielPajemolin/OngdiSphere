@@ -270,24 +270,6 @@ class ProfilePage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 14),
-                          BlocBuilder<ThemeCubit, ThemeMode>(
-                            builder: (context, themeMode) {
-                              final isDarkMode = themeMode == ThemeMode.dark;
-
-                              return SwitchListTile.adaptive(
-                                contentPadding: EdgeInsets.zero,
-                                title: const Text('Dark Mode'),
-                                subtitle: const Text(
-                                  'Use darker colors across the app interface.',
-                                ),
-                                value: isDarkMode,
-                                onChanged: (value) {
-                                  context.read<ThemeCubit>().toggleDarkMode(value);
-                                },
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 10),
                           MyButton(
                             label: 'Edit Profile',
                             onPressed: () {
