@@ -272,37 +272,13 @@ class _TaskPageState extends State<TaskPage> {
                         Expanded(
                           child: filteredTasks.isEmpty
                               ? Center(
-                                  child: TweenAnimationBuilder<double>(
+                                  child: EmptyStateWidget(
                                     key: ValueKey(
                                       'task-empty-$selectedSubjectId-${filteredTasks.length}',
                                     ),
-                                    tween: Tween(begin: 0.0, end: 1.0),
-                                    duration: const Duration(milliseconds: 280),
-                                    curve: Curves.easeOutCubic,
-                                    builder: (context, value, child) {
-                                      return Transform.translate(
-                                        offset: Offset(0, (1 - value) * 12),
-                                        child: Opacity(
-                                          opacity: value,
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        Icon(
-                                          Icons.task_alt_rounded,
-                                          size: 38,
-                                          color: Color(0x66F48FB1),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          'No active tasks found',
-                                          style: TextStyle(color: Colors.black54),
-                                        ),
-                                      ],
-                                    ),
+                                    icon: Icons.task_alt_rounded,
+                                    message: 'No active tasks found',
+                                    color: const Color(0x66F48FB1),
                                   ),
                                 )
                               : ListView.builder(

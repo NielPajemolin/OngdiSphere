@@ -1,4 +1,5 @@
 import '../../entities/app_user.dart';
+import 'dart:io';
 
 abstract class AuthRepo {
   Future<AppUser?> loginWithEmailPassword(
@@ -16,4 +17,10 @@ abstract class AuthRepo {
     String email
   );
   Future<void> deleteAccount();
+  Future<AppUser?> updateProfile({
+    required String uid,
+    String? name,
+    String? profilePictureUrl,
+  });
+  Future<String> uploadProfilePicture(String uid, File imageFile);
 }

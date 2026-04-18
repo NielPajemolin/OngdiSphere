@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
-import 'package:ongdisphere/shared/animations/animated_form_dialog.dart';
-import 'package:ongdisphere/shared/animations/press_scale.dart';
+import 'package:ongdisphere/shared/widgets/widgets.dart';
 
 class AddSubjectDialog extends StatefulWidget {
   const AddSubjectDialog({super.key});
@@ -103,57 +102,10 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
             ),
           ),
           const SizedBox(height: 28),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              PressScale(
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(null),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              PressScale(
-                child: FilledButton(
-                  onPressed: submit,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 4,
-                  ),
-                  child: const Text(
-                    'Add',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+          DialogActionButtons(
+            confirmLabel: 'Add',
+            onCancel: () => Navigator.of(context).pop(null),
+            onConfirm: submit,
           ),
         ],
       ),

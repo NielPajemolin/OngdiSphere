@@ -7,6 +7,7 @@ import 'package:ongdisphere/features/auth/domain/entities/app_user.dart';
 import 'package:ongdisphere/features/auth/domain/repos/auth/auth_repo.dart';
 import 'package:ongdisphere/features/auth/presentation/cubits/auth/auth_states.dart';
 
+
 class AuthCubit extends Cubit<AuthStates> {
   final AuthRepo authRepo;
   AppUser? _currentUser;
@@ -102,6 +103,31 @@ class AuthCubit extends Cubit<AuthStates> {
     } catch (e) {
       emit(AuthError(_toDisplayMessage(e)));
       emit(Unauntenticated());
+    }
+  }
+
+  //update profile
+  Future<bool> updateProfile({
+    required String uid,
+    String? name,
+    String? profilePictureUrl,
+  }) async {
+    try {
+      final user = await authRepo.updateProfile(
+        uid: uid,
+        name: name,
+        profilePictureUrl: profilePictureUrl,
+      );
+      
+      if (user != null) {
+        _currentUser = user;
+        emit(Autheticated(user));
+        return true;
+      }
+      return false;
+    } catch (e) {
+      emit(AuthError(_toDisplayMessage(e)));
+      return false;
     }
   }
 }

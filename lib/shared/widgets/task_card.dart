@@ -3,7 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/data/models/models.dart';
 import 'package:ongdisphere/shared/animations/press_scale.dart';
+import 'package:ongdisphere/shared/widgets/card_action_buttons.dart';
 import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
+import 'package:ongdisphere/shared/widgets/status_badge.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
@@ -79,29 +81,8 @@ class TaskCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: isNarrow ? 6 : 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: task.done
-                              ? Colors.green.withValues(alpha: 0.12)
-                              : colors.secondary.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(
-                            color: task.done
-                                ? Colors.green.withValues(alpha: 0.3)
-                                : colors.secondary.withValues(alpha: 0.35),
-                            width: 0.8,
-                          ),
-                        ),
-                        child: Text(
-                          task.done ? 'Completed' : 'Pending',
-                          style: TextStyle(
-                            color: task.done ? Colors.green : colors.tertiaryText,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
+                      StatusBadge(
+                        isComplete: task.done,
                       ),
                     ],
                   ),
@@ -219,65 +200,9 @@ class TaskCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 6),
-            // Edit and Delete Buttons
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (onEdit != null)
-                  PressScale(
-                    child: Material(
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                      child: InkWell(
-                        onTap: onEdit,
-                        borderRadius: BorderRadius.circular(10),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: colors.primary.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.edit_rounded,
-                            color: colors.primary,
-                            size: 18,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                const SizedBox(width: 6),
-                PressScale(
-                  child: Material(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10),
-                    child: InkWell(
-                      onTap: onDelete,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.delete_rounded,
-                          color: Colors.red,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            CardActionButtons(
+              onEdit: onEdit,
+              onDelete: onDelete,
             ),
           ],
         ),

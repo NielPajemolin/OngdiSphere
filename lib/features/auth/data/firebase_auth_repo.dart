@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:ongdisphere/features/auth/domain/entities/app_user.dart';
 import 'package:ongdisphere/features/auth/domain/repos/auth/auth_repo.dart';
 
@@ -187,6 +189,56 @@ class FirebaseAuthRepo implements AuthRepo {
       throw const AppAuthException(
         'Failed to delete account. Please try again.',
       );
+    }
+  }
+
+  // UPDATE PROFILE
+  @override
+  Future<AppUser?> updateProfile({
+    required String uid,
+    String? name,
+    String? profilePictureUrl,
+  }) async {
+    try {
+      // Fetch current user data
+      DocumentSnapshot doc = await firestore.collection('users').doc(uid).get();
+      if (!doc.exists) {
+        throw const AppAuthException('User data not found.');
+      }
+
+      AppUser currentUser = AppUser.fromJson(doc.data() as Map<String, dynamic>);
+
+      // Create updated user object
+      AppUser updatedUser = currentUser.copyWith(
+        name: name ?? currentUser.name,
+        profilePictureUrl: profilePictureUrl ?? currentUser.profilePictureUrl,
+      );
+
+      // Update in Firestore
+      await firestore.collection('users').doc(uid).update(updatedUser.toJson());
+
+      return updatedUser;
+    } on FirebaseException {
+      throw const AppAuthException('Unable to update profile. Please try again.');
+    } on AppAuthException {
+      rethrow;
+    } catch (e) {
+      throw const AppAuthException('Failed to update profile. Please try again.');
+    }
+  }
+
+  // UPLOAD PROFILE PICTURE
+  @override
+  Future<String> uploadProfilePicture(String uid, File imageFile) async {
+    try {
+      // Store image as Base64 string in Firestore-friendly format.
+      final bytes = await imageFile.readAsBytes();
+      final encoded = base64Encode(bytes);
+      return encoded;
+    } on FileSystemException {
+      throw const AppAuthException('Failed to read selected image. Please try again.');
+    } catch (e) {
+      throw const AppAuthException('Image upload failed. Please try again.');
     }
   }
 }

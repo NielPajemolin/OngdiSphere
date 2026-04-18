@@ -15,7 +15,7 @@ class LocalNotificationService {
   static const int _maxReminderMinutes = 10;
   static const int _notificationBlockSize = 32;
 
-    static const String _kNotificationsEnabled = 'notifications_enabled';
+  static const String _kNotificationsEnabled = 'notifications_enabled';
     static const String _kReminderEnabled = 'notifications_reminder_enabled';
     static const String _kDeadlineEnabled = 'notifications_deadline_enabled';
     static const String _kLeadCompensationSeconds =

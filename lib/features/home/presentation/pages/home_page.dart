@@ -6,7 +6,6 @@ import 'package:ongdisphere/shared/widgets/widgets.dart';
 import 'package:ongdisphere/features/subject/subject.dart';
 import 'package:ongdisphere/features/task/task.dart';
 import 'package:ongdisphere/features/exam/exam.dart';
-import 'notification_settings_page.dart';
 
 /// The main home page of the app showing the dashboard and menu
 /// Displays the number of unfinished tasks and exams,
@@ -92,11 +91,7 @@ class _HomePageState extends State<HomePage>
     }
   }
 
-  Future<void> _openNotificationSettingsPage() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const NotificationSettingsPage()),
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -135,13 +130,7 @@ class _HomePageState extends State<HomePage>
                 Scaffold.of(context).openDrawer(), // Open the drawer
           ),
         ),
-        actions: [
-          IconButton(
-            tooltip: 'Notification settings',
-            icon: Icon(Icons.notifications_active_rounded, color: colors.tertiaryText),
-            onPressed: _openNotificationSettingsPage,
-          ),
-        ],
+        actions: [],
       ),
       drawer: const AppDrawer(), // Custom navigation drawer
       body: KuromiPageBackground(

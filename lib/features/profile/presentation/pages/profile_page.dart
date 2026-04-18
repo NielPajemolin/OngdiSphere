@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ongdisphere/features/auth/auth.dart';
 import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/shared/widgets/widgets.dart';
+import 'package:ongdisphere/features/profile/presentation/widgets/edit_profile_dialog.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -38,16 +40,6 @@ class ProfilePage extends StatelessWidget {
       );
     }
 
-    // Get current user from AuthCubit
-    final currentUser = context.read<AuthCubit>().currenUser;
-    final rawName = currentUser?.name?.trim() ?? '';
-    final rawEmail = currentUser?.email.trim() ?? '';
-    final userName = rawName.isNotEmpty ? rawName : 'No name';
-    final userEmail = rawEmail.isNotEmpty ? rawEmail : 'No email';
-    final userInitial = userName.isNotEmpty
-        ? userName.characters.first.toUpperCase()
-        : 'U';
-
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
@@ -65,24 +57,49 @@ class ProfilePage extends StatelessWidget {
           ),
         ),
       ),
-      body: KuromiPageBackground(
-        topColor: colors.surface,
-        bottomColor: const Color(0xFFF8EAF4),
-        preset: KuromiBackgroundPreset.moon,
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
-              ),
-              child: ListView(
-                padding: EdgeInsets.fromLTRB(
-                  horizontalPadding,
-                  12,
-                  horizontalPadding,
-                  24,
-                ),
-                children: [
+      body: BlocBuilder<AuthCubit, AuthStates>(
+        builder: (context, state) {
+          final authCubit = context.read<AuthCubit>();
+          final currentUser = state is Autheticated
+              ? state.user
+              : authCubit.currenUser;
+
+          final rawName = currentUser?.name?.trim() ?? '';
+          final rawEmail = currentUser?.email.trim() ?? '';
+          final userName = rawName.isNotEmpty ? rawName : 'No name';
+          final userEmail = rawEmail.isNotEmpty ? rawEmail : 'No email';
+          final userInitial = userName.isNotEmpty
+              ? userName.characters.first.toUpperCase()
+              : 'U';
+          final profilePictureValue = currentUser?.profilePictureUrl;
+
+          MemoryImage? profileMemoryImage;
+          if (profilePictureValue != null && profilePictureValue.isNotEmpty) {
+            try {
+              profileMemoryImage = MemoryImage(base64Decode(profilePictureValue));
+            } catch (_) {
+              profileMemoryImage = null;
+            }
+          }
+
+          return KuromiPageBackground(
+            topColor: colors.surface,
+            bottomColor: const Color(0xFFF8EAF4),
+            preset: KuromiBackgroundPreset.moon,
+            child: SafeArea(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: useMaxWidth ? maxContentWidth : double.infinity,
+                  ),
+                  child: ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      horizontalPadding,
+                      12,
+                      horizontalPadding,
+                      24,
+                    ),
+                    children: [
                   animatedSection(
                     milliseconds: 260,
                     child: Container(
@@ -110,14 +127,17 @@ class ProfilePage extends StatelessWidget {
                             child: CircleAvatar(
                               radius: 30,
                               backgroundColor: Colors.white,
-                              child: Text(
-                                userInitial,
-                                style: const TextStyle(
-                                  color: Color(0xFF131015),
-                                  fontSize: 28,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
+                              backgroundImage: profileMemoryImage,
+                              child: profileMemoryImage == null
+                                  ? Text(
+                                      userInitial,
+                                      style: const TextStyle(
+                                        color: Color(0xFF131015),
+                                        fontSize: 28,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    )
+                                  : null,
                             ),
                           ),
                           const SizedBox(width: 14),
@@ -247,10 +267,32 @@ class ProfilePage extends StatelessWidget {
                           MyButton(
                             label: 'Edit Profile',
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Profile editing is coming soon.'),
-                                ),
+                              showGeneralDialog(
+                                context: context,
+                                barrierDismissible: true,
+                                barrierLabel: 'Edit Profile',
+                                barrierColor: Colors.black54,
+                                transitionDuration:
+                                    const Duration(milliseconds: 260),
+                                pageBuilder: (dialogContext, animation, secondaryAnimation) {
+                                  return const EditProfileDialog();
+                                },
+                                transitionBuilder:
+                                    (dialogContext, animation, secondaryAnimation, child) {
+                                  final eased = CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeOutCubic,
+                                  );
+
+                                  return FadeTransition(
+                                    opacity: eased,
+                                    child: ScaleTransition(
+                                      scale: Tween<double>(begin: 0.92, end: 1.0)
+                                          .animate(eased),
+                                      child: child,
+                                    ),
+                                  );
+                                },
                               );
                             },
                           ),
@@ -258,11 +300,13 @@ class ProfilePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -114,6 +114,18 @@ class AppDrawer extends StatelessWidget {
                   },
                 ),
               ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _DrawerActionTile(
+                  icon: Icons.notifications_rounded,
+                  label: 'Notifications',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/notifications');
+                  },
+                ),
+              ),
             ],
           ),
 

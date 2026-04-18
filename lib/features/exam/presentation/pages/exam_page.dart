@@ -250,37 +250,13 @@ class _ExamPageState extends State<ExamPage> {
                         Expanded(
                           child: filteredExams.isEmpty
                               ? Center(
-                                  child: TweenAnimationBuilder<double>(
+                                  child: EmptyStateWidget(
                                     key: ValueKey(
                                       'exam-empty-$selectedSubjectId-${filteredExams.length}',
                                     ),
-                                    tween: Tween(begin: 0.0, end: 1.0),
-                                    duration: const Duration(milliseconds: 280),
-                                    curve: Curves.easeOutCubic,
-                                    builder: (context, value, child) {
-                                      return Transform.translate(
-                                        offset: Offset(0, (1 - value) * 12),
-                                        child: Opacity(
-                                          opacity: value,
-                                          child: child,
-                                        ),
-                                      );
-                                    },
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: const [
-                                        Icon(
-                                          Icons.event_note_rounded,
-                                          size: 38,
-                                          color: Color(0x666A1B9A),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          'No pending exams',
-                                          style: TextStyle(color: Colors.black54),
-                                        ),
-                                      ],
-                                    ),
+                                    icon: Icons.event_note_rounded,
+                                    message: 'No pending exams',
+                                    color: const Color(0x666A1B9A),
                                   ),
                                 )
                               : ListView.builder(

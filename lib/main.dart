@@ -8,6 +8,7 @@ import 'package:ongdisphere/features/auth/auth.dart';
 import 'package:ongdisphere/features/done/done.dart';
 import 'package:ongdisphere/features/exam/exam.dart';
 import 'package:ongdisphere/features/home/home.dart';
+import 'package:ongdisphere/features/home/presentation/pages/notification_settings_page.dart';
 import 'package:ongdisphere/features/profile/profile.dart';
 import 'package:ongdisphere/features/subject/subject.dart';
 import 'package:ongdisphere/features/task/task.dart';
@@ -49,6 +50,8 @@ class MyApp extends StatelessWidget {
         return const DonePage();
       case '/profile':
         return ProfilePage();
+      case '/notifications':
+        return const NotificationSettingsPage();
       default:
         return null; // Route not found
     }

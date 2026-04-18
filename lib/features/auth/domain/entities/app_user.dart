@@ -2,11 +2,13 @@ class AppUser {
   final String uid;
   final String email;
   final String? name;
+  final String? profilePictureUrl;
 
   AppUser({
     required this.uid, 
     required this.email,
     required this.name,
+    this.profilePictureUrl,
     });
 
     //convert app user to json format
@@ -14,7 +16,8 @@ class AppUser {
       return{
         'uid': uid,
         'email': email,
-        'name': name
+        'name': name,
+        'profilePictureUrl': profilePictureUrl,
       };
     }
 
@@ -23,7 +26,23 @@ class AppUser {
       return AppUser(
         uid: jsonUser['uid'], 
         email:jsonUser['email'],
-        name:jsonUser['name'] ??''
+        name:jsonUser['name'] ??'',
+        profilePictureUrl: jsonUser['profilePictureUrl'],
         );
+    }
+
+    // Create a copy with modified fields
+    AppUser copyWith({
+      String? uid,
+      String? email,
+      String? name,
+      String? profilePictureUrl,
+    }) {
+      return AppUser(
+        uid: uid ?? this.uid,
+        email: email ?? this.email,
+        name: name ?? this.name,
+        profilePictureUrl: profilePictureUrl ?? this.profilePictureUrl,
+      );
     }
 }
