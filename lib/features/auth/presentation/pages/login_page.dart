@@ -171,7 +171,9 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: colors.surface,
             body: KuromiPageBackground(
               topColor: colors.surface,
-              bottomColor: const Color(0xFFF7EAF4),
+              bottomColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF100C13)
+                  : const Color(0xFFF7EAF4),
               preset: KuromiBackgroundPreset.ink,
               animate: true,
               child: SafeArea(
@@ -242,9 +244,11 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(20),
                             padding: const EdgeInsets.fromLTRB(14, 16, 14, 18),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: const Color(0x1FF48FB1)),
+                              border: Border.all(
+                                color: Theme.of(context).dividerColor.withValues(alpha: 0.4),
+                              ),
                               boxShadow: const [
                                 BoxShadow(
                                   color: Color(0x12000000),
@@ -296,9 +300,11 @@ class _LoginPageState extends State<LoginPage> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Don\'t have an account? ',
-                                style: TextStyle(color: Colors.black54),
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                                ),
                               ),
                               GestureDetector(
                                 onTap: widget.togglePages,

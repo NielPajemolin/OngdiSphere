@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ongdisphere/core/theme/theme.dart';
 import 'package:ongdisphere/shared/widgets/kuromi_accents.dart';
 
 class SummaryHeaderCard extends StatelessWidget {
@@ -23,11 +24,13 @@ class SummaryHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.colorsOf(context);
+
     return KuromiDecoratedContainer(
       borderRadius: BorderRadius.circular(20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: showShadow
             ? const [
@@ -56,7 +59,7 @@ class SummaryHeaderCard extends StatelessWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    color: titleColor ?? const Color(0xFF211724),
+                    color: titleColor ?? colors.tertiaryText,
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
                   ),
@@ -70,8 +73,8 @@ class SummaryHeaderCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: Colors.black54,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
                     fontSize: 13,
                   ),
                 ),

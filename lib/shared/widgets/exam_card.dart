@@ -31,7 +31,7 @@ class ExamCard extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.2) : colors.primary.withValues(alpha: 0.15),
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -47,7 +47,7 @@ class ExamCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         patternColor: colors.secondary,
@@ -105,14 +105,18 @@ class ExamCard extends StatelessWidget {
                       Icon(
                         Icons.event_rounded,
                         size: 13,
-                        color: isOverdue ? Colors.red : Colors.black45,
+                        color: isOverdue
+                            ? Colors.red
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.62),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           DateFormat.yMd().add_jm().format(exam.dateTime.toLocal()),
                           style: TextStyle(
-                            color: isOverdue ? Colors.red : Colors.black54,
+                            color: isOverdue
+                                ? Colors.red
+                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
                             fontSize: 12,
                             fontWeight: isOverdue ? FontWeight.w600 : FontWeight.w400,
                           ),

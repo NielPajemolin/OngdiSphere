@@ -69,6 +69,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       //provide cubits to the app
       providers: [
+        BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()..loadThemeMode()),
         //app cubit
         BlocProvider<AuthCubit>(
           create: (context) =>
@@ -91,47 +92,51 @@ class MyApp extends StatelessWidget {
         ),
       ],
       //app
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
+      child: BlocBuilder<ThemeCubit, ThemeMode>(
+        builder: (context, themeMode) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeMode,
 
-        // --- CUSTOM ROUTE IMPLEMENTATION ---
-        // This function handles navigation and applies the slide animation.
-        onGenerateRoute: (settings) {
-          final page = _getPage(settings.name);
+          // --- CUSTOM ROUTE IMPLEMENTATION ---
+          // This function handles navigation and applies the slide animation.
+          onGenerateRoute: (settings) {
+            final page = _getPage(settings.name);
 
-          if (page != null) {
-            // Apply the custom transition for all named routes
-            return slideTransitionRoute(page);
-          }
-          // Fallback route if the path is unrecognized
-          return MaterialPageRoute(builder: (_) => const AuthPage());
-        },
-
-        //Bloc Auth
-        home: BlocConsumer<AuthCubit, AuthStates>(
-          builder: (context, state) {
-            //if unaunthenticated go to auth page(login/sign up)
-            if (state is Unauntenticated) {
-              return const AuthPage();
+            if (page != null) {
+              // Apply the custom transition for all named routes
+              return slideTransitionRoute(page);
             }
-            //if aunthenticated to homepage
-            if (state is Autheticated) {
-              return const HomePage();
-            }
-            //loading
-            else {
-              return const LoadingScreen();
-            }
+            // Fallback route if the path is unrecognized
+            return MaterialPageRoute(builder: (_) => const AuthPage());
           },
-          //listen for state change
-          listener: (context, state) {
-            if (state is AuthError) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
-            }
-          },
+
+          //Bloc Auth
+          home: BlocConsumer<AuthCubit, AuthStates>(
+            builder: (context, state) {
+              //if unaunthenticated go to auth page(login/sign up)
+              if (state is Unauntenticated) {
+                return const AuthPage();
+              }
+              //if aunthenticated to homepage
+              if (state is Autheticated) {
+                return const HomePage();
+              }
+              //loading
+              else {
+                return const LoadingScreen();
+              }
+            },
+            //listen for state change
+            listener: (context, state) {
+              if (state is AuthError) {
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
+              }
+            },
+          ),
         ),
       ),
     );

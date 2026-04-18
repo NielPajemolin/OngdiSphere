@@ -17,12 +17,15 @@ class SubjectFilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Colors.white, colors.surface],
+          colors: isDark
+              ? [Theme.of(context).cardColor, colors.surface.withValues(alpha: 0.92)]
+              : [Colors.white, colors.surface],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -73,7 +76,9 @@ class SubjectFilterDropdown extends StatelessWidget {
             decoration: InputDecoration(
               isDense: true,
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.9),
+              fillColor: isDark
+                  ? Theme.of(context).cardColor.withValues(alpha: 0.96)
+                  : Colors.white.withValues(alpha: 0.9),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 12,

@@ -98,6 +98,7 @@ class HomeOverviewSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.colorsOf(context);
     final narrow = MediaQuery.sizeOf(context).width < 390;
 
     return Column(
@@ -114,9 +115,13 @@ class HomeOverviewSection extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
+            Text(
               'Overview',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: colors.tertiaryText,
+              ),
             ),
           ],
         ),
@@ -162,20 +167,29 @@ class _HomeStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final compact = MediaQuery.sizeOf(context).width < 390;
 
     return KuromiDecoratedContainer(
       borderRadius: BorderRadius.circular(18),
       padding: EdgeInsets.all(compact ? 12 : 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: 0.18)),
+        border: Border.all(
+          color: isDark
+              ? Theme.of(context).dividerColor.withValues(alpha: 0.7)
+              : colors.primary.withValues(alpha: 0.26),
+          width: 1.25,
+        ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.09),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+            color: isDark
+                ? const Color(0x22000000)
+                : color.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 7),
           ),
         ],
       ),
@@ -200,7 +214,10 @@ class _HomeStatCard extends StatelessWidget {
           ),
           Text(
             label,
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 13,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+            ),
           ),
         ],
       ),
@@ -222,6 +239,8 @@ class HomeActionsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.colorsOf(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -236,9 +255,13 @@ class HomeActionsSection extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Text(
+            Text(
               'Quick Actions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: colors.tertiaryText,
+              ),
             ),
           ],
         ),
@@ -283,13 +306,25 @@ class _HomeActionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(18),
       child: Material(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
+        elevation: isDark ? 1.2 : 0.6,
+        shadowColor: isDark
+            ? const Color(0x22000000)
+            : colors.primary.withValues(alpha: 0.16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: Color(0x1FF48FB1)),
+          side: BorderSide(
+            color: isDark
+                ? Theme.of(context).dividerColor.withValues(alpha: 0.7)
+                : colors.primary.withValues(alpha: 0.24),
+            width: 1.2,
+          ),
         ),
         child: InkWell(
           borderRadius: BorderRadius.circular(18),
@@ -298,7 +333,7 @@ class _HomeActionTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(18),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             patternColor: const Color(0xFFF48FB1),
@@ -310,7 +345,7 @@ class _HomeActionTile extends StatelessWidget {
                   backgroundColor: const Color(
                     0xFFF48FB1,
                   ).withValues(alpha: 0.13),
-                  child: Icon(icon, color: const Color(0xFF131015)),
+                  child: Icon(icon, color: colors.tertiaryText),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -319,23 +354,27 @@ class _HomeActionTile extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
+                          color: colors.tertiaryText,
                         ),
                       ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Colors.black54,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right_rounded),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ],
             ),
           ),

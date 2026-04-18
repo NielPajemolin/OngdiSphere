@@ -82,7 +82,9 @@ class _DonePageState extends State<DonePage> {
       ),
       body: KuromiPageBackground(
         topColor: colors.surface,
-        bottomColor: const Color(0xFFF8EAF4),
+        bottomColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF110D14)
+            : const Color(0xFFF8EAF4),
         preset: KuromiBackgroundPreset.mist,
         child: BlocBuilder<TaskBloc, TaskState>(
           builder: (context, taskState) {
@@ -285,19 +287,20 @@ class _DoneSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return KuromiDecoratedContainer(
       borderRadius: BorderRadius.circular(18),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0x1FF48FB1)),
-        boxShadow: const [
+        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.4)),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x10000000),
+            color: isDark ? const Color(0x22000000) : const Color(0x10000000),
             blurRadius: 14,
-            offset: Offset(0, 6),
+            offset: const Offset(0, 6),
           ),
         ],
       ),
@@ -311,7 +314,7 @@ class _DoneSection extends StatelessWidget {
               CircleAvatar(
                 radius: 16,
                 backgroundColor: const Color(0x1AF48FB1),
-                child: Icon(icon, size: 18, color: const Color(0xFF131015)),
+                child: Icon(icon, size: 18, color: colors.tertiaryText),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -334,8 +337,8 @@ class _DoneSection extends StatelessWidget {
                 ),
                 child: Text(
                   '$count',
-                  style: const TextStyle(
-                    color: Color(0xFF211724),
+                  style: TextStyle(
+                    color: colors.tertiaryText,
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -368,12 +371,15 @@ class _DoneSection extends StatelessWidget {
                     Icon(
                       Icons.inbox_rounded,
                       size: 36,
-                      color: Colors.black26,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.45),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       emptyMessage,
-                      style: const TextStyle(color: Colors.black45, fontSize: 13),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                        fontSize: 13,
+                      ),
                     ),
                     const SizedBox(height: 8),
                   ],

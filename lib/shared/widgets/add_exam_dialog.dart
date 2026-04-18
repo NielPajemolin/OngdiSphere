@@ -46,6 +46,10 @@ Future<Map<String, dynamic>?> showAddExamDialog({
       return StatefulBuilder(
         builder: (context, setStateDialog) {
           final colors = Theme.of(context).extension<AppColors>()!;
+          final isDark = Theme.of(context).brightness == Brightness.dark;
+          final fieldFill = isDark
+              ? Theme.of(context).cardColor.withValues(alpha: 0.96)
+              : Colors.white.withValues(alpha: 0.97);
 
           return AnimatedFormDialog(
             title: exam == null ? 'Add Exam' : 'Edit Exam',
@@ -81,7 +85,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                         ),
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.97),
+                          fillColor: fieldFill,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 14,
                             vertical: 14,
@@ -146,7 +150,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                             color: colors.tertiaryText.withValues(alpha: 0.4),
                           ),
                           filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.97),
+                          fillColor: fieldFill,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 14,
                             vertical: 14,
@@ -191,7 +195,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                       Container(
                         width: double.infinity,
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.97),
+                          color: fieldFill,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
                             color: selectedDateTime != null
@@ -272,7 +276,7 @@ Future<Map<String, dynamic>?> showAddExamDialog({
                         ),
                         decoration: InputDecoration(
                           filled: true,
-                          fillColor: Colors.white.withValues(alpha: 0.97),
+                          fillColor: fieldFill,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 14,
                             vertical: 14,

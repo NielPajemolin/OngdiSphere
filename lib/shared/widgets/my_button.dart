@@ -28,10 +28,10 @@ class MyButton extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: colors.primaryText,
             letterSpacing: 0.2,
           ),
         ),

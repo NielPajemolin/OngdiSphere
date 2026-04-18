@@ -25,7 +25,7 @@ class SubjectCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       elevation: 0,
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(18),
         side: BorderSide(color: colors.primary.withValues(alpha: 0.15)),
@@ -34,17 +34,17 @@ class SubjectCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(18),
         ),
         patternColor: colors.secondary,
         patternOpacity: 0.08,
         child: Row(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 20,
-              backgroundColor: Color(0x1AF48FB1),
-              child: Icon(Icons.menu_book_rounded, color: Color(0xFF131015)),
+              backgroundColor: colors.secondary.withValues(alpha: 0.16),
+              child: Icon(Icons.menu_book_rounded, color: colors.tertiaryText),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -62,11 +62,17 @@ class SubjectCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Tasks: $taskCount',
-                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                      fontSize: 13,
+                    ),
                   ),
                   Text(
                     'Exams: $examCount',
-                    style: const TextStyle(color: Colors.black54, fontSize: 13),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ),

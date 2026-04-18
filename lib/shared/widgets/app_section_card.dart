@@ -22,6 +22,7 @@ class AppSectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final horizontalPadding = screenWidth >= 768 ? 18.0 : 16.0;
     final verticalPadding = screenWidth >= 768 ? 18.0 : 16.0;
@@ -30,14 +31,16 @@ class AppSectionCard extends StatelessWidget {
       width: double.infinity,
       padding: padding ?? EdgeInsets.all(horizontalPadding),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: colors.secondary.withValues(alpha: 0.14)),
-        boxShadow: const [
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.42),
+        ),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x12000000),
+            color: isDark ? const Color(0x22000000) : const Color(0x12000000),
             blurRadius: 22,
-            offset: Offset(0, 10),
+            offset: const Offset(0, 10),
           ),
         ],
       ),

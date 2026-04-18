@@ -163,15 +163,22 @@ class _DrawerActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Material(
       color: Colors.transparent,
       child: ListTile(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: colors.secondary.withValues(alpha: 0.16)),
+          side: BorderSide(
+            color: isDark
+                ? Theme.of(context).dividerColor.withValues(alpha: 0.6)
+                : colors.secondary.withValues(alpha: 0.16),
+          ),
         ),
-        tileColor: Colors.white.withValues(alpha: 0.55),
+        tileColor: isDark
+            ? Theme.of(context).cardColor.withValues(alpha: 0.92)
+            : Colors.white.withValues(alpha: 0.72),
         leading: Container(
           width: 30,
           height: 30,

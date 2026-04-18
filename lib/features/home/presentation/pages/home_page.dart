@@ -135,7 +135,9 @@ class _HomePageState extends State<HomePage>
       drawer: const AppDrawer(), // Custom navigation drawer
       body: KuromiPageBackground(
         topColor: colors.surface,
-        bottomColor: const Color(0xFFF3E4EF),
+        bottomColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF120E15)
+            : const Color(0xFFF3E4EF),
         preset: KuromiBackgroundPreset.orchid,
         animate: true,
         child: SafeArea(

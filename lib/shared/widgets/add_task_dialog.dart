@@ -91,6 +91,10 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fieldFill = isDark
+        ? Theme.of(context).cardColor.withValues(alpha: 0.96)
+        : Colors.white.withValues(alpha: 0.97);
 
     return AnimatedFormDialog(
       title: widget.task == null ? 'Add Task' : 'Edit Task',
@@ -126,7 +130,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                   ),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.97),
+                    fillColor: fieldFill,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 14,
@@ -190,7 +194,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                       color: colors.tertiaryText.withValues(alpha: 0.4),
                     ),
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.97),
+                    fillColor: fieldFill,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 14,
@@ -235,7 +239,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.97),
+                    color: fieldFill,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: selectedDate != null
@@ -310,7 +314,7 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
                   ),
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.97),
+                    fillColor: fieldFill,
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 14,
                       vertical: 14,

@@ -175,7 +175,9 @@ class _TaskPageState extends State<TaskPage> {
       ),
       body: KuromiPageBackground(
         topColor: colors.surface,
-        bottomColor: const Color(0xFFF8EAF5),
+        bottomColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF110D14)
+            : const Color(0xFFF8EAF5),
         preset: KuromiBackgroundPreset.candy,
         child: BlocBuilder<SubjectBloc, SubjectState>(
           builder: (context, subjectState) {
@@ -235,8 +237,8 @@ class _TaskPageState extends State<TaskPage> {
                             ),
                             child: SummaryHeaderCard(
                               icon: Icons.checklist_rounded,
-                              iconColor: const Color(0xFF131015),
-                              iconBackgroundColor: const Color(0x1AF48FB1),
+                              iconColor: colors.tertiaryText,
+                              iconBackgroundColor: colors.secondary.withValues(alpha: 0.2),
                               title: 'Active Tasks',
                               subtitle: '${filteredTasks.length} pending item(s)',
                               titleColor: colors.tertiaryText,
@@ -278,7 +280,7 @@ class _TaskPageState extends State<TaskPage> {
                                     ),
                                     icon: Icons.task_alt_rounded,
                                     message: 'No active tasks found',
-                                    color: const Color(0x66F48FB1),
+                                    color: colors.secondary.withValues(alpha: 0.55),
                                   ),
                                 )
                               : ListView.builder(

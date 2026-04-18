@@ -84,7 +84,9 @@ class ProfilePage extends StatelessWidget {
 
           return KuromiPageBackground(
             topColor: colors.surface,
-            bottomColor: const Color(0xFFF8EAF4),
+            bottomColor: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF110D14)
+                : const Color(0xFFF8EAF4),
             preset: KuromiBackgroundPreset.moon,
             child: SafeArea(
               child: Center(
@@ -178,9 +180,11 @@ class ProfilePage extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0x1FF48FB1)),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+                        ),
                         boxShadow: const [
                           BoxShadow(
                             color: Color(0x12000000),
@@ -235,9 +239,11 @@ class ProfilePage extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0x1FF48FB1)),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,6 +270,24 @@ class ProfilePage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 14),
+                          BlocBuilder<ThemeCubit, ThemeMode>(
+                            builder: (context, themeMode) {
+                              final isDarkMode = themeMode == ThemeMode.dark;
+
+                              return SwitchListTile.adaptive(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text('Dark Mode'),
+                                subtitle: const Text(
+                                  'Use darker colors across the app interface.',
+                                ),
+                                value: isDarkMode,
+                                onChanged: (value) {
+                                  context.read<ThemeCubit>().toggleDarkMode(value);
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
                           MyButton(
                             label: 'Edit Profile',
                             onPressed: () {
@@ -328,13 +352,15 @@ class _ProfileInfoTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF6FB),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF2A2230)
+            : const Color(0xFFFFF6FB),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF131015)),
+          Icon(icon, color: AppTheme.colorsOf(context).tertiaryText),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -342,8 +368,8 @@ class _ProfileInfoTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.black54,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -353,7 +379,8 @@ class _ProfileInfoTile extends StatelessWidget {
                   value,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: AppTheme.colorsOf(context).tertiaryText,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
                   ),

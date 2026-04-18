@@ -110,10 +110,15 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
       backgroundColor: Colors.transparent,
       useSafeArea: true,
       builder: (sheetContext) {
+        final isDark = Theme.of(sheetContext).brightness == Brightness.dark;
+
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: Theme.of(sheetContext).cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(
+              color: Theme.of(sheetContext).dividerColor.withValues(alpha: 0.45),
+            ),
           ),
           padding: EdgeInsets.fromLTRB(
             sheetHorizontalPadding,
@@ -180,6 +185,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   ),
                 ],
               ),
+              if (isDark) const SizedBox(height: 2),
             ],
           ),
         );
@@ -261,6 +267,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenSize = MediaQuery.sizeOf(context);
     final screenWidth = screenSize.width;
     final isCompact = screenWidth < 360;
@@ -321,10 +328,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                   width: double.infinity,
                   padding: EdgeInsets.all(isTablet ? 18 : 16),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFFFFF7FB), Color(0xFFF5ECF8)],
+                      colors: isDark
+                          ? [const Color(0xFF241D2A), const Color(0xFF1A141F)]
+                          : const [Color(0xFFFFF7FB), Color(0xFFF5ECF8)],
                     ),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
@@ -374,7 +383,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       ),
                       const SizedBox(width: 8),
                       Material(
-                        color: Colors.white.withValues(alpha: 0.7),
+                        color: isDark
+                            ? Theme.of(context).cardColor.withValues(alpha: 0.94)
+                            : Colors.white.withValues(alpha: 0.7),
                         shape: const CircleBorder(),
                         child: InkWell(
                           customBorder: const CircleBorder(),
@@ -402,10 +413,12 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
+                        gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFFFFFBFD), Color(0xFFF8F1F7)],
+                          colors: isDark
+                              ? [const Color(0xFF241D2A), const Color(0xFF1A141F)]
+                              : const [Color(0xFFFFFBFD), Color(0xFFF8F1F7)],
                         ),
                         borderRadius: BorderRadius.circular(28),
                         border: Border.all(
@@ -433,7 +446,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                   ),
                                 ),
                                 child: CircleAvatar(
-                                  backgroundColor: Colors.white,
+                                  backgroundColor: Theme.of(context).cardColor,
                                   backgroundImage: _selectedImage != null
                                       ? FileImage(_selectedImage!)
                                       : existingProfileImage,
@@ -442,7 +455,7 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                                       ? Text(
                                           userInitial,
                                           style: TextStyle(
-                                            color: const Color(0xFF131015),
+                                            color: colors.tertiaryText,
                                             fontSize: isTablet ? 38 : isCompact ? 30 : 34,
                                             fontWeight: FontWeight.w700,
                                           ),
@@ -536,7 +549,9 @@ class _EditProfileDialogState extends State<EditProfileDialog> {
                         color: colors.tertiaryText.withValues(alpha: 0.45),
                       ),
                       filled: true,
-                      fillColor: const Color(0xFFFDF8FC),
+                        fillColor: isDark
+                          ? Theme.of(context).cardColor.withValues(alpha: 0.96)
+                          : const Color(0xFFFDF8FC),
                       prefixIcon: Padding(
                         padding: const EdgeInsetsDirectional.only(start: 12, end: 10),
                         child: Icon(
@@ -669,12 +684,15 @@ class _ImageOptionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppTheme.colorsOf(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.sizeOf(context).width;
     final isTablet = screenWidth >= 700;
     final iconContainerSize = isTablet ? 40.0 : 36.0;
 
     return Material(
-      color: const Color(0xFFFDF8FC),
+      color: isDark
+          ? Theme.of(context).cardColor.withValues(alpha: 0.95)
+          : const Color(0xFFFDF8FC),
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
@@ -740,7 +758,7 @@ class _PrimarySaveButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
-          foregroundColor: Colors.white,
+          foregroundColor: colors.primaryText,
           elevation: 0,
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
@@ -777,10 +795,10 @@ class _PrimarySaveButton extends StatelessWidget {
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15.5,
                     fontWeight: FontWeight.w800,
-                    color: Colors.white,
+                    color: colors.primaryText,
                     letterSpacing: 0.25,
                   ),
                 ),

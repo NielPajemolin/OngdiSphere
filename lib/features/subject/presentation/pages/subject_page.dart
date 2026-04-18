@@ -102,7 +102,9 @@ class _SubjectPageState extends State<SubjectPage> {
       ),
       body: KuromiPageBackground(
         topColor: colors.surface,
-        bottomColor: const Color(0xFFF8EAF4),
+        bottomColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF110D14)
+            : const Color(0xFFF8EAF4),
         preset: KuromiBackgroundPreset.blush,
         child: BlocBuilder<SubjectBloc, SubjectState>(
           builder: (context, subjectState) {
@@ -149,8 +151,8 @@ class _SubjectPageState extends State<SubjectPage> {
                           children: [
                             SummaryHeaderCard(
                               icon: Icons.menu_book_rounded,
-                              iconColor: const Color(0xFF131015),
-                              iconBackgroundColor: const Color(0x1AF48FB1),
+                              iconColor: colors.tertiaryText,
+                              iconBackgroundColor: colors.secondary.withValues(alpha: 0.2),
                               title: 'Learning Spaces',
                               subtitle: '${subjects.length} subject(s) organized',
                               titleColor: colors.tertiaryText,
@@ -173,31 +175,34 @@ class _SubjectPageState extends State<SubjectPage> {
                                   borderRadius: BorderRadius.circular(18),
                                   padding: const EdgeInsets.all(22),
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: Theme.of(context).cardColor,
                                     borderRadius: BorderRadius.circular(18),
                                   ),
                                   patternColor: colors.secondary,
                                   patternOpacity: 0.08,
-                                  child: const Column(
+                                  child: Column(
                                     children: [
                                       Icon(
                                         Icons.library_add_rounded,
                                         size: 36,
-                                        color: Color(0xFFF48FB1),
+                                        color: colors.secondary,
                                       ),
-                                      SizedBox(height: 8),
+                                      const SizedBox(height: 8),
                                       Text(
                                         'No subjects yet',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
+                                          color: colors.tertiaryText,
                                         ),
                                       ),
-                                      SizedBox(height: 4),
+                                      const SizedBox(height: 4),
                                       Text(
                                         'Tap the + button to create your first subject.',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.black54),
+                                        style: TextStyle(
+                                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
+                                        ),
                                       ),
                                     ],
                                   ),

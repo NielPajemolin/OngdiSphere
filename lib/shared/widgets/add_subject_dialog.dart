@@ -38,6 +38,10 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fieldFill = isDark
+        ? Theme.of(context).cardColor.withValues(alpha: 0.96)
+        : Colors.white.withValues(alpha: 0.97);
 
     return AnimatedFormDialog(
       title: 'Add Subject',
@@ -71,7 +75,7 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
                 color: colors.tertiaryText.withValues(alpha: 0.4),
               ),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.97),
+              fillColor: fieldFill,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 14,
                 vertical: 14,

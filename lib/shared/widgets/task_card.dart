@@ -33,7 +33,7 @@ class TaskCard extends StatelessWidget {
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 10, vertical: 6),
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       shadowColor: isOverdue ? Colors.red.withValues(alpha: 0.2) : colors.primary.withValues(alpha: 0.15),
       elevation: 2,
       shape: RoundedRectangleBorder(
@@ -52,7 +52,7 @@ class TaskCard extends StatelessWidget {
           vertical: isNarrow ? 10 : 12,
         ),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
         ),
         patternColor: colors.secondary,
@@ -110,14 +110,18 @@ class TaskCard extends StatelessWidget {
                       Icon(
                         Icons.schedule_rounded,
                         size: 13,
-                        color: isOverdue ? Colors.red : Colors.black45,
+                        color: isOverdue
+                            ? Colors.red
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.62),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           DateFormat.yMd().add_jm().format(task.dateTime.toLocal()),
                           style: TextStyle(
-                            color: isOverdue ? Colors.red : Colors.black54,
+                            color: isOverdue
+                                ? Colors.red
+                                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.72),
                             fontSize: 12,
                             fontWeight: isOverdue ? FontWeight.w600 : FontWeight.w400,
                           ),
