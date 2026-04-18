@@ -227,7 +227,59 @@ lib/
 
 ---
 
-## 🚀 How to Run the Project
+## � Packages & Plugins Used
+
+### Core & State Management
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **flutter_bloc** | ^9.1.1 | State management using BLoC pattern for centralized, reactive state |
+| **equatable** | ^2.0.5 | Value equality for BLoC states and events comparison |
+
+### Firebase & Backend
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **firebase_core** | ^4.2.1 | Firebase initialization and core functionality |
+| **firebase_auth** | ^6.1.2 | User authentication (login, signup, password reset) |
+| **cloud_firestore** | ^6.1.0 | Real-time cloud database for storing subjects, tasks, exams, and user data |
+
+### Local Storage & Preferences
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **shared_preferences** | ^2.1.1 | Local persistent storage for app preferences and settings |
+
+### Utilities & Helpers
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **uuid** | ^3.0.7 | Generate unique IDs for subjects, tasks, and exams |
+| **intl** | ^0.19.0 | Internationalization and date/time formatting |
+| **http** | ^1.6.0 | HTTP requests for fetching motivational quotes from ZenQuotes API |
+
+### UI & Notifications
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **cupertino_icons** | ^1.0.8 | iOS-style icons for iOS platform |
+| **flutter_native_splash** | ^2.4.7 | Native splash screens on app launch |
+| **flutter_launcher_icons** | ^0.14.4 | App icon generation for Android and iOS |
+| **flutter_local_notifications** | ^19.4.1 | Local push notifications for task and exam reminders |
+
+### Date/Time & Timezone
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **timezone** | ^0.10.1 | Timezone utilities for handling different time zones |
+| **flutter_timezone** | ^4.1.1 | Get device timezone information |
+
+### Media & Image Handling
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **image_picker** | ^1.1.2 | Pick images from camera or gallery for profile pictures |
+
+### Development Tools
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **flutter_lints** | ^6.0.0 | Linting rules for code quality and style consistency |
+| **build_runner** | ^2.4.6 | Code generation and build automation |
+
+---
 
 Follow these steps to set up and launch the application on your local machine:
 
