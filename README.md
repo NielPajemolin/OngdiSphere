@@ -14,6 +14,7 @@ OngdiSphere is a dedicated mobile application designed to help students and user
 
 **Architecture:**
 - **Feature-First Module Structure:** Codebase organized into self-contained features (`auth`, `home`, `subject`, `task`, `exam`, `profile`, `done`), shared components, and core utilities. Each feature is independent with its own data, domain, and presentation layers.
+ - **Calendar Planning Module:** Added a dedicated `calendar` feature with month-view scheduling and day-level deadline visibility for tasks and exams.
 - **Barrel Exports:** Simplified import paths through barrel files (`*.dart` re-export files), reducing import verbosity by ~60% and making the codebase more maintainable.
 
 **User Experience:**
@@ -51,6 +52,7 @@ The application provides a full suite of tools for academic management:
 * **Theming:** Consistent visual identity achieved via custom `AppTheme` and `AppColors` extension.
 * **Daily Motivation:** The home page displays rotating motivational quotes from an external API with local caching support.
 * **Profile Editing Flow:** Users can edit profile info, update/remove profile photos, and capture a photo via the in-app camera page.
+* **Calendar Scheduler:** Dedicated calendar page in the app drawer with monthly grid view, day tile deadline labels, selected-day agenda, quick add flow (task/exam), and edit-on-tap interactions.
 
 ### Notifications & Alerts
 * **Configurable Notifications:** Users can toggle app notifications, reminder alerts, deadline alerts, and lead-time compensation in Notification Settings.
@@ -117,6 +119,12 @@ lib/
 │   │   │   └── pages/
 │   │   │       └── done_page.dart  # View all completed tasks and exams
 │   │   └── done.dart               # Barrel export
+│   │
+│   ├── calendar/                   # Calendar scheduling feature
+│   │   ├── presentation/           # UI layer
+│   │   │   └── pages/
+│   │   │       └── calendar_page.dart # Month calendar with day agenda and deadline actions
+│   │   └── calendar.dart           # Barrel export
 │   │
 │   ├── exam/                       # Exam management feature
 │   │   ├── presentation/           # UI layer (no separate data/domain for this feature)
@@ -225,6 +233,7 @@ lib/
 | Task Feature | `features/task/task.dart` | TaskBloc, task page, task widgets |
 | Exam Feature | `features/exam/exam.dart` | ExamBloc, exam page, exam widgets |
 | Home Feature | `features/home/home.dart` | Home page, home widgets |
+| Calendar Feature | `features/calendar/calendar.dart` | Calendar page |
 | Done Feature | `features/done/done.dart` | Done page |
 | Profile Feature | `features/profile/profile.dart` | Profile page |
 | Shared Widgets | `shared/widgets/widgets.dart` | All reusable UI components, dialog/widgets, and shared animation exports |
@@ -272,6 +281,7 @@ lib/
 | **flutter_local_notifications** | ^19.4.1 | Local push notifications for task and exam reminders |
 | **camera** | ^0.10.5 | In-app camera preview and image capture for profile photo updates |
 | **camera_android_camerax** | ^0.7.1+2 | CameraX implementation for Android camera integration |
+| **table_calendar** | ^3.1.2 | Interactive monthly calendar grid for task and exam deadline planning |
 
 ### Date/Time & Timezone
 | Package | Version | Purpose |
