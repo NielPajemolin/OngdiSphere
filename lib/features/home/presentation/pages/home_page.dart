@@ -106,9 +106,6 @@ class _HomePageState extends State<HomePage>
     final maxContentWidth = screenWidth >= 1280 ? 1040.0 : 920.0;
     final useMaxWidth = screenWidth >= 900;
 
-    final authCubit = context.read<AuthCubit>();
-    final userName = authCubit.currenUser?.name ?? 'User';
-
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
@@ -171,10 +168,21 @@ class _HomePageState extends State<HomePage>
                   22,
                 ),
                 children: [
-                  _buildAnimatedSection(
-                    begin: 0,
-                    end: 0.45,
-                    child: HomeWelcomeBanner(userName: userName),
+                  BlocBuilder<AuthCubit, AuthStates>(
+                    buildWhen: (previous, current) => current is Autheticated,
+                    builder: (context, state) {
+                      final userName = state is Autheticated
+                          ? (state.user.name?.trim().isNotEmpty ?? false)
+                                ? state.user.name!
+                                : 'User'
+                          : context.read<AuthCubit>().currenUser?.name ?? 'User';
+
+                      return _buildAnimatedSection(
+                        begin: 0,
+                        end: 0.45,
+                        child: HomeWelcomeBanner(userName: userName),
+                      );
+                    },
                   ),
                   SizedBox(height: sectionSpacing),
                   _buildAnimatedSection(

@@ -10,6 +10,7 @@ import 'package:ongdisphere/features/auth/auth.dart';
 import 'package:ongdisphere/features/done/done.dart';
 import 'package:ongdisphere/features/exam/exam.dart';
 import 'package:ongdisphere/features/home/home.dart';
+import 'package:ongdisphere/features/calendar/calendar.dart';
 import 'package:ongdisphere/features/home/presentation/pages/notification_settings_page.dart';
 import 'package:ongdisphere/features/profile/profile.dart';
 import 'package:ongdisphere/features/subject/subject.dart';
@@ -53,6 +54,8 @@ class MyApp extends StatelessWidget {
         return const TaskPage();
       case '/exams':
         return const ExamPage();
+      case '/calendar':
+        return const CalendarPage();
       case '/done':
         return const DonePage();
       case '/profile':
@@ -69,7 +72,9 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       //provide cubits to the app
       providers: [
-        BlocProvider<ThemeCubit>(create: (context) => ThemeCubit()..loadThemeMode()),
+        BlocProvider<ThemeCubit>(
+          create: (context) => ThemeCubit()..loadThemeMode(),
+        ),
         //app cubit
         BlocProvider<AuthCubit>(
           create: (context) =>

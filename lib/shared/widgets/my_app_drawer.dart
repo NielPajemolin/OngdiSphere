@@ -15,20 +15,13 @@ class AppDrawer extends StatelessWidget {
       barrierColor: Colors.black54,
       transitionDuration: const Duration(milliseconds: 400),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return AppAnimations.buildLogoutDialog(
-          context,
-          animation,
-          () {
-            Navigator.pop(context);
-            _animateLogout(context);
-          },
-        );
+        return AppAnimations.buildLogoutDialog(context, animation, () {
+          Navigator.pop(context);
+          _animateLogout(context);
+        });
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(
-          opacity: animation,
-          child: child,
-        );
+        return FadeTransition(opacity: animation, child: child);
       },
     );
   }
@@ -111,6 +104,18 @@ class AppDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/done');
+                  },
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: _DrawerActionTile(
+                  icon: Icons.calendar_month_rounded,
+                  label: 'Calendar',
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/calendar');
                   },
                 ),
               ),

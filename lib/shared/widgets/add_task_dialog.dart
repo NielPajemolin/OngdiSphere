@@ -8,8 +8,14 @@ import 'package:ongdisphere/shared/widgets/widgets.dart';
 class AddTaskDialog extends StatefulWidget {
   final List<Subject> subjects;
   final Task? task;
+  final DateTime? initialDateTime;
 
-  const AddTaskDialog({super.key, required this.subjects, this.task});
+  const AddTaskDialog({
+    super.key,
+    required this.subjects,
+    this.task,
+    this.initialDateTime,
+  });
 
   @override
   State<AddTaskDialog> createState() => _AddTaskDialogState();
@@ -32,6 +38,8 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
       );
       selectedDate = widget.task!.dateTime;
       selectedReminderMinutes = widget.task!.reminderMinutes ?? 10;
+    } else {
+      selectedDate = widget.initialDateTime;
     }
   }
 
@@ -42,11 +50,14 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
   }
 
   Future<void> pickDateTime() async {
+    final initialDate =
+        (selectedDate ?? widget.initialDateTime ?? DateTime.now()).toLocal();
+
     final date = await showDatePicker(
       context: context,
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
-      initialDate: DateTime.now(),
+      initialDate: initialDate,
     );
     if (!mounted || date == null) return;
 
@@ -103,263 +114,263 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-                // Subject Label
-                Text(
-                  'Subject',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colors.tertiaryText.withValues(alpha: 0.8),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<Subject>(
-                  initialValue: selectedSubject,
-                  isExpanded: true,
-                  borderRadius: BorderRadius.circular(16),
-                  style: TextStyle(
-                    color: colors.tertiaryText,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  icon: Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: colors.primary,
-                    size: 24,
-                  ),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: fieldFill,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        width: 1.5,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        width: 1.5,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: colors.primary, width: 2),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.menu_book_rounded,
-                      color: colors.primary.withValues(alpha: 0.7),
-                      size: 20,
-                    ),
-                  ),
-                  items: widget.subjects
-                      .map(
-                        (subject) => DropdownMenuItem(
-                          value: subject,
-                          child: Text(subject.name),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => setState(() => selectedSubject = value),
-                ),
-                const SizedBox(height: 18),
-                // Task Name Label
-                Text(
-                  'Task Name',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colors.tertiaryText.withValues(alpha: 0.8),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: taskController,
-                  style: TextStyle(
-                    color: colors.tertiaryText,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'Enter task name',
-                    hintStyle: TextStyle(
-                      color: colors.tertiaryText.withValues(alpha: 0.4),
-                    ),
-                    filled: true,
-                    fillColor: fieldFill,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        width: 1.5,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        width: 1.5,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: colors.primary, width: 2),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.edit_note_rounded,
-                      color: colors.primary.withValues(alpha: 0.7),
-                      size: 20,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                // Date & Time Label
-                Text(
-                  'Due Date & Time',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colors.tertiaryText.withValues(alpha: 0.8),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: fieldFill,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: selectedDate != null
-                          ? colors.primary
-                          : colors.primary.withValues(alpha: 0.15),
-                      width: selectedDate != null ? 2 : 1.5,
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: pickDateTime,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 14,
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.calendar_today_rounded,
-                              color: colors.primary.withValues(alpha: 0.7),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                selectedDate == null
-                                    ? 'Pick Date & Time'
-                                    : DateFormat(
-                                        'E, MMM d – HH:mm',
-                                      ).format(selectedDate!.toLocal()),
-                                style: TextStyle(
-                                  color: selectedDate == null
-                                      ? colors.tertiaryText.withValues(alpha: 0.4)
-                                      : colors.tertiaryText,
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            Icon(
-                              Icons.access_time_rounded,
-                              color: colors.primary.withValues(alpha: 0.5),
-                              size: 18,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                Text(
-                  'Reminder',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colors.tertiaryText.withValues(alpha: 0.8),
-                    letterSpacing: 0.3,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<int>(
-                  initialValue: selectedReminderMinutes,
-                  borderRadius: BorderRadius.circular(16),
-                  style: TextStyle(
-                    color: colors.tertiaryText,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: fieldFill,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 14,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        width: 1.5,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: colors.primary.withValues(alpha: 0.15),
-                        width: 1.5,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: colors.primary, width: 2),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.notifications_active_rounded,
-                      color: colors.primary.withValues(alpha: 0.7),
-                      size: 20,
-                    ),
-                  ),
-                  items: const [
-                    DropdownMenuItem(value: 5, child: Text('5 minutes before')),
-                    DropdownMenuItem(value: 10, child: Text('10 minutes before')),
-                  ],
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => selectedReminderMinutes = value);
-                  },
-                ),
-                const SizedBox(height: 28),
-                DialogActionButtons(
-                  confirmLabel: widget.task == null ? 'Add' : 'Update',
-                  onCancel: () => Navigator.of(context).pop(),
-                  onConfirm: submit,
-                ),
-              ],
+          // Subject Label
+          Text(
+            'Subject',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: colors.tertiaryText.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
             ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<Subject>(
+            initialValue: selectedSubject,
+            isExpanded: true,
+            borderRadius: BorderRadius.circular(16),
+            style: TextStyle(
+              color: colors.tertiaryText,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: colors.primary,
+              size: 24,
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: fieldFill,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: colors.primary, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.menu_book_rounded,
+                color: colors.primary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+            items: widget.subjects
+                .map(
+                  (subject) => DropdownMenuItem(
+                    value: subject,
+                    child: Text(subject.name),
+                  ),
+                )
+                .toList(),
+            onChanged: (value) => setState(() => selectedSubject = value),
+          ),
+          const SizedBox(height: 18),
+          // Task Name Label
+          Text(
+            'Task Name',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: colors.tertiaryText.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: taskController,
+            style: TextStyle(
+              color: colors.tertiaryText,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Enter task name',
+              hintStyle: TextStyle(
+                color: colors.tertiaryText.withValues(alpha: 0.4),
+              ),
+              filled: true,
+              fillColor: fieldFill,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: colors.primary, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.edit_note_rounded,
+                color: colors.primary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          // Date & Time Label
+          Text(
+            'Due Date & Time',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: colors.tertiaryText.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: fieldFill,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: selectedDate != null
+                    ? colors.primary
+                    : colors.primary.withValues(alpha: 0.15),
+                width: selectedDate != null ? 2 : 1.5,
+              ),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: pickDateTime,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today_rounded,
+                        color: colors.primary.withValues(alpha: 0.7),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          selectedDate == null
+                              ? 'Pick Date & Time'
+                              : DateFormat(
+                                  'E, MMM d – HH:mm',
+                                ).format(selectedDate!.toLocal()),
+                          style: TextStyle(
+                            color: selectedDate == null
+                                ? colors.tertiaryText.withValues(alpha: 0.4)
+                                : colors.tertiaryText,
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.access_time_rounded,
+                        color: colors.primary.withValues(alpha: 0.5),
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Reminder',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: colors.tertiaryText.withValues(alpha: 0.8),
+              letterSpacing: 0.3,
+            ),
+          ),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<int>(
+            initialValue: selectedReminderMinutes,
+            borderRadius: BorderRadius.circular(16),
+            style: TextStyle(
+              color: colors.tertiaryText,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: fieldFill,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide(color: colors.primary, width: 2),
+              ),
+              prefixIcon: Icon(
+                Icons.notifications_active_rounded,
+                color: colors.primary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+            items: const [
+              DropdownMenuItem(value: 5, child: Text('5 minutes before')),
+              DropdownMenuItem(value: 10, child: Text('10 minutes before')),
+            ],
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() => selectedReminderMinutes = value);
+            },
+          ),
+          const SizedBox(height: 28),
+          DialogActionButtons(
+            confirmLabel: widget.task == null ? 'Add' : 'Update',
+            onCancel: () => Navigator.of(context).pop(),
+            onConfirm: submit,
+          ),
+        ],
+      ),
     );
   }
 }
