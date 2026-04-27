@@ -303,41 +303,60 @@ lib/
 
 ---
 
-Follow these steps to set up and launch the application on your local machine:
+## 🚀 Setup Instructions
 
-### Step 1: Clone the Repository
+Follow these steps to set up and run the app locally.
 
-You'll need a command-line interface (CLI) to download the code.
+### 1) Clone the repository
 
-1. Open your **Terminal** (macOS/Linux) or **Command Prompt/PowerShell** (Windows).
-2. Navigate to the folder where you want to save the project (e.g., your desktop or a `Projects` folder) using the `cd` command.
-3. Execute the `git clone` command:
+```bash
+git clone https://github.com/NielPajemolin/OngdiSphere.git
+cd OngdiSphere
+```
 
-   ```bash
-   git clone https://github.com/NielPajemolin/OngdiSphere.git
-   ```
+### 2) Install Flutter dependencies
 
-4. Change into the newly created project directory:
+```bash
+flutter pub get
+```
 
-   ```bash
-   cd OngdiSphere
-   ```
+### 3) Configure Firebase (if using your own project)
 
-### Step 2: Install Dependencies and Launch
+This repo already includes Firebase config for the existing project. If you are running your own Firebase project, reconfigure using FlutterFire:
 
-1. **Install Dependencies:** Run the following command inside the project directory to download all necessary packages:
+```bash
+flutterfire configure
+```
 
-   ```bash
-   flutter pub get
-   ```
+Then verify generated files are present/updated:
+- `lib/firebase_options.dart`
+- `android/app/google-services.json`
+- `ios/Runner/GoogleService-Info.plist`
+- `macos/Runner/GoogleService-Info.plist`
 
-2. **Launch the App:** Connect a physical device or start an emulator, then run the application:
+### 4) Deploy Firestore rules and indexes
 
-   ```bash
-   flutter run
-   ```
+```bash
+firebase deploy --only firestore:rules,firestore:indexes
+```
 
-The application will launch on an available emulator or connected device.
+### 5) Run the app
+
+```bash
+flutter run
+```
+
+### 6) Optional verification
+
+```bash
+flutter analyze
+```
+
+## 🗄️ Backend and Database Export Guide
+
+For full backend setup, Firestore structure, and backup/restore commands, see:
+
+- [`BACKEND_SETUP.md`](BACKEND_SETUP.md)
 
 ---
 
